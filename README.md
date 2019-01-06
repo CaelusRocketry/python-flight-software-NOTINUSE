@@ -1,8 +1,18 @@
-# pfs
+# Flight Software 
 Flight software for Project Caelus, written in Python.
 
-## Development
 
+## Setup
+Use **Pipenv** as the virtual environment. 
+The *Pipfile* and *Pipfile.lock* are included in this repository.
+More information on using Pipenv is available at https://pipenv.readthedocs.io/en/latest/.
+
+This flight software is written in **Python 3.7**.
+
+
+## Usage
+Run `python3 main.py`. 
+Ensure that `python3` points to the virtual environment's Python executable.
 
 ## Structure
 - *main.py*
