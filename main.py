@@ -2,6 +2,7 @@ import yaml
 import os
 
 config = None  # Initialize config
+submodules = None
 
 def load_config():
     """
@@ -20,9 +21,14 @@ def load_config():
         except yaml.YAMLError as e:
             print(e)
 
+def load_submodules():
+    pass
+
 
 def start():
     load_config()
+    load_submodules()
+
     print(config)
 
 if __name__ == "__main__":
