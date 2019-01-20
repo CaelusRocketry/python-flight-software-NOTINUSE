@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a4275436809a7e2913b360dd75064953a79bf13d255d76de359692e861a213ef"
+            "sha256": "cf5c682854afeb6400ec21ba0706b415493cdb46b1c006797d6c9b79b8acef11"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -32,6 +32,13 @@
             ],
             "index": "pypi",
             "version": "==3.13"
+        },
+        "smbus2": {
+            "hashes": [
+                "sha256:4d5aae2f65d39056bb44e8906d5c503f8ee7e02fadb0a6433f1091a9ce528dde"
+            ],
+            "index": "pypi",
+            "version": "==0.2.3"
         }
     },
     "develop": {}

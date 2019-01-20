@@ -14,6 +14,11 @@ This flight software is written in **Python 3.7**.
 Run `python3 main.py`. 
 Ensure that `python3` points to the virtual environment's Python executable.
 
+
+## Libraries
+- `PyYAML`: Used to parse the configuration file, which is a *.yaml* file.
+
+
 ## Structure
 - *main.py*
     - The file that is run
