@@ -1,3 +1,4 @@
+from . import telemetry
 def calculate(x,targetX,y,targetY,P,D,lastdeltaX,lastdeltaY,minError):
     errorX = targetX-x
     errorY = targetY-y
