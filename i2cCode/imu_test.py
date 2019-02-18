@@ -6,6 +6,9 @@ from sense_hat import SenseHat
 import smbus
 from smbus import SMBus
 
+sense = SenseHat()
+sense.show_message("Hello world")
+"""
 # i2c channel 1 is connected to the GPIO pins
 channel = 1
 # Address of the device (IMU in this case, defaults to 0x60)
@@ -28,3 +31,4 @@ for i in range(0x10000):
 
     # Write out i2c command: address, reg_write_dac, msg[0], msg[1]
     bus.write_i2c_block_data(address, reg_write_dac, msg)
+"""
