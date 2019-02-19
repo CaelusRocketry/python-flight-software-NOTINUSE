@@ -12,8 +12,11 @@ import threading
 def startup():
     global sense
     sense = SenseHat()
-    sense.show_message("Hello world!")
-    time.sleep(5)
+    sense.show_message("Project Caelus")
+    for x in range(0,4)
+        count = 5-x
+        sense.show_letter(count + "")
+        time.sleep(5)
 
 def mainloop():
     while True:
@@ -22,24 +25,30 @@ def mainloop():
         print("Pressure (mBar):", '\t', sense.get_pressure())
         print("Temperature (C):", '\t', sense.get_temperature())
         print("Humidity (%):", '\t', sense.get_humidity())
-        time.sleep(5)
+        time.sleep(10)
 
 def orientation():
-    while True:
-        o = sense.get_orientation()
-        pitch = o["pitch"]
-        roll = o["roll"]
-        yaw = o["yaw"]
-        print("Pitch: {0:6.3f}".format(pitch), '\t', "Roll: {0:6.3f}".format(roll), '\t', "Yaw: {0:6.3f}".format(yaw))
+    try:
+        start = time.time()
+        while True:
+            o = sense.get_orientation()
+            pitch = o["pitch"]
+            roll = o["roll"]
+            yaw = o["yaw"]
+            print("Pitch: {0:6.3f}".format(pitch), '\t', "Roll: {0:6.3f}".format(roll), '\t', "Yaw: {0:6.3f}".format(yaw))
+            now = time.time()
+            if (start-now) >= 10:
+                time.sleep(3)
+                start = time.time()
+    except KeyboardInterrupt:
+        t2.join()
 
 if __name__ == "__main__":
     startup()
-    t1 = threading.Thread(target=mainloop, args=(), daemon=True)
+    t1 = threading.Thread(target=mainloop, args=())
     t1.start()
-    t2 = threading.Thread(target=orientation, args=(), daemon=True)
+    t2 = threading.Thread(target=orientation, args=())
     t2.start()
-    t1.join()
-    t2.join()
 
 """
 # i2c channel 1 is connected to the GPIO pins
