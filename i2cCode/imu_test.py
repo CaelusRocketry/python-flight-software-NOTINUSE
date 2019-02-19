@@ -3,11 +3,44 @@
 # 18 February, 2019
 
 from sense_hat import SenseHat
-import smbus
-from smbus import SMBus
+import time
+from datetime import datetime
+import threading
+# import smbus
+# from smbus import SMBus
 
-sense = SenseHat()
-sense.show_message("Hello world")
+def startup():
+    global sense
+    sense = SenseHat()
+    sense.show_message("Hello world!")
+    time.sleep(5)
+
+def mainloop():
+    while True:
+        epoch = datetime.utcnow()
+        print('{:-^20}'.format(" Report for " + epoch.strftime(" % Y-%m-%d % H: % M: % S") + " UTC. "))
+        print("Pressure (mBar):", '\t', sense.get_pressure())
+        print("Temperature (C):", '\t', sense.get_temperature())
+        print("Humidity (%):", '\t', sense.get_humidity())
+        time.sleep(5)
+
+def orientation():
+    while True:
+        o = sense.get_orientation()
+        pitch = o["pitch"]
+        roll = o["roll"]
+        yaw = o["yaw"]
+        print("Pitch: {0:6.3f}".format(pitch), '\t', "Roll: {0:6.3f}".format(roll), '\t', "Yaw: {0:6.3f}".format(yaw))
+
+if __name__ == "__main__":
+    startup()
+    t1 = threading.Thread(target=mainloop, args=(), daemon=True)
+    t1.start()
+    t2 = threading.Thread(target=orientation, args=(), daemon=True)
+    t2.start()
+    t1.join()
+    t2.join()
+
 """
 # i2c channel 1 is connected to the GPIO pins
 channel = 1
