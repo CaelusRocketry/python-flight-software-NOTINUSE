@@ -1,24 +1,29 @@
-import time, threading
+import time
 from . import external
 from . import telemetry
 
-critical = {"temp": [-10232, 1001, f1, Value(False))], "pressure":[232, 323, f2, Value(False)] ... }
-delay = 0.01
+delay = 10**-2
+
+def telemetrypush(time, data):
+    print(f"[{time}]: {data}")
 
 def start():
-    iter = 0
+    iters = 0
     start_time = time.time()
-    while True:
-        # temp = time.time()
-        # while time.time() - temp < delay: pass #replace line with time.sleep(delay) if you prefer
-        while time.time() - (start_time + delay*iter) < 0: pass
-        data = external.get_data()
-        for category, number in data:
-            if not critical[category][-1].value and (number < critial[category][0] or number > critial[category][1]):
+    #while True:
+    while iters < 10:
+        #while time.time() - (start_time + delay*iters) < 0: pass
+        time.sleep(delay)
+        data = []
+        for sensor in external.sensors:
+            reading = sensor.get_data()
+            data.append(reading)
+            if not sensor.corrected and reading >= sensor.crit:
                 # do some correction in seperate thread, flag correction as done
-                critical[category][-1].value = True
-                t = threading.Thread(f=critical[category][-2], args=(number, critical[category][-1]))
-                t.start()
+                sensor.correct(reading)
                 # when thread finishes thread will modify value
-        telemetry.push(time.time() - start_time, data)
-        iter += 1
+        #telemetry.push(time.time() - start_time, data)
+        telemetrypush(time.time() - start_time, data)
+        iters += 1
+
+#start()
