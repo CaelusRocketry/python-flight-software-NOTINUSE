@@ -17,3 +17,6 @@ config_custom.yml
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Vendor
+vendor/
