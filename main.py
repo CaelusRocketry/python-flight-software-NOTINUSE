@@ -13,9 +13,9 @@ def load_config():
     Else, use *config_default.yaml*. This should not be changed while testing.
     """
 
-    config_filename = "config_default.yaml"
-    if os.path.exists("config_custom.yaml"):
-        config_filename = "config_custom.yaml"
+    config_filename = "config_default.yml"
+    if os.path.exists("config_custom.yml"):
+        config_filename = "config_custom.yml"
     with open(config_filename, 'r') as stream:
         try:
             return yaml.load(stream)

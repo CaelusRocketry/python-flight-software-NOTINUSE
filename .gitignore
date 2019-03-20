@@ -1,2 +1,5 @@
 .idea/
 venv/
+.vscode/
+
+config_custom.yml
