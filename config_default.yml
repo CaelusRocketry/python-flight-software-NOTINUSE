@@ -1,11 +1,7 @@
 main:
     startup:
-         telemetry:
+        telemetry:
             - listen
             - send
 modules:
     telemetry:
-        hostIP: 127.0.0.1
-        port: 17098
-        key: value
-
