@@ -4,7 +4,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
+
+type ConfigStruct struct {
+	Main struct {
+		Startup struct {
+			Telemetry []string
+		}
+	}
+	Modules struct {
+		Telemetry struct {
+		}
+	}
+}
 
 func loadConfig() {
 	var configFile *os.File
@@ -21,6 +35,15 @@ func loadConfig() {
 
 	configBytes, _ := ioutil.ReadAll(configFile)
 	fmt.Println(string(configBytes))
+
+	config := ConfigStruct{}
+
+	err := yaml.Unmarshal(configBytes, &config)
+	if err != nil {
+		fmt.Println("Error occured with generating YAML map")
+	}
+
+	fmt.Println(config.Main.Startup.Telemetry)
 }
 
 func main() {
