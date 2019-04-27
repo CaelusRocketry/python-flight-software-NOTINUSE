@@ -51,5 +51,5 @@ func loadConfig() {
 
 func main() {
 	loadConfig()
-	sensors.Pitch()
+	sensors.X()
 }

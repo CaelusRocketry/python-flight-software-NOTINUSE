@@ -29,3 +29,6 @@
   go-tests = true
   unused-packages = true
   
+[[constraint]]
+  name = "periph.io/x/periph"
+  version = "3.5.0"

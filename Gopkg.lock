@@ -20,12 +20,52 @@
   revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
   version = "v2.2.2"
 
+[[projects]]
+  digest = "1:3c601acbceaab728eabb766984ac955c26c5d8232b262571971b12dbbbd66e65"
+  name = "periph.io/x/periph"
+  packages = [
+    ".",
+    "conn",
+    "conn/gpio",
+    "conn/gpio/gpioreg",
+    "conn/gpio/gpiostream",
+    "conn/i2c",
+    "conn/i2c/i2creg",
+    "conn/physic",
+    "conn/pin",
+    "conn/pin/pinreg",
+    "conn/spi",
+    "conn/spi/spireg",
+    "host",
+    "host/allwinner",
+    "host/am335x",
+    "host/bcm283x",
+    "host/beagle/black",
+    "host/beagle/bone",
+    "host/beagle/green",
+    "host/chip",
+    "host/cpu",
+    "host/distro",
+    "host/fs",
+    "host/odroidc1",
+    "host/pine64",
+    "host/pmem",
+    "host/rpi",
+    "host/sysfs",
+    "host/videocore",
+  ]
+  pruneopts = "UT"
+  revision = "df7c7a4f8f86972b1474695daf94a84c9165faed"
+  version = "v3.5.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "golang.org/x/exp/io/spi",
     "gopkg.in/yaml.v2",
+    "periph.io/x/periph/conn/i2c",
+    "periph.io/x/periph/host",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
