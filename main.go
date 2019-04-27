@@ -5,9 +5,12 @@ import (
 	"io/ioutil"
 	"os"
 
+	modules "flight-software/modules"
+
 	"gopkg.in/yaml.v2"
 )
 
+// ConfigStruct represents the structure of the YAML configuration file.
 type ConfigStruct struct {
 	Main struct {
 		Startup struct {
@@ -48,4 +51,5 @@ func loadConfig() {
 
 func main() {
 	loadConfig()
+	modules.Test()
 }
