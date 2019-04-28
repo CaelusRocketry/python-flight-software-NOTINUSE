@@ -27,8 +27,8 @@ func X() {
 	d := &i2c.Dev{Addr: 68, Bus: b}
 
 	// Send a command 0x10 and expect a 5 bytes reply.
-	write := []byte{}
-	read := make([]byte, 00)
+	write := []byte{0x00}
+	read := make([]byte, 5)
 	if err := d.Tx(write, read); err != nil {
 		log.Fatal(err)
 	}
