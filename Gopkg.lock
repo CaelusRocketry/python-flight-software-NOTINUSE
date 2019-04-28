@@ -65,6 +65,7 @@
     "golang.org/x/exp/io/spi",
     "gopkg.in/yaml.v2",
     "periph.io/x/periph/conn/i2c",
+    "periph.io/x/periph/conn/i2c/i2creg",
     "periph.io/x/periph/host",
   ]
   solver-name = "gps-cdcl"
