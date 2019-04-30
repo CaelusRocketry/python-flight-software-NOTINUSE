@@ -9,8 +9,8 @@ import (
 	"periph.io/x/periph/host"
 )
 
-// X = function
-func X() {
+// X returns the X-acceleration obtained by the IMU
+func X() []byte {
 	// Make sure periph is initialized.
 	if _, err := host.Init(); err != nil {
 		log.Fatal(err)
@@ -32,7 +32,8 @@ func X() {
 	if err := d.Tx(write, read); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%v\n", read)
+
+	return read
 }
 
 // Sensor represents a sensor.
