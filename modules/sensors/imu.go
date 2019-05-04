@@ -4,10 +4,7 @@ import (
 	"github.com/kpeu3i/bno055"
 )
 
-type Sensor bno055.Sensor
-type Vector bno055.Vector
-
-func InitIMU() *Sensor {
+func InitIMU() *bno055.Sensor {
 	sensor, err := bno055.NewSensor(0x28, 1)
 	if err != nil {
 		panic(err)
@@ -27,7 +24,7 @@ func InitIMU() *Sensor {
 }
 
 // Acc returns a vector with acceleration data
-func (s *Sensor) Acc() Vector {
+func (s *bno055.Sensor) Acc() *bno055.Vector {
 	v, err := s.Accelerometer()
 	if err != nil {
 		panic(err)
@@ -36,7 +33,7 @@ func (s *Sensor) Acc() Vector {
 }
 
 // AccX returns acceleration data for x
-func (s *Sensor) AccX() float64 {
+func (s *bno055.Sensor) AccX() float64 {
 	v := s.Accelerometer()
 	if err != nil {
 		panic(err)
@@ -45,7 +42,7 @@ func (s *Sensor) AccX() float64 {
 }
 
 // AccY returns acceleration data for x
-func (s *Sensor) AccY() float64 {
+func (s *bno055.Sensor) AccY() float64 {
 	v := s.Accelerometer()
 	if err != nil {
 		panic(err)
@@ -54,7 +51,7 @@ func (s *Sensor) AccY() float64 {
 }
 
 // AccZ returns acceleration data for x
-func (s *Sensor) AccZ() float64 {
+func (s *bno055.Sensor) AccZ() float64 {
 	v := s.Accelerometer()
 	if err != nil {
 		panic(err)
@@ -63,7 +60,7 @@ func (s *Sensor) AccZ() float64 {
 }
 
 // Gyro returns a vector with gyro data
-func (s *Sensor) Gyro() Vector {
+func (s *bno055.Sensor) Gyro() *bno055.Vector {
 	v, err := s.Gyroscope()
 	if err != nil {
 		panic(err)
@@ -72,7 +69,7 @@ func (s *Sensor) Gyro() Vector {
 }
 
 // GyroX returns pitch
-func (s *Sensor) GyroX() float64 {
+func (s *bno055.Sensor) GyroX() float64 {
 	v, err := s.Gyroscope()
 	if err != nil {
 		panic(err)
@@ -81,7 +78,7 @@ func (s *Sensor) GyroX() float64 {
 }
 
 // GyroY returns roll
-func (s *Sensor) GyroY() float64 {
+func (s *bno055.Sensor) GyroY() float64 {
 	v, err := s.Gyroscope()
 	if err != nil {
 		panic(err)
@@ -90,7 +87,7 @@ func (s *Sensor) GyroY() float64 {
 }
 
 // GyroZ returns yaw
-func (s *Sensor) GyroZ() float64 {
+func (s *bno055.Sensor) GyroZ() float64 {
 	v, err := s.Gyroscope()
 	if err != nil {
 		panic(err)
