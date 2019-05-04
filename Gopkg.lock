@@ -2,6 +2,25 @@
 
 
 [[projects]]
+  digest = "1:17d6cc1d12aef9af7c9fbcc3caa7398cbef2ed41924966ce54ddbfdb1e086747"
+  name = "github.com/kpeu3i/bno055"
+  packages = [
+    ".",
+    "i2c",
+  ]
+  pruneopts = "UT"
+  revision = "fccb4bd46b59bb592fd4bbbf91e2f4a526b508d4"
+  version = "v1.0.3"
+
+[[projects]]
+  branch = "master"
+  digest = "1:40bf4b24f9127737b22d3b86ff0bef3c3e9d87604d6260d9f9b9125e7995ff49"
+  name = "github.com/lunixbochs/struc.git"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a9e4041416c2cd121670f6c3be4b0d523ee49b8a"
+
+[[projects]]
   branch = "master"
   digest = "1:b11dcf25b8b12e145920e92c770753600f502a68ab197c7802376732bdd32186"
   name = "golang.org/x/exp"
@@ -62,6 +81,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/kpeu3i/bno055",
+    "github.com/lunixbochs/struc.git",
     "golang.org/x/exp/io/spi",
     "gopkg.in/yaml.v2",
     "periph.io/x/periph/conn/i2c",

@@ -1,14 +1,14 @@
 package main
 
 import (
-	telemetry "flight-software/modules/telemetry"
+	sensors "flight-software/modules/sensors"
+	_ "flight-software/modules/telemetry"
 	"fmt"
 	"time"
 )
 
 func main() {
-	telemetry.TestServer()
-	time.Sleep(3 * time.Second)
-	fmt.Println("Starting Client")
-	telemetry.TestClient()
+	imu = sensors.InitIMU()
+	time.Sleep(2 * time.Second)
+	fmt.Println(imu.AccX())
 }
