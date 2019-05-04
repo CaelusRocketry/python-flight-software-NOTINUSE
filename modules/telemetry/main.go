@@ -39,15 +39,9 @@ func TestServer() {
 func TestClient() {
 
 	// connect to this socket
-<<<<<<< Updated upstream
-	fmt.Println("Cool stuff")
-	conn, _ := net.Dial("tcp", "127.0.0.1:8081")
-	fmt.Println("Cooler stuff")
-	for i := 0; i < 10; i++ {
-=======
+
 	conn, _ := net.Dial("tcp", "192.168.1.74:8081")
 	for {
->>>>>>> Stashed changes
 		// read in input from stdin
 		fmt.Println("Client hello")
 		reader := bufio.NewReader(os.Stdin)
@@ -68,4 +62,4 @@ import socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(('192.168.1.84', 8081))
 
- */
+*/
