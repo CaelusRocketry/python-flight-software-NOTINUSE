@@ -4,6 +4,9 @@ import (
 	"github.com/kpeu3i/bno055"
 )
 
+type Sensor bno055.Sensor
+type Vector bno055.Vector
+
 func InitIMU() *Sensor {
 	sensor, err := bno055.NewSensor(0x28, 1)
 	if err != nil {
