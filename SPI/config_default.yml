@@ -1,0 +1,16 @@
+main:
+    startup:
+        telemetry:
+            - listen
+            - send
+modules:
+    telemetry:
+sensors:
+    sensor1:
+        - boy
+        - girl
+        - gotem
+    sensor2:
+        - hello
+        - boi
+        - yeet
