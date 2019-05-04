@@ -9,8 +9,8 @@ import (
 	"periph.io/x/periph/host"
 )
 
-// X returns the X-acceleration obtained by the IMU
-func X() []byte {
+// GetFromPort returns the value by the hex port command
+func GetFromPort(byte port) []byte {
 	// Make sure periph is initialized.
 	if _, err := host.Init(); err != nil {
 		log.Fatal(err)
@@ -27,7 +27,7 @@ func X() []byte {
 	d := &i2c.Dev{Addr: 68, Bus: b}
 
 	// Send a command 0x10 and expect a 5 bytes reply
-	write := []byte{0x00, 0x43}
+	write := []byte{0x00, port}
 	read := make([]byte, 8)
 	if err := d.Tx(write, read); err != nil {
 		log.Fatal(err)
@@ -36,13 +36,6 @@ func X() []byte {
 	return read
 }
 
-// Sensor represents a sensor.
-type Sensor struct {
-	critLow, low, high, critHigh float64
-	isCorrecting                 bool
-}
-
-// Pitch = nil.
-func Pitch() {
-	fmt.Println("PITCH")
+func main() {
+	fmt.Println("in Sensors package")
 }
