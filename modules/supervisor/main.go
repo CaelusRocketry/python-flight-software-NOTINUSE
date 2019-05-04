@@ -2,9 +2,21 @@ package supervisor
 
 import "time"
 
+type sensor struct {
+	correted boolean
+
+}
+
+var delay = 0.01
+
 func Start() {
+	iters := 0
+	start := time.Now()
+
 	for {
-		start := time.Now()
+		for time.Since(start) - iters*delay < 0 {
+			//wait until 200 nanoseconds have passed
+		}
 		var data = make(map[string]float64)
 		for sensorname, sensor := range sensors {
 			//var reading = sensor.getData()
@@ -19,8 +31,7 @@ func Start() {
 			}
 		}
 		telemetrypush(time.Now().Sub(start), data)
-		for time.Since(start) < 200 {
-			//wait until 200 nanoseconds have passed
-		}
+		iters++
+
 	}
 }
