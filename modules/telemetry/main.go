@@ -40,9 +40,12 @@ func TestServer() {
 func TestClient() {
 
 	// connect to this socket
+	fmt.Println("Cool stuff")
 	conn, _ := net.Dial("tcp", "127.0.0.1:8081")
-	for {
+	fmt.Println("Cooler stuff")
+	for i := 0; i < 10; i++ {
 		// read in input from stdin
+		fmt.Println("Client hello")
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Text to send: ")
 		text, _ := reader.ReadString('\n')

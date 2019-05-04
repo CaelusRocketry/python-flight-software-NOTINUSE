@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"bytes"
-	"github.com/lunixbochs/struc.git"
+	"github.com/lunixbochs/struc"
 	spi "golang.org/x/exp/io/spi"
 )
 

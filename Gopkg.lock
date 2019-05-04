@@ -15,7 +15,7 @@
 [[projects]]
   branch = "master"
   digest = "1:40bf4b24f9127737b22d3b86ff0bef3c3e9d87604d6260d9f9b9125e7995ff49"
-  name = "github.com/lunixbochs/struc.git"
+  name = "github.com/lunixbochs/struc"
   packages = ["."]
   pruneopts = "UT"
   revision = "a9e4041416c2cd121670f6c3be4b0d523ee49b8a"
@@ -82,7 +82,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/kpeu3i/bno055",
-    "github.com/lunixbochs/struc.git",
+    "github.com/lunixbochs/struc",
     "golang.org/x/exp/io/spi",
     "gopkg.in/yaml.v2",
     "periph.io/x/periph/conn/i2c",
