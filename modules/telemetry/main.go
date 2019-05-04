@@ -1,11 +1,10 @@
-package sensors
+package telemetry
 
 import (
 	"bufio"
 	"fmt"
 	"net"
 	"os"
-	"strings"
 )
 
 // only needed below for sample processing
@@ -15,7 +14,7 @@ func TestServer() {
 	fmt.Println("Launching server...")
 
 	// listen on all interfaces
-	ln, _ := net.Listen("tcp", "192.168.1.84:8081")
+	ln, _ := net.Listen("tcp", "192.168.1.74:8081")
 
 	fmt.Println("Listening")
 
@@ -31,19 +30,24 @@ func TestServer() {
 		// output message received
 		fmt.Print("Message Received:", string(message))
 		// sample process for string received
-		newmessage := strings.ToUpper(message)
+		message = Ingest(message)
 		// send new string back to client
-		conn.Write([]byte(newmessage + "\n"))
+		conn.Write([]byte(message + "\n"))
 	}
 }
 
 func TestClient() {
 
 	// connect to this socket
+<<<<<<< Updated upstream
 	fmt.Println("Cool stuff")
 	conn, _ := net.Dial("tcp", "127.0.0.1:8081")
 	fmt.Println("Cooler stuff")
 	for i := 0; i < 10; i++ {
+=======
+	conn, _ := net.Dial("tcp", "192.168.1.74:8081")
+	for {
+>>>>>>> Stashed changes
 		// read in input from stdin
 		fmt.Println("Client hello")
 		reader := bufio.NewReader(os.Stdin)
@@ -56,3 +60,12 @@ func TestClient() {
 		fmt.Print("Message from server: " + message)
 	}
 }
+
+/*
+corresponding code in Python:
+
+import socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect(('192.168.1.84', 8081))
+
+ */
