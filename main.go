@@ -1,12 +1,14 @@
 package main
 
 import (
+	telemetry "flight-software/modules/telemetry"
 	"fmt"
-
-	sensors "flight-software/modules/sensors"
+	"time"
 )
 
 func main() {
-	x := sensors.X()
-	fmt.Println(x)
+	telemetry.TestServer()
+	time.Sleep(3 * time.Second)
+	fmt.Println("Starting Client")
+	telemetry.TestClient()
 }
