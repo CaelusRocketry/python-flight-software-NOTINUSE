@@ -52,73 +52,57 @@ func InitIMU() *IMU {
 }
 
 // Acc returns a vector with acceleration data
-func (s *IMU) Acc() {
-	v, err := s.Accelerometer()
+func (s *IMU) Acc() []float64 {
+	accVector, err := s.dev.GetVector(VectorLinearAcc)
 	if err != nil {
 		panic(err)
 	}
-	return v
+
+	return accVector
 }
 
 // AccX returns acceleration data for x
 func (s *IMU) AccX() float64 {
-	v := s.Accelerometer()
-	if err != nil {
-		panic(err)
-	}
-	return v.X
+	accVector := s.Acc()
+	return accVector[0]
 }
 
-// AccY returns acceleration data for x
+// AccY returns acceleration data for y
 func (s *IMU) AccY() float64 {
-	v := s.Accelerometer()
-	if err != nil {
-		panic(err)
-	}
-	return v.Y
+	accVector := s.Acc()
+	return accVector[1]
 }
 
-// AccZ returns acceleration data for x
+// AccZ returns acceleration data for z
 func (s *IMU) AccZ() float64 {
-	v := s.Accelerometer()
-	if err != nil {
-		panic(err)
-	}
-	return v.Z
+	accVector := s.Acc()
+	return accVector[2]
 }
 
 // Gyro returns a vector with gyro data
-func (s *IMU) Gyro() {
-	v, err := s.Gyroscope()
+func (s *IMU) Gyro() []float64 {
+	gyroVector, err := s.dev.GetVector(VectorEuler)
 	if err != nil {
 		panic(err)
 	}
-	return v
+
+	return gyroVector
 }
 
 // GyroX returns pitch
 func (s *IMU) GyroX() float64 {
-	v, err := s.Gyroscope()
-	if err != nil {
-		panic(err)
-	}
-	return v.X
+	gyroVector := s.Gyro()
+	return gyroVector[0]
 }
 
 // GyroY returns roll
 func (s *IMU) GyroY() float64 {
-	v, err := s.Gyroscope()
-	if err != nil {
-		panic(err)
-	}
-	return v.Y
+	gyroVector := s.Gyro()
+	return gyroVector[1]
 }
 
 // GyroZ returns yaw
 func (s *IMU) GyroZ() float64 {
-	v, err := s.Gyroscope()
-	if err != nil {
-		panic(err)
-	}
-	return v.Z
+	gyroVector := s.Gyro()
+	return gyroVector[2]
 }
