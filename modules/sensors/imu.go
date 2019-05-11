@@ -1,96 +1,108 @@
 package sensors
 
 import (
-	"github.com/kpeu3i/bno055"
+	"flight-software/modules/sensors/bno055"
+
+	"periph.io/x/periph/conn/i2c/i2creg"
+	"periph.io/x/periph/host"
 )
 
-func InitIMU() *bno055.Sensor {
-	sensor, err := bno055.NewSensor(0x28, 1)
+// Output vector types
+const (
+	VectorAccelerometer = 0x08
+	VectorMagnetometer  = 0x0E
+	VectorGyroscope     = 0x14
+	VectorEuler         = 0x1A
+	VectorLinearAcc     = 0x28
+	VectorGravity       = 0x2E
+)
+
+type IMU struct {
+	dev *bno055.Dev
+}
+
+func InitIMU() *IMU {
+	if _, err := host.Init(); err != nil {
+		panic(err)
+	}
+
+	b, err := i2creg.Open("") // Change to actual i2c port on RPi
 	if err != nil {
 		panic(err)
 	}
 
-	err = sensor.UseExternalCrystal(true)
+	defer b.Close()
+
+	dev, err := bno055.NewI2C(b, 0x28)
+
+	// Reset the device
+	err = dev.Reset()
+	if err != nil {
+		panic(err)
+	}
+	// Tell the device to use the external crystal oscillator
+	err = dev.SetUseExternalCrystal(true)
 	if err != nil {
 		panic(err)
 	}
 
-	axisConfig, err := sensor.AxisConfig()
-	if err != nil {
-		panic(err)
-	}
+	sensor := &IMU{dev: dev}
 
 	return sensor
 }
 
 // Acc returns a vector with acceleration data
-func (s *bno055.Sensor) Acc() *bno055.Vector {
-	v, err := s.Accelerometer()
+func (s *IMU) Acc() []float64 {
+	accVector, err := s.dev.GetVector(VectorLinearAcc)
 	if err != nil {
 		panic(err)
 	}
-	return v
+
+	return accVector
 }
 
 // AccX returns acceleration data for x
-func (s *bno055.Sensor) AccX() float64 {
-	v := s.Accelerometer()
-	if err != nil {
-		panic(err)
-	}
-	return v.X
+func (s *IMU) AccX() float64 {
+	accVector := s.Acc()
+	return accVector[0]
 }
 
-// AccY returns acceleration data for x
-func (s *bno055.Sensor) AccY() float64 {
-	v := s.Accelerometer()
-	if err != nil {
-		panic(err)
-	}
-	return v.Y
+// AccY returns acceleration data for y
+func (s *IMU) AccY() float64 {
+	accVector := s.Acc()
+	return accVector[1]
 }
 
-// AccZ returns acceleration data for x
-func (s *bno055.Sensor) AccZ() float64 {
-	v := s.Accelerometer()
-	if err != nil {
-		panic(err)
-	}
-	return v.Z
+// AccZ returns acceleration data for z
+func (s *IMU) AccZ() float64 {
+	accVector := s.Acc()
+	return accVector[2]
 }
 
 // Gyro returns a vector with gyro data
-func (s *bno055.Sensor) Gyro() *bno055.Vector {
-	v, err := s.Gyroscope()
+func (s *IMU) Gyro() []float64 {
+	gyroVector, err := s.dev.GetVector(VectorEuler)
 	if err != nil {
 		panic(err)
 	}
-	return v
+
+	return gyroVector
 }
 
 // GyroX returns pitch
-func (s *bno055.Sensor) GyroX() float64 {
-	v, err := s.Gyroscope()
-	if err != nil {
-		panic(err)
-	}
-	return v.X
+func (s *IMU) GyroX() float64 {
+	gyroVector := s.Gyro()
+	return gyroVector[0]
 }
 
 // GyroY returns roll
-func (s *bno055.Sensor) GyroY() float64 {
-	v, err := s.Gyroscope()
-	if err != nil {
-		panic(err)
-	}
-	return v.Y
+func (s *IMU) GyroY() float64 {
+	gyroVector := s.Gyro()
+	return gyroVector[1]
 }
 
 // GyroZ returns yaw
-func (s *bno055.Sensor) GyroZ() float64 {
-	v, err := s.Gyroscope()
-	if err != nil {
-		panic(err)
-	}
-	return v.Z
+func (s *IMU) GyroZ() float64 {
+	gyroVector := s.Gyro()
+	return gyroVector[2]
 }
