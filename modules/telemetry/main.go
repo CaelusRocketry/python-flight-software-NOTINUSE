@@ -55,6 +55,14 @@ func TestClient() {
 	}
 }
 
+func Listen() {
+	fmt.Println("Hey testing Listen")
+}
+
+func Send() {
+	fmt.Println("hey testing send")
+}
+
 /*
 corresponding code in Python:
 

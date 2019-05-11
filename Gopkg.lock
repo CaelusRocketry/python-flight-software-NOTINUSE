@@ -14,14 +14,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:40bf4b24f9127737b22d3b86ff0bef3c3e9d87604d6260d9f9b9125e7995ff49"
-  name = "github.com/lunixbochs/struc"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "a9e4041416c2cd121670f6c3be4b0d523ee49b8a"
-
-[[projects]]
-  branch = "master"
   digest = "1:b11dcf25b8b12e145920e92c770753600f502a68ab197c7802376732bdd32186"
   name = "golang.org/x/exp"
   packages = [
@@ -29,7 +21,7 @@
     "io/spi/driver",
   ]
   pruneopts = "UT"
-  revision = "f0864edee7f32333874efabd1557a9987f096ae1"
+  revision = "efd6b22b2522a48712e1fd0b3c1ab34d243f5245"
 
 [[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
@@ -82,7 +74,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/kpeu3i/bno055",
-    "github.com/lunixbochs/struc",
     "golang.org/x/exp/io/spi",
     "gopkg.in/yaml.v2",
     "periph.io/x/periph/conn/i2c",
