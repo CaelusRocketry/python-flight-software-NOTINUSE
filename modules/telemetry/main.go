@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
 // only needed below for sample processing
@@ -39,7 +40,6 @@ func TestServer() {
 func TestClient() {
 
 	// connect to this socket
-
 	conn, _ := net.Dial("tcp", "192.168.1.74:8081")
 	for {
 		// read in input from stdin
@@ -63,3 +63,25 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(('192.168.1.84', 8081))
 
 */
+func TestClient() {
+
+	fmt.Println("Launching server...")
+
+	// listen on all interfaces
+	ln, _ := net.Listen("tcp", ":8081")
+
+	// accept connection on port
+	conn, _ := ln.Accept()
+
+	// run loop forever (or until ctrl-c)
+	for {
+		// will listen for message to process ending in newline (\n)
+		message, _ := bufio.NewReader(conn).ReadString('\n')
+		// output message received
+		fmt.Print("Message Received:", string(message))
+		// sample process for string received
+		newmessage := strings.ToUpper(message)
+		// send new string back to client
+		conn.Write([]byte(newmessage + "\n"))
+	}
+}
