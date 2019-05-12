@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	//"os"
 )
 
 var PASSWORD = "abc"
@@ -40,6 +41,20 @@ func Ingest(pack Packet) string {
 	}
 	return "Unknown Command!"
 }
+
+func Outqueue(header string, command string) {
+        toOutqueue := Packet{
+                Header:    header,
+                Message:   command,
+                Timestamp: time.Now(),
+        }
+        b, _ := json.Marshal(toOutqueue)
+        s := string(b)
+	fmt.Println(s)
+	OUTQUEUE=append(OUTQUEUE, command)
+}
+
+
 
 type Packet struct {
 	Message   string

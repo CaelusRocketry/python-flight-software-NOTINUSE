@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"net"
 	"time"
+	"os"
+	"strings"
 )
 
 // only needed below for sample processing
-var IP = "192.168.1.180:8081"
+var IP = "192.168.1.26:8081"
 var QUEUE []string
-
+var OUTQUEUE []string
 func TestServer() {
 
 	fmt.Println("Launching server...")
@@ -25,16 +27,20 @@ func TestServer() {
 	conn, _ := ln.Accept()
 
 	fmt.Println("Connected")
-
-	//	go sendStuff(true, conn)
 	go listenStuff(conn)
-	for {
-
+	go sendStuff(true, conn)
+	reader := bufio.NewReader(os.Stdin)
+	a := ""
+	for a!="ABORT" {
+		a, _ = reader.ReadString('\n')
+		a = strings.Replace(a, "\n", "", -1)
+		Outqueue("GS", a)
 	}
 }
 
 func listenStuff(conn net.Conn) {
 	fmt.Println("Doing stuff")
+
 	for {
 		message, _ := bufio.NewReader(conn).ReadString('\n')
 		fmt.Println("Message Received:", string(message))
@@ -48,20 +54,34 @@ func listenStuff(conn net.Conn) {
 	}
 }
 
+
 func sendStuff(isServer bool, conn net.Conn) {
-	for {
-		if len(QUEUE) > 0 {
-			msg := QUEUE[0]
-			if isServer {
-				conn.Write([]byte(msg + "\n"))
-			} else {
-				fmt.Fprintf(conn, msg+"\n")
+	if isServer {
+		for {
+			if len(OUTQUEUE) > 0 {
+				msg := OUTQUEUE[0]
+				if isServer {
+					conn.Write([]byte(msg + "\n"))
+				} else {
+					fmt.Fprintf(conn, msg+"\n")
+				}
+				OUTQUEUE = OUTQUEUE[1:]
 			}
-			QUEUE = QUEUE[1:]
 		}
+	}else{
+		for {
+                        if len(QUEUE) > 0 {
+                                msg := QUEUE[0]
+                                if isServer {
+                                        conn.Write([]byte(msg + "\n"))
+                                } else {
+                                        fmt.Fprintf(conn, msg+"\n")
+                                }
+                                QUEUE = QUEUE[1:]
+                        }
+                }
 	}
 }
-
 func TestClient() {
 
 	// connect to this socket
@@ -69,16 +89,9 @@ func TestClient() {
 	fmt.Println("Client connected")
 
 	go sendStuff(false, conn)
-	//	go listenStuff(conn)
+	go listenStuff(conn)
 
-	for i := 0; i < 5; i++ {
-		Enqueue("abc", "Temp")
-		time.Sleep(500 * time.Millisecond)
-		Enqueue("abc", "Pressure")
-		time.Sleep(500 * time.Millisecond)
-	}
-	Enqueue("abc", "ABORT")
-	for i := 0; i < 5; i++ {
+	for {
 		Enqueue("abc", "Temp")
 		time.Sleep(500 * time.Millisecond)
 		Enqueue("abc", "Pressure")
