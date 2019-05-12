@@ -17,7 +17,7 @@ import (
 
 func main() {
 	if os.Args[1] == "server" {
-		 telemetry.TestServer()
+		telemetry.TestServer()
 	} else {
 		telemetry.TestClient()
 	}

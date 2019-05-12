@@ -2,13 +2,15 @@ package telemetry
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net"
-	"os"
+	"time"
 )
 
 // only needed below for sample processing
-var IP = "192.168.1.170:8081"
+var IP = "192.168.1.180:8081"
+var QUEUE []string
 
 func TestServer() {
 
@@ -24,16 +26,39 @@ func TestServer() {
 
 	fmt.Println("Connected")
 
-	// run loop forever (or until ctrl-c)
+	//	go sendStuff(true, conn)
+	go listenStuff(conn)
 	for {
-		// will listen for message to process ending in newline (\n)
+
+	}
+}
+
+func listenStuff(conn net.Conn) {
+	fmt.Println("Doing stuff")
+	for {
 		message, _ := bufio.NewReader(conn).ReadString('\n')
-		// output message received
-		fmt.Print("Message Received:", string(message))
-		// sample process for string received
-		message = Ingest(message)
-		// send new string back to client
-		conn.Write([]byte(message + "\n"))
+		fmt.Println("Message Received:", string(message))
+		var pack Packet
+		json.Unmarshal([]byte(message), &pack)
+		message = Ingest(pack)
+		if message == "ABORT" {
+			fmt.Println("ABORTING NOW, GLHF")
+			return
+		}
+	}
+}
+
+func sendStuff(isServer bool, conn net.Conn) {
+	for {
+		if len(QUEUE) > 0 {
+			msg := QUEUE[0]
+			if isServer {
+				conn.Write([]byte(msg + "\n"))
+			} else {
+				fmt.Fprintf(conn, msg+"\n")
+			}
+			QUEUE = QUEUE[1:]
+		}
 	}
 }
 
@@ -41,18 +66,35 @@ func TestClient() {
 
 	// connect to this socket
 	conn, _ := net.Dial("tcp", IP)
-	for {
-		// read in input from stdin
-		fmt.Println("Client hello")
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Text to send: ")
-		text, _ := reader.ReadString('\n')
-		// send to socket
-		fmt.Fprintf(conn, text+"\n")
-		// listen for reply
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Print("Message from server: " + message)
+	fmt.Println("Client connected")
+
+	go sendStuff(false, conn)
+	//	go listenStuff(conn)
+
+	for i := 0; i < 5; i++ {
+		Enqueue("abc", "Temp")
+		time.Sleep(500 * time.Millisecond)
+		Enqueue("abc", "Pressure")
+		time.Sleep(500 * time.Millisecond)
 	}
+	Enqueue("abc", "ABORT")
+	for i := 0; i < 5; i++ {
+		Enqueue("abc", "Temp")
+		time.Sleep(500 * time.Millisecond)
+		Enqueue("abc", "Pressure")
+		time.Sleep(500 * time.Millisecond)
+	}
+	//	for {
+	//		reader := bufio.NewReader(os.Stdin)
+	//		fmt.Print("Text to send: ")
+	//		text, _ := reader.ReadString('\n')
+	// send to socket
+
+	//		fmt.Fprintf(conn, text+"\n")
+	// listen for reply
+	//		message, _ := bufio.NewReader(conn).ReadString('\n')
+	//		fmt.Print("Message from server: " + message)
+	//	}
 }
 
 func Listen() {

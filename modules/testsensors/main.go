@@ -1,9 +1,13 @@
 package testsensors
 
+import (
+	"math/rand"
+)
+
 func Temp() int {
-  return 2
+	return rand.Int()
 }
 
 func Pressure() int {
-  return 3
+	return rand.Int()
 }
