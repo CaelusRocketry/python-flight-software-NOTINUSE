@@ -33,7 +33,7 @@ func InitIMU() *IMU {
 		panic(err)
 	}
 
-	defer b.Close()
+	// defer b.Close()
 
 	dev, err := bno055.NewI2C(b, 0x28)
 
