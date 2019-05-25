@@ -4,7 +4,6 @@ import "time"
 
 type sensor struct {
 	correted boolean
-
 }
 
 var delay = 0.01
@@ -14,7 +13,7 @@ func Start() {
 	start := time.Now()
 
 	for {
-		for time.Since(start) - iters*delay < 0 {
+		for time.Since(start)-iters*delay < 0 {
 			//wait until 200 nanoseconds have passed
 		}
 		var data = make(map[string]float64)

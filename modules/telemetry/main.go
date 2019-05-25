@@ -5,33 +5,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"time"
 	"os"
 	"strings"
+	"time"
 )
 
-// only needed below for sample processing
-var IP = "192.168.1.26:8081"
-var QUEUE []string
-var OUTQUEUE []string
-func TestServer() {
+var IP = "192.168.1.26:8081" // Needed for local development
+var QUEUE []string           // Client -> server queue
+var OUTQUEUE []string        // Server -> client queue
 
+func TestServer() {
 	fmt.Println("Launching server...")
 
-	// listen on all interfaces
-	ln, _ := net.Listen("tcp", IP)
+	ln, _ := net.Listen("tcp", IP) // Listen on all interfaces
 
 	fmt.Println("Listening")
 
-	// accept connection on port
-	conn, _ := ln.Accept()
+	conn, _ := ln.Accept() // Accept connection on port
 
 	fmt.Println("Connected")
 	go listenStuff(conn)
 	go sendStuff(true, conn)
 	reader := bufio.NewReader(os.Stdin)
 	a := ""
-	for a!="ABORT" {
+	for a != "ABORT" {
 		a, _ = reader.ReadString('\n')
 		a = strings.Replace(a, "\n", "", -1)
 		Outqueue("GS", a)
@@ -54,7 +51,6 @@ func listenStuff(conn net.Conn) {
 	}
 }
 
-
 func sendStuff(isServer bool, conn net.Conn) {
 	if isServer {
 		for {
@@ -68,23 +64,22 @@ func sendStuff(isServer bool, conn net.Conn) {
 				OUTQUEUE = OUTQUEUE[1:]
 			}
 		}
-	}else{
+	} else {
 		for {
-                        if len(QUEUE) > 0 {
-                                msg := QUEUE[0]
-                                if isServer {
-                                        conn.Write([]byte(msg + "\n"))
-                                } else {
-                                        fmt.Fprintf(conn, msg+"\n")
-                                }
-                                QUEUE = QUEUE[1:]
-                        }
-                }
+			if len(QUEUE) > 0 {
+				msg := QUEUE[0]
+				if isServer {
+					conn.Write([]byte(msg + "\n"))
+				} else {
+					fmt.Fprintf(conn, msg+"\n")
+				}
+				QUEUE = QUEUE[1:]
+			}
+		}
 	}
 }
 func TestClient() {
-
-	// connect to this socket
+	// Connect to this socket
 	conn, _ := net.Dial("tcp", IP)
 	fmt.Println("Client connected")
 
@@ -111,11 +106,11 @@ func TestClient() {
 }
 
 func Listen() {
-	fmt.Println("Hey testing Listen")
+	fmt.Println("Testing Listen()")
 }
 
 func Send() {
-	fmt.Println("hey testing send")
+	fmt.Println("Testing Send()")
 }
 
 /*
