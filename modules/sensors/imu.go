@@ -15,6 +15,16 @@ const (
 	VectorEuler         = 0x1A
 	VectorLinearAcc     = 0x28
 	VectorGravity       = 0x2E
+
+	highCritGyro    = 15
+	highWarningGryo = 10
+	lowWarningGyro  = 5
+	lowCritGyro     = 0
+
+	highCritAcc    = 15
+	highWarningAcc = 10
+	lowWarningAcc  = 5
+	lowCritAcc     = 0
 )
 
 type IMU struct {
@@ -105,4 +115,32 @@ func (s *IMU) GyroY() float64 {
 func (s *IMU) GyroZ() float64 {
 	gyroVector := s.Gyro()
 	return gyroVector[2]
+}
+
+// CheckGyro checks both gyro
+func (s *IMU) CheckGyro() (bool, integer64, []float64) {
+	gyroVector := s.Gyro()
+	for index, elem := range gyroVector {
+		if highCritGyro > elem || lowCritGyro < elem {
+			return false, CRITICAL, gyroVector
+		}
+		if highWarningGyro > elem || lowWarningGyro < elem {
+			return false, WARNING, gyroVector
+		}
+	}
+	return true, SAFE, gyroVector
+}
+
+// CheckAcc checks both acc
+func (s *IMU) CheckAcc() (bool, integer64, []float64) {
+	accVector := s.Acc()
+	for index, elem := range accVector {
+		if highCritAcc > elem || lowCritAcc < elem {
+			return false, CRITICAL, accVector
+		}
+		if highWarningAcc > elem || lowWarningAcc < elem {
+			return false, WARNING, accVector
+		}
+	}
+	return true, SAFE, accVector
 }
