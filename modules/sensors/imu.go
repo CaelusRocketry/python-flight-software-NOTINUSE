@@ -136,6 +136,20 @@ func (s *IMU) CheckGyro() (bool, integer64, []float64) {
 	return true, SAFE, gyroVector
 }
 
+// CheckGyro checks both gyro
+func (s *IMU) CheckGyro() (bool, integer64, []float64) {
+	gyroVector := s.Gyro()
+	for index, elem := range gyroVector {
+		if highCritGyro > math.abs(elem) {
+			return false, CRITICAL, gyroVector
+		}
+		if highWarningGyro > math.abs(elem) {
+			return false, WARNING, gyroVector
+		}
+	}
+	return true, SAFE, gyroVector
+}
+
 // CheckAcc checks both acc
 func (s *IMU) CheckAcc() (bool, integer64, []float64) {
 	accVector := s.Acc()
@@ -149,3 +163,14 @@ func (s *IMU) CheckAcc() (bool, integer64, []float64) {
 	}
 	return true, SAFE, accVector
 }
+
+func (s *IMU) CalcTilt() () {
+	var tilt := make([][]float64, 11)
+	for i := range tilt {
+		tilt[index] = s.Gyro()
+		time.Sleep(100 * time.Miliseconds)
+	}
+	var avg := make([][]float64, 11)
+
+}
+
