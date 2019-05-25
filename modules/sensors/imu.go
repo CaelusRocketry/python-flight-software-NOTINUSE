@@ -84,7 +84,7 @@ func (s *IMU) AccZ() float64 {
 // Gyro returns a vector with gyro data
 func (s *IMU) Gyro() []float64 {
 	gyroVector, err := s.dev.GetVector(VectorGyroscope)
-	for i, val := range gyroVector {
+	for i, _ := range gyroVector {
 		gyroVector[i] = gyroVector[i] * 180 / math.Pi
 	}
 	if err != nil {
