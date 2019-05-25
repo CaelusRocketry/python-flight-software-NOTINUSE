@@ -3,6 +3,8 @@ package sensors
 import (
 	"flight-software/modules/sensors/bno055"
 
+	"math"
+
 	"periph.io/x/periph/conn/i2c/i2creg"
 	"periph.io/x/periph/host"
 )
@@ -81,7 +83,10 @@ func (s *IMU) AccZ() float64 {
 
 // Gyro returns a vector with gyro data
 func (s *IMU) Gyro() []float64 {
-	gyroVector, err := s.dev.GetVector(VectorEuler)
+	gyroVector, err := s.dev.GetVector(VectorGyroscope)
+	for i, val := range gyroVector {
+		gyroVector[i] = gyroVector[i] * 180 / math.Pi
+	}
 	if err != nil {
 		panic(err)
 	}

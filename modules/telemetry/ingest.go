@@ -11,7 +11,7 @@ import (
 )
 
 var PASSWORD = "abc"
-var ERROR = "NOO ERROR GO AWAY!"
+ERROR = "NOO ERROR GO AWAY!"
 
 func parse(pack Packet) string {
 	header := pack.Header
@@ -43,18 +43,16 @@ func Ingest(pack Packet) string {
 }
 
 func Outqueue(header string, command string) {
-        toOutqueue := Packet{
-                Header:    header,
-                Message:   command,
-                Timestamp: time.Now(),
-        }
-        b, _ := json.Marshal(toOutqueue)
-        s := string(b)
+	toOutqueue := Packet{
+		Header:    header,
+		Message:   command,
+		Timestamp: time.Now(),
+	}
+	b, _ := json.Marshal(toOutqueue)
+	s := string(b)
 	fmt.Println(s)
-	OUTQUEUE=append(OUTQUEUE, command)
+	OUTQUEUE = append(OUTQUEUE, command)
 }
-
-
 
 type Packet struct {
 	Message   string
