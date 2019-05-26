@@ -23,6 +23,8 @@ const (
 	lowWarningGyro  = 5
 	lowCritGyro     = 0
 
+	tiltCritial		= 3
+
 	highCritAcc    = 15
 	highWarningAcc = 10
 	lowWarningAcc  = 5
@@ -164,13 +166,31 @@ func (s *IMU) CheckAcc() (bool, integer64, []float64) {
 	return true, SAFE, accVector
 }
 
-func (s *IMU) CalcTilt() () {
+func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 	var tilt := make([][]float64, 11)
 	for i := range tilt {
 		tilt[index] = s.Gyro()
 		time.Sleep(100 * time.Miliseconds)
 	}
-	var avg := make([][]float64, 11)
+
+	var dtilt := make([]float64, 10)
+	for i := range 9 {
+		for j := range dtilt {
+			dtilt[j] = dtilt[j] + (tilt[i+1][j] - tilt[i][j])
+		}
+	}
+
+	for index, val :=  dtilt {
+		dtilt[index] = val / 10.0
+	}
+
+	for index, val := dtilt {
+		if(val > tiltCritial) {
+			return false, CRITICAL, dtilt
+		}
+	}
+
+	return true, SAFE, dtilt
 
 }
 
