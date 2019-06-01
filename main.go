@@ -2,11 +2,12 @@ package main
 
 import (
 	// sensors "flight-software/modules/sensors"
-	telemetry "flight-software/modules/telemetry"
+	// telemetry "flight-software/modules/telemetry"
 	// "fmt"
 	// "time"
 	// "bytes"
-	"os"
+	supervisor "flight-software/modules/supervisor"
+	// "os"
 )
 
 func main() {
@@ -15,9 +16,10 @@ func main() {
 	//		time.Sleep(500 * time.Millisecond)
 	//		fmt.Println(imu.Gyro())
 	//	}
-	if os.Args[1] == "server" {
-		telemetry.TestServer()
-	} else {
-		telemetry.TestClient()
-	}
+	//	if os.Args[1] == "server" {
+	//		telemetry.TestServer()
+	//	} else {
+	//		telemetry.TestClient()
+	//	}
+	supervisor.Start()
 }
