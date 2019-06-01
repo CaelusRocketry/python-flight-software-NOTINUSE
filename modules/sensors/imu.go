@@ -9,6 +9,7 @@ import (
 
 	"periph.io/x/periph/conn/i2c/i2creg"
 	"periph.io/x/periph/host"
+	"strconv"
 )
 
 // Output vector types
@@ -202,3 +203,32 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 
 }
 
+func (imu IMU) name() int {
+	return "IMU"
+}
+
+func (imu IMU) check() bool {
+	return imu.correct
+}
+
+func (imu IMU) correct() {
+	if !imu.correct && !imu.correcting{
+		imu.startCorrecting()
+	}
+}
+
+func (imu IMU) Safe() int {
+	return IMUConsts[0].SAFE
+}
+
+func (imu IMU) Warning() int {
+	return IMUConsts[0].WARNING
+}
+
+func (imu IMU) Critical() int {
+	return IMUConsts[0].CRITICAL
+}
+
+func (imu IMU) getData() string{
+	return strconv.ParseFloat(imu.Gyro(), 32)
+}
