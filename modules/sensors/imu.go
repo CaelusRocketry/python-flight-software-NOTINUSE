@@ -26,7 +26,8 @@ const (
 	lowWarningGyro  = 5
 	lowCritGyro     = 0
 
-	tiltCritial		= 3
+	tiltCritical	= 3
+	rollCritical 	= 90
 
 	highCritAcc    = 15
 	highWarningAcc = 10
@@ -184,7 +185,7 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 
 	var dtilt := make([]float64, 10)
 	for i := range 9 {
-		for j := range dtilt {
+		for j := range 2 {
 			dtilt[j] = dtilt[j] + (tilt[i+1][j] - tilt[i][j])
 		}
 	}
@@ -194,7 +195,7 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 	}
 
 	for index, val := dtilt {
-		if(val > tiltCritial) {
+		if(val > tiltCritical) {
 			return false, CRITICAL, dtilt
 		}
 	}
@@ -203,6 +204,7 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 
 }
 
+<<<<<<< HEAD
 func (imu IMU) name() int {
 	return "IMU"
 }
@@ -232,3 +234,33 @@ func (imu IMU) Critical() int {
 func (imu IMU) getData() string{
 	return strconv.ParseFloat(imu.Gyro(), 32)
 }
+=======
+func (s *IMU) CalcRoll() (bool, integer64, []float64) {
+	var roll := make([]float64, 11)
+	for i := range roll {
+		roll[index] = s.GyroY()
+		time.Sleep(100 * time.Miliseconds)
+	}
+
+	var droll := make([]float64, 10)
+	for i := range 9 {
+		for j := range droll {
+			droll[j] = roll[j+1] - roll[j])
+		}
+	}
+
+	for index, val :=  droll {
+		droll[index] = val / 10.0
+	}
+
+	for index, val := droll {
+		if(val > rollCritical) {
+			return false, CRITICAL, droll
+		}
+	}
+
+	return true, SAFE, dtilt
+
+}
+
+>>>>>>> 86ce4c11ab80cb063b589da023fefed269e2f748
