@@ -3,6 +3,8 @@ package sensors
 import (
 	"flight-software/modules/sensors/bno055"
 
+	"periph.io/x/periph/conn/i2c"
+
 	"math"
 
 	"periph.io/x/periph/conn/i2c/i2creg"
@@ -21,6 +23,7 @@ const (
 
 type IMU struct {
 	dev *bno055.Dev
+	bus *i2c.BusCloser
 }
 
 func InitIMU() *IMU {
@@ -48,9 +51,14 @@ func InitIMU() *IMU {
 		panic(err)
 	}
 
-	sensor := &IMU{dev: dev}
+	sensor := &IMU{dev: dev, bus: &b}
 
 	return sensor
+}
+
+func (s *IMU) CloseIMU() {
+	b := *s.bus
+	b.Close()
 }
 
 // Acc returns a vector with acceleration data
