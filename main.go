@@ -1,18 +1,25 @@
 package main
 
 import (
-	sensors "flight-software/modules/sensors"
+	// sensors "flight-software/modules/sensors"
 	// telemetry "flight-software/modules/telemetry"
-	"fmt"
-	"time"
+	// "fmt"
+	// "time"
 	// "bytes"
+	supervisor "flight-software/modules/supervisor"
 	// "os"
 )
 
 func main() {
-	imu := sensors.InitIMU()
-	for {
-		time.Sleep(500 * time.Millisecond)
-		fmt.Println(imu.Gyro())
-	}
+	//	imu := sensors.InitIMU()
+	//	for {
+	//		time.Sleep(500 * time.Millisecond)
+	//		fmt.Println(imu.Gyro())
+	//	}
+	//	if os.Args[1] == "server" {
+	//		telemetry.TestServer()
+	//	} else {
+	//		telemetry.TestClient()
+	//	}
+	supervisor.Start()
 }

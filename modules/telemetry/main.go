@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-var IP = "192.168.1.26:8081" // Needed for local development
-var QUEUE []string           // Client -> server queue
-var OUTQUEUE []string        // Server -> client queue
+var IP = "127.0.0.1:8081" // Needed for local development
+var QUEUE []string        // Client -> server queue
+var OUTQUEUE []string     // Server -> client queue
 
 func TestServer() {
 	fmt.Println("Launching server...")

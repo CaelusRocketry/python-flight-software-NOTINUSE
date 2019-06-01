@@ -11,7 +11,7 @@ import (
 )
 
 var PASSWORD = "abc"
-ERROR = "NOO ERROR GO AWAY!"
+var ERROR = "NOO ERROR GO AWAY!"
 
 func parse(pack Packet) string {
 	header := pack.Header

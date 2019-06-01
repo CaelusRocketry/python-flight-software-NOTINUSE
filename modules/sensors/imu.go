@@ -3,10 +3,13 @@ package sensors
 import (
 	"flight-software/modules/sensors/bno055"
 
+	"periph.io/x/periph/conn/i2c"
+
 	"math"
 
 	"periph.io/x/periph/conn/i2c/i2creg"
 	"periph.io/x/periph/host"
+	"strconv"
 )
 
 // Output vector types
@@ -23,7 +26,8 @@ const (
 	lowWarningGyro  = 5
 	lowCritGyro     = 0
 
-	tiltCritial		= 3
+	tiltCritical	= 3
+	rollCritical 	= 90
 
 	highCritAcc    = 15
 	highWarningAcc = 10
@@ -33,6 +37,7 @@ const (
 
 type IMU struct {
 	dev *bno055.Dev
+	bus *i2c.BusCloser
 }
 
 func InitIMU() *IMU {
@@ -60,9 +65,14 @@ func InitIMU() *IMU {
 		panic(err)
 	}
 
-	sensor := &IMU{dev: dev}
+	sensor := &IMU{dev: dev, bus: &b}
 
 	return sensor
+}
+
+func (s *IMU) CloseIMU() {
+	b := *s.bus
+	b.Close()
 }
 
 // Acc returns a vector with acceleration data
@@ -175,7 +185,7 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 
 	var dtilt := make([]float64, 10)
 	for i := range 9 {
-		for j := range dtilt {
+		for j := range 2 {
 			dtilt[j] = dtilt[j] + (tilt[i+1][j] - tilt[i][j])
 		}
 	}
@@ -185,7 +195,7 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 	}
 
 	for index, val := dtilt {
-		if(val > tiltCritial) {
+		if(val > tiltCritical) {
 			return false, CRITICAL, dtilt
 		}
 	}
@@ -194,3 +204,43 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 
 }
 
+func (imu IMU) Name() int {
+	return "IMU"
+}
+
+func (imu IMU) Check() bool {
+	return imu.correct
+}
+
+func (imu IMU) Correct() {
+	if !imu.correct && !imu.correcting{
+//		imu.startCorrecting()
+	}
+}
+
+func (imu IMU) GetLevel() string {
+	val := imu.GetData()
+	if(val < imu.Warning()){
+		return "Safe"
+	}
+	if(val < imu.Critical()){
+		return "Warning"
+	}
+	return "Critical"
+}
+
+func (imu IMU) Safe() int {
+	return IMUConsts[0].SAFE
+}
+
+func (imu IMU) Warning() int {
+	return IMUConsts[0].WARNING
+}
+
+func (imu IMU) Critical() int {
+	return IMUConsts[0].CRITICAL
+}
+
+func (imu IMU) GetData() float64{
+	return imu.Gyro()
+}
