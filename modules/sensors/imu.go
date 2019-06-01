@@ -19,6 +19,18 @@ const (
 	VectorEuler         = 0x1A
 	VectorLinearAcc     = 0x28
 	VectorGravity       = 0x2E
+
+	highCritGyro    = 15
+	highWarningGryo = 10
+	lowWarningGyro  = 5
+	lowCritGyro     = 0
+
+	tiltCritial		= 3
+
+	highCritAcc    = 15
+	highWarningAcc = 10
+	lowWarningAcc  = 5
+	lowCritAcc     = 0
 )
 
 type IMU struct {
@@ -119,3 +131,74 @@ func (s *IMU) GyroZ() float64 {
 	gyroVector := s.Gyro()
 	return gyroVector[2]
 }
+
+// CheckGyro checks both gyro
+func (s *IMU) CheckGyro() (bool, integer64, []float64) {
+	gyroVector := s.Gyro()
+	for index, elem := range gyroVector {
+		if highCritGyro > elem || lowCritGyro < elem {
+			return false, CRITICAL, gyroVector
+		}
+		if highWarningGyro > elem || lowWarningGyro < elem {
+			return false, WARNING, gyroVector
+		}
+	}
+	return true, SAFE, gyroVector
+}
+
+// CheckGyro checks both gyro
+func (s *IMU) CheckGyro() (bool, integer64, []float64) {
+	gyroVector := s.Gyro()
+	for index, elem := range gyroVector {
+		if highCritGyro > math.abs(elem) {
+			return false, CRITICAL, gyroVector
+		}
+		if highWarningGyro > math.abs(elem) {
+			return false, WARNING, gyroVector
+		}
+	}
+	return true, SAFE, gyroVector
+}
+
+// CheckAcc checks both acc
+func (s *IMU) CheckAcc() (bool, integer64, []float64) {
+	accVector := s.Acc()
+	for index, elem := range accVector {
+		if highCritAcc > elem || lowCritAcc < elem {
+			return false, CRITICAL, accVector
+		}
+		if highWarningAcc > elem || lowWarningAcc < elem {
+			return false, WARNING, accVector
+		}
+	}
+	return true, SAFE, accVector
+}
+
+func (s *IMU) CalcTilt() (bool, integer64, []float64) {
+	var tilt := make([][]float64, 11)
+	for i := range tilt {
+		tilt[index] = s.Gyro()
+		time.Sleep(100 * time.Miliseconds)
+	}
+
+	var dtilt := make([]float64, 10)
+	for i := range 9 {
+		for j := range dtilt {
+			dtilt[j] = dtilt[j] + (tilt[i+1][j] - tilt[i][j])
+		}
+	}
+
+	for index, val :=  dtilt {
+		dtilt[index] = val / 10.0
+	}
+
+	for index, val := dtilt {
+		if(val > tiltCritial) {
+			return false, CRITICAL, dtilt
+		}
+	}
+
+	return true, SAFE, dtilt
+
+}
+
