@@ -189,12 +189,18 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 	return true, SAFE, dtilt
 
 }
+<<<<<<< HEAD
 */
 func (imu IMU) Name() string {
+=======
+
+func (imu IMU) Name() int {
+>>>>>>> 9e7d2ecaea97dc61ae526b4a0987f652effd2fa6
 	return "IMU"
 }
 
 func (imu IMU) Check() bool {
+<<<<<<< HEAD
 	return true
 }
 
@@ -208,6 +214,14 @@ func (imu IMU) GetLevel() string {
 	val := imu.GetData()
 	if(val < imu.Warning()){
 		return "Safe"
+=======
+	return imu.correct
+}
+
+func (imu IMU) Correct() {
+	if !imu.correct && !imu.correcting{
+//		imu.startCorrecting()
+>>>>>>> 9e7d2ecaea97dc61ae526b4a0987f652effd2fa6
 	}
 	if(val < imu.Critical()){
 		return "Warning"
@@ -215,7 +229,22 @@ func (imu IMU) GetLevel() string {
 	return "Critical"
 }
 
+<<<<<<< HEAD
 func (imu IMU) Safe() float64 {
+=======
+func (imu IMU) GetLevel() string {
+	val := imu.GetData()
+	if(val < imu.Warning()){
+		return "Safe"
+	}
+	if(val < imu.Critical()){
+		return "Warning"
+	}
+	return "Critical"
+}
+
+func (imu IMU) Safe() int {
+>>>>>>> 9e7d2ecaea97dc61ae526b4a0987f652effd2fa6
 	return IMUConsts[0].SAFE
 }
 
@@ -228,5 +257,9 @@ func (imu IMU) Critical() float64 {
 }
 
 func (imu IMU) GetData() float64{
+<<<<<<< HEAD
 	return imu.GyroX()
+=======
+	return imu.Gyro()
+>>>>>>> 9e7d2ecaea97dc61ae526b4a0987f652effd2fa6
 }
