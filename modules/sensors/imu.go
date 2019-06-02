@@ -9,7 +9,6 @@ import (
 
 	"periph.io/x/periph/conn/i2c/i2creg"
 	"periph.io/x/periph/host"
-	"strconv"
 )
 
 // Output vector types
@@ -135,7 +134,8 @@ func (s *IMU) GyroZ() float64 {
 }
 
 // CheckGyro checks both gyro
-func (s *IMU) CheckGyro() (bool, integer64, []float64) {
+/*
+func (s *IMU) CheckGyro() (bool, int64, []float64) {
 	gyroVector := s.Gyro()
 	for index, elem := range gyroVector {
 		if highCritGyro > elem || lowCritGyro < elem {
@@ -148,22 +148,8 @@ func (s *IMU) CheckGyro() (bool, integer64, []float64) {
 	return true, SAFE, gyroVector
 }
 
-// CheckGyro checks both gyro
-func (s *IMU) CheckGyro() (bool, integer64, []float64) {
-	gyroVector := s.Gyro()
-	for index, elem := range gyroVector {
-		if highCritGyro > math.abs(elem) {
-			return false, CRITICAL, gyroVector
-		}
-		if highWarningGyro > math.abs(elem) {
-			return false, WARNING, gyroVector
-		}
-	}
-	return true, SAFE, gyroVector
-}
-
 // CheckAcc checks both acc
-func (s *IMU) CheckAcc() (bool, integer64, []float64) {
+func (s *IMU) CheckAcc() (bool, int64, []float64) {
 	accVector := s.Acc()
 	for index, elem := range accVector {
 		if highCritAcc > elem || lowCritAcc < elem {
@@ -177,13 +163,13 @@ func (s *IMU) CheckAcc() (bool, integer64, []float64) {
 }
 
 func (s *IMU) CalcTilt() (bool, integer64, []float64) {
-	var tilt := make([][]float64, 11)
+	var tilt = make([][]float64, 11)
 	for i := range tilt {
 		tilt[index] = s.Gyro()
 		time.Sleep(100 * time.Miliseconds)
 	}
 
-	var dtilt := make([]float64, 10)
+	var dtilt = make([]float64, 10)
 	for i := range 9 {
 		for j := range 2 {
 			dtilt[j] = dtilt[j] + (tilt[i+1][j] - tilt[i][j])
@@ -203,19 +189,19 @@ func (s *IMU) CalcTilt() (bool, integer64, []float64) {
 	return true, SAFE, dtilt
 
 }
-
-func (imu IMU) Name() int {
+*/
+func (imu IMU) Name() string {
 	return "IMU"
 }
 
 func (imu IMU) Check() bool {
-	return imu.correct
+	return true
 }
 
 func (imu IMU) Correct() {
-	if !imu.correct && !imu.correcting{
+//	if !imu.correct && !imu.correcting{
 //		imu.startCorrecting()
-	}
+//	}
 }
 
 func (imu IMU) GetLevel() string {
@@ -229,18 +215,18 @@ func (imu IMU) GetLevel() string {
 	return "Critical"
 }
 
-func (imu IMU) Safe() int {
+func (imu IMU) Safe() float64 {
 	return IMUConsts[0].SAFE
 }
 
-func (imu IMU) Warning() int {
+func (imu IMU) Warning() float64 {
 	return IMUConsts[0].WARNING
 }
 
-func (imu IMU) Critical() int {
+func (imu IMU) Critical() float64 {
 	return IMUConsts[0].CRITICAL
 }
 
 func (imu IMU) GetData() float64{
-	return imu.Gyro()
+	return imu.GyroX()
 }

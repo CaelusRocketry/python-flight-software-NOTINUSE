@@ -3,9 +3,9 @@ package sensors
 type Sensor interface {
 	Name() string
 	Correct() bool
-	Safe() float32
-	Warning() float32
-	Critical() float32
+	Safe() float64
+	Warning() float64
+	Critical() float64
 	GetData() float64
 	GetLevel() string
 }

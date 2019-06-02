@@ -2,15 +2,18 @@ package supervisor
 
 import "time"
 import sensor "flight-software/modules/sensors"
+import "strconv"
+import "fmt"
 
 var delay = 0.1
 
 func Start() {
 	iters := 0
 	start := time.Now()
+	setConstants()
 
 	sensors := []sensor.Sensor
-	sensors = append(sensors, sensors.InitIMU())
+	sensors = append(sensors, sensor.InitIMU())
 
 	for i := 0; i < 50; i++{
 		for time.Since(start)-iters*delay < 0 {
@@ -31,7 +34,7 @@ func Start() {
 //			}
 		}
 //		telemetrypush(time.Now().Sub(start), data)
-		fmt.Println(data)
+		fmt.Println(strconv.ParseFloat(data))
 		iters++
 	}
 }
