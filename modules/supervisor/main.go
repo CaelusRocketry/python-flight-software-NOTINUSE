@@ -2,6 +2,7 @@ package supervisor
 
 import "time"
 import sensor "flight-software/modules/sensors"
+import blackbox "flight-software/modules/blackbox"
 <<<<<<< HEAD
 import "strconv"
 import "fmt"
@@ -41,6 +42,7 @@ func Start() {
 //			}
 		}
 //		telemetrypush(time.Now().Sub(start), data)
+		blackbox.save(time.Now(), data)
 <<<<<<< HEAD
 		fmt.Println(strconv.ParseFloat(data))
 =======
