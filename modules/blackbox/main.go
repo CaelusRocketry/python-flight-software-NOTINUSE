@@ -3,6 +3,8 @@ package blackbox
 import (
     "encoding/csv"
     "os"
+    "time"
+    "strconv"
 )
 
 func addcol(fname string, column []string) error {
@@ -42,9 +44,15 @@ func addcol(fname string, column []string) error {
     return f.Close()
 }
 
-func save(in []string) {
-    col := in
-    if err := addcol("blackbox.csv", col); err != nil {
+func save(t time.Time, d []float64) {
+    text := []string{}
+    text = append(text, t.String())
+    for i := range d {
+        n := values[i]
+        line := strconv.FormatFloat(input_num, 'f', 6, 64)
+        text = append(text, line)
+    }
+    if err := addcol("blackbox.csv", text); err != nil {
         panic(err)
     }
 }
