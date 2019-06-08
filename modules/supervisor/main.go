@@ -42,7 +42,7 @@ func Start() {
 //			}
 		}
 //		telemetrypush(time.Now().Sub(start), data)
-		blackbox.save(time.Now(), data)
+//		blackbox.save(time.Now(), data)
 <<<<<<< HEAD
 		fmt.Println(strconv.ParseFloat(data))
 =======
