@@ -1,0 +1,7 @@
+[package]
+name = "flight-software"
+version = "0.1.0"
+authors = ["Project Caelus"]
+edition = "2018"
+
+[dependencies]
