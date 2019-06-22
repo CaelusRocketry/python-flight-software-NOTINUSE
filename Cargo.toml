@@ -5,3 +5,6 @@ authors = ["Project Caelus"]
 edition = "2018"
 
 [dependencies]
+byteorder = "*"
+i2cdev = "*"
+i2csensors = "*"
