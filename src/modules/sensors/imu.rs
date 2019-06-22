@@ -6,6 +6,19 @@ use std::time::Duration;
 use i2cdev::core::*;
 use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
 
+use super::{Sensor, SensorTrait};
+
+pub struct IMU {
+    sensor: Sensor,
+}
+
+impl SensorTrait for IMU {
+    fn name(&self) -> &String {
+        &self.sensor.name
+    }
+}
+
+
 const IMU_ADDR: u16 = 0x28;
 
 // real code should probably not use unwrap()
