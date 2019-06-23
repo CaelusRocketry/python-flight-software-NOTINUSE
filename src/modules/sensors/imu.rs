@@ -550,16 +550,10 @@ use std::time::Duration;
 use i2cdev::core::*;
 use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
 
-use super::{Sensor, SensorTrait};
+use super::{SensorTrait};
 
-pub struct IMU {
-    sensor: Sensor,
-}
+struct IMU {
 
-impl SensorTrait for IMU {
-    fn name(&self) -> &String {
-        &self.sensor.name
-    }
 }
 
 const IMU_ADDR: u16 = 0x28;
@@ -577,4 +571,8 @@ pub fn imu_test() {
         println!("{:+2.2}\t{:+2.2}\t{:+2.2}", accel.x, accel.y, accel.z);
         thread::sleep(some_millis);
     }
+}
+
+pub fn init() -> IMU {
+
 }

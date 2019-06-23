@@ -1,12 +1,20 @@
 pub mod imu;
 
-pub struct Sensor {
-    pub name: String,
-    pub safe_val: i16,
-    pub warn_val: i16,
-    pub crit_val: i16,
+// Statuses that sensors have, based on the sensor readings
+pub enum SensorStatus {
+    Safe,
+    Warn,
+    Crit,
+}
+
+pub enum SensorType {
+    Temperature,
+    Pressure,
+    IMU
 }
 
 pub trait SensorTrait {
     fn name(&self) -> &String;
+    fn status(&self) -> SensorStatus;
+    fn type(&self) -> SensorType;
 }
