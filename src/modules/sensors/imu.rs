@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 mod bno055 {
     // Adapted from https://github.com/lolzballs/bno055
 
@@ -543,8 +544,7 @@ mod bno055 {
 
 }
 
-use bno055;
-
+use std::thread;
 use std::time::Duration;
 
 use i2cdev::core::*;
@@ -571,10 +571,9 @@ pub fn imu_test() {
 
     let some_millis = Duration::from_millis(500);
 
-    println!("{:?}", bno.get_revision().unwrap());
     bno.set_mode(bno055::BNO055OperationMode::Ndof).unwrap();
     loop {
-        ().unwrap();
+        let accel = bno.get_linear_acceleration().unwrap();
         println!("{:+2.2}\t{:+2.2}\t{:+2.2}", accel.x, accel.y, accel.z);
         thread::sleep(some_millis);
     }

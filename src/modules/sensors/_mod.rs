@@ -1,5 +1,4 @@
 pub mod imu;
-pub mod bno055;
 
 pub struct Sensor {
     pub name: String,
