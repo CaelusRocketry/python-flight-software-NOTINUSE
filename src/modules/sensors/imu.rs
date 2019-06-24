@@ -545,21 +545,25 @@ mod bno055 {
 
 use i2cdev::linux::LinuxI2CDevice;
 
-use super::{SensorTrait};
+use crate::modules::sensors::SensorTrait;
+use crate::modules::sensors::SensorStatus;
+use crate::modules::sensors::SensorType;
 
 pub struct IMU {
-    device: bno055::BNO055<LinuxI2CDevice>
+    location: String,
+    device: bno055::BNO055<LinuxI2CDevice>,
 }
 
 // TODO: Don't use unwrap
 impl IMU {
-    pub fn init(imu_addr: u16) -> Self {
+    pub fn init(location: &str, imu_addr: u16) -> Self {
         let i2c_dev = LinuxI2CDevice::new("/dev/i2c-1", imu_addr).unwrap();
         let mut imu_dev = bno055::BNO055::new(i2c_dev).unwrap();
         // Sets the standard operation mode (ready)
         imu_dev.set_mode(bno055::BNO055OperationMode::Ndof).unwrap();
 
         IMU {
+            location: String::from(location),
             device: imu_dev
         }
     }
@@ -574,5 +578,24 @@ impl IMU {
     pub fn gyro(&mut self) -> (f32, f32, f32) {
         let result: i2csensors::Vec3 = self.device.get_euler().unwrap();
         (result.x, result.y, result.z)
+    }
+}
+
+impl SensorTrait for IMU {
+    fn name(&self) -> String {
+        let result = String::new() + "IMU" + "." + &self.location();
+        result.to_ascii_uppercase()
+    }
+
+    fn location(&self) -> &String {
+        &self.location
+    }
+
+    fn status(&self) -> SensorStatus {
+        SensorStatus::Safe
+    }
+    
+    fn s_type(&self) -> SensorType {
+        SensorType::IMU
     }
 }

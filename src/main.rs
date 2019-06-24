@@ -4,12 +4,15 @@ mod modules;
 use std::thread;
 use std::time::Duration;
 
+use crate::modules::sensors::SensorTrait;
+
 fn main() {
     println!("Hello from main()");
-    let mut imu = modules::sensors::imu::IMU::init(0x28);
+    let mut imu = modules::sensors::imu::IMU::init("NOSECONE", 0x28);
 
     let delay = Duration::from_millis(100);
 
+    println!("\n{}:", imu.name());
     loop {
         let acc = imu.acc();
         let gyro = imu.gyro();
