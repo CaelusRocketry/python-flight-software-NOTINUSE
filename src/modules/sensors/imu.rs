@@ -556,7 +556,7 @@ pub struct IMU {
 
 // TODO: Don't use unwrap
 impl IMU {
-    pub fn init(location: &str, imu_addr: u16) -> Self {
+    pub fn new(location: &str, imu_addr: u16) -> Self {
         let i2c_dev = LinuxI2CDevice::new("/dev/i2c-1", imu_addr).unwrap();
         let mut imu_dev = bno055::BNO055::new(i2c_dev).unwrap();
         // Sets the standard operation mode (ready)
@@ -594,7 +594,7 @@ impl SensorTrait for IMU {
     fn status(&self) -> SensorStatus {
         SensorStatus::Safe
     }
-    
+
     fn s_type(&self) -> SensorType {
         SensorType::IMU
     }
