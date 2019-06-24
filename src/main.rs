@@ -22,6 +22,6 @@ fn main() {
 }
 */
 
-fn main(){
+fn main() {
     modules::telemetry::telem::runsocket();
 }
