@@ -545,8 +545,8 @@ mod bno055 {
 
 use i2cdev::linux::LinuxI2CDevice;
 
-use crate::modules::sensors::SensorTrait;
 use crate::modules::sensors::SensorStatus;
+use crate::modules::sensors::SensorTrait;
 use crate::modules::sensors::SensorType;
 
 pub struct IMU {
@@ -564,7 +564,7 @@ impl IMU {
 
         IMU {
             location: String::from(location),
-            device: imu_dev
+            device: imu_dev,
         }
     }
 
@@ -579,7 +579,40 @@ impl IMU {
         let result: i2csensors::Vec3 = self.device.get_euler().unwrap();
         (result.x, result.y, result.z)
     }
+
+    // Check methods
+    pub fn check_tilt(&mut self) -> SensorStatus {
+        // FIXME: Ensure that the correct direction (x, y, z) is used for tilt
+        let tilts = self.gyro();
+
+        let relative_tilt = |angle: f32| -> f32 {
+            let relative_tilt;
+            if angle > std::f32::consts::PI {
+                relative_tilt = std::f32::consts::PI * 2.0 - angle;
+            } else {
+                relative_tilt = angle;
+            }
+
+            relative_tilt.abs()
+        };
+
+        if relative_tilt(tilts.1) - TILT_STATUS_CRIT > 0.0
+            || relative_tilt(tilts.2) - TILT_STATUS_CRIT > 0.0
+        {
+            SensorStatus::Crit
+        } else if relative_tilt(tilts.1) - TILT_STATUS_WARN > 0.0
+            || relative_tilt(tilts.2) - TILT_STATUS_WARN > 0.0
+        {
+            SensorStatus::Warn
+        } else {
+            SensorStatus::Safe
+        }
+    }
 }
+
+// Unit: radians
+const TILT_STATUS_WARN: f32 = 0.261799;
+const TILT_STATUS_CRIT: f32 = 0.436332;
 
 impl SensorTrait for IMU {
     fn name(&self) -> String {
@@ -591,8 +624,9 @@ impl SensorTrait for IMU {
         &self.location
     }
 
-    fn status(&self) -> SensorStatus {
-        SensorStatus::Safe
+    fn status(&mut self) -> SensorStatus {
+        // First perform checks that use instantaneous values
+        self.check_tilt()
     }
 
     fn s_type(&self) -> SensorType {
