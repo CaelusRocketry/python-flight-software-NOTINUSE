@@ -557,6 +557,9 @@ const TILT_STATUS_CRIT: f32 = 0.436332313;
 // Unit: rad/sec
 const ROLL_RATE_STATUS_WARN: f32 = 0.872664626;
 const ROLL_RATE_STATUS_CRIT: f32 = 1.5707963268;
+// Unit: rad/sec
+const TILT_RATE_STATUS_WARN: f32 = 0.02617993878;
+const TILT_RATE_STATUS_CRIT: f32 = 0.05235987756;
 
 
 pub struct IMU {
@@ -591,7 +594,7 @@ impl IMU {
     }
 
     // Check methods
-    pub fn check_tilt(&mut self) -> SensorStatus {
+    fn check_tilt(&mut self) -> SensorStatus {
         // FIXME: Ensure that the correct direction (x, y, z) is used for tilt
         let tilts = self.gyro();
 
@@ -618,8 +621,34 @@ impl IMU {
             SensorStatus::Safe
         }
     }
-    // Unit: rad/sec
-    pub fn check_roll_rate(&mut self) -> SensorStatus {
+    fn angle_rate(&mut self, angle: i8) -> f32 {
+        if angle > 2 {
+            panic!("Invalid angle specifier");
+        }
+
+        let capture_delay = 50;
+
+        let angle_start = self.gyro().angle;
+        thread::sleep_ms(capture_delay);
+        let angle_end = self.gyro().angle;
+
+        let angle_diff = (angle_end - angle_start).abs();
+        let angle_rate = angle_diff * ((1000 / capture_delay) as f32);
+
+        angle_rate
+    }
+    fn check_roll_rate(&mut self) -> SensorStatus {
+        let roll_rate = self.angle_rate(0);
+
+        if roll_rate > ROLL_RATE_STATUS_CRIT {
+            SensorStatus::Crit
+        } else if roll_rate > ROLL_RATE_STATUS_WARN {
+            SensorStatus::Warn
+        } else {
+            SensorStatus::Safe
+        }
+    }
+    fn check_tilt_rate(&mut self) -> SensorStatus {
         let capture_delay = 50;
 
         let roll_start = self.gyro().0;
@@ -653,6 +682,7 @@ impl SensorTrait for IMU {
         // First perform checks that use instantaneous values
         println!("Tilt:\t\t{:?}", self.check_tilt());
         println!("Roll rate:\t{:?}", self.check_roll_rate());
+        println!("Tilt rate:\t{:?}", self.check_tilt_rate());
 
         SensorStatus::Safe
     }
