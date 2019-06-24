@@ -544,35 +544,31 @@ mod bno055 {
 
 }
 
-use std::thread;
-use std::time::Duration;
+use std::marker::PhantomData;
 
 use i2cdev::core::*;
 use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
 
 use super::{SensorTrait};
 
-struct IMU {
-
+pub struct IMU {
+    device: bno055::BNO055<LinuxI2CDevice>
 }
 
-const IMU_ADDR: u16 = 0x28;
+impl IMU {
+    pub fn init(imu_addr: u16) -> Self {
+        // TODO: Don't use unwrap
+        let mut i2c_dev = LinuxI2CDevice::new("/dev/i2c-1", imu_addr).unwrap();
+        let mut imu_dev = bno055::BNO055::new(i2c_dev).unwrap();
+        // Sets the standard operation mode (ready)
+        imu_dev.set_mode(bno055::BNO055OperationMode::Ndof).unwrap();
 
-// real code should probably not use unwrap()
-pub fn imu_test() {
-    let mut dev = LinuxI2CDevice::new("/dev/i2c-1", IMU_ADDR).unwrap();
-    let mut bno = bno055::BNO055::new(dev).unwrap();
-
-    let some_millis = Duration::from_millis(500);
-
-    bno.set_mode(bno055::BNO055OperationMode::Ndof).unwrap();
-    loop {
-        let accel = bno.get_linear_acceleration().unwrap();
-        println!("{:+2.2}\t{:+2.2}\t{:+2.2}", accel.x, accel.y, accel.z);
-        thread::sleep(some_millis);
+        IMU {
+            device: imu_dev
+        }
     }
-}
 
-pub fn init() -> IMU {
-
+    pub fn acc(&self) -> (i32, i32, i32) {
+        (10, 10, 10)
+    }
 }

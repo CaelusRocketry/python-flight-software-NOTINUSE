@@ -16,5 +16,6 @@ pub enum SensorType {
 pub trait SensorTrait {
     fn name(&self) -> &String;
     fn status(&self) -> SensorStatus;
-    fn type(&self) -> SensorType;
+    // Can't use `type` because it's a reserved keyword
+    fn s_type(&self) -> SensorType;
 }
