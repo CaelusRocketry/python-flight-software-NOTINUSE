@@ -14,7 +14,7 @@ fn main() {
     println!("{}:", imu.name());
 
     loop {
-        println!("{:?}", imu.status());
+        imu.status();
         thread::sleep(delay);
     }
 }

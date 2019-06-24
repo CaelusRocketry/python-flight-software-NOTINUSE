@@ -543,11 +543,21 @@ mod bno055 {
 
 }
 
+use std::thread;
+
 use i2cdev::linux::LinuxI2CDevice;
 
 use crate::modules::sensors::SensorStatus;
 use crate::modules::sensors::SensorTrait;
 use crate::modules::sensors::SensorType;
+
+// Unit: rad
+const TILT_STATUS_WARN: f32 = 0.2617993878;
+const TILT_STATUS_CRIT: f32 = 0.436332313;
+// Unit: rad/sec
+const ROLL_RATE_STATUS_WARN: f32 = 0.872664626;
+const ROLL_RATE_STATUS_CRIT: f32 = 1.5707963268;
+
 
 pub struct IMU {
     location: String,
@@ -608,11 +618,26 @@ impl IMU {
             SensorStatus::Safe
         }
     }
-}
+    // Unit: rad/sec
+    pub fn check_roll_rate(&mut self) -> SensorStatus {
+        let capture_delay = 50;
 
-// Unit: radians
-const TILT_STATUS_WARN: f32 = 0.261799;
-const TILT_STATUS_CRIT: f32 = 0.436332;
+        let roll_start = self.gyro().0;
+        thread::sleep_ms(capture_delay);
+        let roll_end = self.gyro().0;
+
+        let roll_diff = (roll_end - roll_start).abs();
+        let roll_rate = roll_diff * ((1000 / capture_delay) as f32);
+
+        if roll_rate > ROLL_RATE_STATUS_CRIT {
+            SensorStatus::Crit
+        } else if roll_rate > ROLL_RATE_STATUS_WARN {
+            SensorStatus::Warn
+        } else {
+            SensorStatus::Safe
+        }
+    }
+}
 
 impl SensorTrait for IMU {
     fn name(&self) -> String {
@@ -626,7 +651,10 @@ impl SensorTrait for IMU {
 
     fn status(&mut self) -> SensorStatus {
         // First perform checks that use instantaneous values
-        self.check_tilt()
+        println!("Tilt:\t\t{:?}", self.check_tilt());
+        println!("Roll rate:\t{:?}", self.check_roll_rate());
+
+        SensorStatus::Safe
     }
 
     fn s_type(&self) -> SensorType {
