@@ -1,11 +1,11 @@
 #[path = "modules/_mod.rs"]
 mod modules;
 
-use std::thread;
-use std::time::Duration;
+//use std::thread;
+//use std::time::Duration;
 
-use crate::modules::sensors::SensorTrait;
-
+// use crate::modules::sensors::SensorTrait;
+/*
 fn main() {
     let mut imu = modules::sensors::imu::IMU::new("NOSECONE", 0x28);
 
@@ -19,4 +19,9 @@ fn main() {
         println!("Gyroscope:\t{:+2.2}\t{:+2.2}\t{:+2.2}", gyro.0, gyro.1, gyro.2);
         thread::sleep(delay);
     }
+}
+*/
+
+fn main(){
+    modules::telemetry::telem::runsocket();
 }
