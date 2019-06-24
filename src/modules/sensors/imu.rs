@@ -544,10 +544,7 @@ mod bno055 {
 
 }
 
-use std::marker::PhantomData;
-
-use i2cdev::core::*;
-use i2cdev::linux::{LinuxI2CDevice, LinuxI2CError};
+use i2cdev::linux::LinuxI2CDevice;
 
 use super::{SensorTrait};
 
@@ -555,10 +552,10 @@ pub struct IMU {
     device: bno055::BNO055<LinuxI2CDevice>
 }
 
+// TODO: Don't use unwrap
 impl IMU {
     pub fn init(imu_addr: u16) -> Self {
-        // TODO: Don't use unwrap
-        let mut i2c_dev = LinuxI2CDevice::new("/dev/i2c-1", imu_addr).unwrap();
+        let i2c_dev = LinuxI2CDevice::new("/dev/i2c-1", imu_addr).unwrap();
         let mut imu_dev = bno055::BNO055::new(i2c_dev).unwrap();
         // Sets the standard operation mode (ready)
         imu_dev.set_mode(bno055::BNO055OperationMode::Ndof).unwrap();
@@ -568,7 +565,9 @@ impl IMU {
         }
     }
 
-    pub fn acc(&self) -> (i32, i32, i32) {
-        (10, 10, 10)
+    // TODO: Figure out what unit this is in
+    pub fn acc(&mut self) -> (f32, f32, f32) {
+        let result: i2csensors::Vec3 = self.device.get_linear_acceleration().unwrap();
+        (result.x, result.y, result.z)
     }
 }
