@@ -582,15 +582,15 @@ impl IMU {
     }
 
     // TODO: Figure out what unit this is in
-    pub fn acc(&mut self) -> (f32, f32, f32) {
+    pub fn acc(&mut self) -> [f32; 3] {
         let result: i2csensors::Vec3 = self.device.get_linear_acceleration().unwrap();
-        (result.x, result.y, result.z)
+        [result.x, result.y, result.z]
     }
 
     // Unit: radians
-    pub fn gyro(&mut self) -> (f32, f32, f32) {
+    pub fn gyro(&mut self) -> [f32; 3] {
         let result: i2csensors::Vec3 = self.device.get_euler().unwrap();
-        (result.x, result.y, result.z)
+        [result.x, result.y, result.z]
     }
 
     // Check methods
@@ -609,28 +609,28 @@ impl IMU {
             relative_tilt.abs()
         };
 
-        if relative_tilt(tilts.1) - TILT_STATUS_CRIT > 0.0
-            || relative_tilt(tilts.2) - TILT_STATUS_CRIT > 0.0
+        if relative_tilt(tilts[1]) - TILT_STATUS_CRIT > 0.0
+            || relative_tilt(tilts[2]) - TILT_STATUS_CRIT > 0.0
         {
             SensorStatus::Crit
-        } else if relative_tilt(tilts.1) - TILT_STATUS_WARN > 0.0
-            || relative_tilt(tilts.2) - TILT_STATUS_WARN > 0.0
+        } else if relative_tilt(tilts[1]) - TILT_STATUS_WARN > 0.0
+            || relative_tilt(tilts[2]) - TILT_STATUS_WARN > 0.0
         {
             SensorStatus::Warn
         } else {
             SensorStatus::Safe
         }
     }
-    fn angle_rate(&mut self, angle: i8) -> f32 {
+    fn angle_rate(&mut self, angle: usize) -> f32 {
         if angle > 2 {
             panic!("Invalid angle specifier");
         }
 
         let capture_delay = 50;
 
-        let angle_start = self.gyro().angle;
+        let angle_start = self.gyro()[angle];
         thread::sleep_ms(capture_delay);
-        let angle_end = self.gyro().angle;
+        let angle_end = self.gyro()[angle];
 
         let angle_diff = (angle_end - angle_start).abs();
         let angle_rate = angle_diff * ((1000 / capture_delay) as f32);
@@ -649,14 +649,7 @@ impl IMU {
         }
     }
     fn check_tilt_rate(&mut self) -> SensorStatus {
-        let capture_delay = 50;
-
-        let roll_start = self.gyro().0;
-        thread::sleep_ms(capture_delay);
-        let roll_end = self.gyro().0;
-
-        let roll_diff = (roll_end - roll_start).abs();
-        let roll_rate = roll_diff * ((1000 / capture_delay) as f32);
+        let roll_rate = self.angle_rate(1);
 
         if roll_rate > ROLL_RATE_STATUS_CRIT {
             SensorStatus::Crit
