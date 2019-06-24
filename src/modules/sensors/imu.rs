@@ -1,7 +1,6 @@
 #[allow(dead_code)]
 mod bno055 {
     // Adapted from https://github.com/lolzballs/bno055
-
     /*
     MIT License
 
@@ -568,6 +567,12 @@ impl IMU {
     // TODO: Figure out what unit this is in
     pub fn acc(&mut self) -> (f32, f32, f32) {
         let result: i2csensors::Vec3 = self.device.get_linear_acceleration().unwrap();
+        (result.x, result.y, result.z)
+    }
+
+    // Unit: radians
+    pub fn gyro(&mut self) -> (f32, f32, f32) {
+        let result: i2csensors::Vec3 = self.device.get_euler().unwrap();
         (result.x, result.y, result.z)
     }
 }

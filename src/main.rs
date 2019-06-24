@@ -12,7 +12,9 @@ fn main() {
 
     loop {
         let acc = imu.acc();
-        println!("{:+2.2}\t{:+2.2}\t{:+2.2}", acc.0, acc.1, acc.2);
+        let gyro = imu.gyro();
+        println!("Acceleration:\t{:+2.2}\t{:+2.2}\t{:+2.2}", acc.0, acc.1, acc.2);
+        println!("Gyroscope:\t{:+2.2}\t{:+2.2}\t{:+2.2}", gyro.0, gyro.1, gyro.2);
         thread::sleep(delay);
     }
 }
