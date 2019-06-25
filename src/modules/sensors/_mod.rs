@@ -1,4 +1,5 @@
 pub mod imu;
+pub mod pressure;
 
 // Statuses that sensors have, based on the sensor readings
 #[derive(Debug)]
