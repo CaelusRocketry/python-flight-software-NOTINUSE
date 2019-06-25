@@ -26,9 +26,13 @@ pub fn start() {
         for sensor in &mut sensors {
             let sensor_status: SensorStatus = sensor.as_mut().status();
             let sensor_log: &mut PriorityQueue<Log, usize> = sensor.as_mut().log();
-            match sensor_log.pop() {
-                Some(log_tuple) => println!("{}", log_tuple.0),
-                _ => (),
+
+            // TODO: Commit logs to send queue instead of printing them 
+            while !sensor_log.is_empty() {
+                match sensor_log.pop() {
+                    Some(log_tuple) => println!("{}", log_tuple.0),
+                    _ => (),
+                }
             }
         }
 
