@@ -9,21 +9,25 @@ pub enum Level {
     Info,
     Warn,
     Crit,
-    Debug
-} 
+    Debug,
+}
 
 #[derive(Hash)]
 pub struct Log {
     message: String,
     timestamp: DateTime<Utc>,
     sender: String,
-    level: Level
+    level: Level,
 }
 
 // Allows us to use to_string() to display the Log in a readable format
 impl fmt::Display for Log {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} [{:?}] {}: {}", self.timestamp, self.level, self.sender, self.message)
+        write!(
+            f,
+            "{} [{:?}] {}: {}",
+            self.timestamp, self.level, self.sender, self.message
+        )
     }
 }
 

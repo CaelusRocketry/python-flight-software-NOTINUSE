@@ -1,2 +1,2 @@
-pub mod telem;
 pub mod logging;
+pub mod telem;

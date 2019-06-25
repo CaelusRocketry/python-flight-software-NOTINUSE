@@ -6,7 +6,7 @@ use rand::Rng;
 use crate::modules::sensors::SensorStatus;
 use crate::modules::sensors::SensorTrait;
 use crate::modules::sensors::SensorType;
-use crate::modules::telemetry::logging::{Log, Level};
+use crate::modules::telemetry::logging::{Level, Log};
 
 pub struct Temperature {
     location: String,

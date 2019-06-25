@@ -6,16 +6,17 @@ use crate::modules::sensors::pressure::Pressure;
 use crate::modules::sensors::temperature::Temperature;
 use crate::modules::sensors::SensorTrait;
 
-
 pub fn start() {
     // Initialize sensors
-    let mut imu = IMU::new("NOSECONE", 0x28);
-    let mut pressure_tank = Pressure::new("TANK", 1.75, 2.0);
-    let mut temp_tank = Temperature::new("TANK", 350.0, 400.0);
+    let mut sensors: [Box<SensorTrait>; 3] = [
+        Box::new(IMU::new("NOSECONE", 0x28)),
+        Box::new(Pressure::new("TANK", 1.75, 2.0)),
+        Box::new(Temperature::new("TANK", 350.0, 400.0)),
+    ];
 
     // Main loop
     loop {
-        println!("{:?}", imu.acc());
+        println!("{:?}", sensors[1].as_mut().status());
         thread::sleep(Duration::from_millis(500));
     }
 }

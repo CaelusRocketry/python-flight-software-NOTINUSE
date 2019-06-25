@@ -543,15 +543,15 @@ mod bno055 {
 
 }
 
-use std::thread;
 use priority_queue::PriorityQueue;
+use std::thread;
 
 use i2cdev::linux::LinuxI2CDevice;
 
 use crate::modules::sensors::SensorStatus;
 use crate::modules::sensors::SensorTrait;
 use crate::modules::sensors::SensorType;
-use crate::modules::telemetry::logging::{Log, Level};
+use crate::modules::telemetry::logging::{Level, Log};
 
 // Unit: rad
 const TILT_STATUS_WARN: f32 = 0.2617993878;
@@ -583,7 +583,7 @@ impl IMU {
         IMU {
             location: String::from(location),
             log: PriorityQueue::new(),
-            device: imu_dev
+            device: imu_dev,
         }
     }
 
