@@ -10,15 +10,15 @@ use crate::modules::sensors::SensorTrait;
 
 fn main() {
     let mut imu = IMU::new("NOSECONE", 0x28);
-    let mut pressure = Pressure::new("TANK");
+    let mut pressure_tank = Pressure::new("TANK", 1.75, 2.0);
 
     let delay = Duration::from_millis(200);
 
-    println!("Sensor registered: {}", pressure.name());
+    println!("Sensor registered: {}", pressure_tank.name());
     println!("Sensor registered: {}", imu.name());
 
     loop {
-        imu.status();
+        println!("{:?}", pressure_tank.status());
         thread::sleep(delay);
     }
 }
