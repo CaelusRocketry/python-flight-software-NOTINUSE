@@ -1,5 +1,7 @@
-# Flight Software 
-Flight software for Project Caelus, written in Python.
+# Flight Software
+[![Build Status](https://travis-ci.org/ProjectCaelus/flight-software.svg?branch=master-rust)](https://travis-ci.org/ProjectCaelus/flight-software)
+
+Flight software for Project Caelus.
 
 
 ## Setup
