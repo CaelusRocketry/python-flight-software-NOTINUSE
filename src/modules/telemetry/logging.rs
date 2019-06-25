@@ -1,23 +1,45 @@
 extern crate chrono;
 
+use chrono::prelude::*;
 use std::fmt;
 
-use chrono::prelude::*;
+use crate::modules::sensors::SensorStatus;
 
 #[derive(Hash, Debug)]
 pub enum Level {
     Info,
+    Debug,
     Warn,
     Crit,
-    Debug,
+}
+
+impl Level {
+    pub fn sensor_status_to_level(status: &SensorStatus) -> Level {
+        match status {
+            SensorStatus::Safe => Level::Info,
+            SensorStatus::Warn => Level::Warn,
+            SensorStatus::Crit => Level::Crit,
+        }
+    }
+}
+
+impl fmt::Display for Level {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Level::Info => write!(f, "INFO"),
+            Level::Debug => write!(f, "DBUG"),
+            Level::Warn => write!(f, "WARN"),
+            Level::Crit => write!(f, "CRIT"),
+        }
+    }
 }
 
 #[derive(Hash)]
 pub struct Log {
-    message: String,
-    timestamp: DateTime<Utc>,
-    sender: String,
-    level: Level,
+    pub message: String,
+    pub timestamp: DateTime<Utc>,
+    pub sender: String,
+    pub level: Level,
 }
 
 // Allows us to use to_string() to display the Log in a readable format
@@ -25,8 +47,11 @@ impl fmt::Display for Log {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{} [{:?}] {}: {}",
-            self.timestamp, self.level, self.sender, self.message
+            "[{}] [{}] [{}] {}",
+            self.timestamp.format("%+"),
+            self.level,
+            self.sender,
+            self.message
         )
     }
 }

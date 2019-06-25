@@ -1,5 +1,6 @@
 extern crate rand;
 
+use chrono::prelude::*;
 use priority_queue::PriorityQueue;
 use rand::Rng;
 
@@ -33,19 +34,33 @@ impl Pressure {
     }
 
     fn check_pressure(&mut self) -> SensorStatus {
-        if self.pressure() > self.PRESSURE_STATUS_CRIT {
-            SensorStatus::Crit
-        } else if self.pressure() > self.PRESSURE_STATUS_WARN {
-            SensorStatus::Warn
+        let pressure = self.pressure();
+        let status: SensorStatus;
+
+        if pressure > self.PRESSURE_STATUS_CRIT {
+            status = SensorStatus::Crit;
+        } else if pressure > self.PRESSURE_STATUS_WARN {
+            status = SensorStatus::Warn;
         } else {
-            SensorStatus::Safe
+            status = SensorStatus::Safe;
         }
+
+        let log = Log {
+            message: format!("{} mPa", &pressure.to_string()),
+            timestamp: Utc::now(),
+            sender: self.name(),
+            level: Level::sensor_status_to_level(&status),
+        };
+
+        self.log.push(log, 5);
+
+        status
     }
 }
 
 impl SensorTrait for Pressure {
     fn name(&self) -> String {
-        let result = String::new() + "Pressure" + "." + &self.location();
+        let result = format!("{: ^16}", format!("PRESSURE.{}", &self.location()));
         result.to_ascii_uppercase()
     }
 

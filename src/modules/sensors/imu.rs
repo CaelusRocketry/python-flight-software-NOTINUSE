@@ -543,6 +543,7 @@ mod bno055 {
 
 }
 
+use chrono::prelude::*;
 use priority_queue::PriorityQueue;
 use std::thread;
 
@@ -660,13 +661,26 @@ impl IMU {
     fn check_roll_rate(&mut self) -> SensorStatus {
         let roll_rate = self.delta(0, true);
 
+        let status: SensorStatus;
+
         if roll_rate > ROLL_RATE_STATUS_CRIT {
-            SensorStatus::Crit
+            status = SensorStatus::Crit;
         } else if roll_rate > ROLL_RATE_STATUS_WARN {
-            SensorStatus::Warn
+            status = SensorStatus::Warn;
         } else {
-            SensorStatus::Safe
+            status = SensorStatus::Safe;
         }
+
+        let log = Log {
+            message: format!("Roll rate: {} rad/sec", &roll_rate.to_string()),
+            timestamp: Utc::now(),
+            sender: self.name(),
+            level: Level::sensor_status_to_level(&status),
+        };
+
+        self.log.push(log, 5);
+
+        status
     }
     fn check_tilt_rate(&mut self) -> SensorStatus {
         let tilt_rate_y = self.delta(1, true);
@@ -685,19 +699,33 @@ impl IMU {
     fn check_acc(&mut self) -> SensorStatus {
         // Vertical acceleration is the z-value
         let acc_vert = self.acc()[2];
+
+        let status: SensorStatus;
+
         if acc_vert > ACC_STATUS_CRIT {
-            SensorStatus::Crit
+            status = SensorStatus::Crit;
         } else if acc_vert > ACC_STATUS_WARN {
-            SensorStatus::Warn
+            status = SensorStatus::Warn;
         } else {
-            SensorStatus::Safe
+            status = SensorStatus::Safe;
         }
+
+        let log = Log {
+            message: format!("Vertical acceleration: {} m/(sec^2)", &acc_vert.to_string()),
+            timestamp: Utc::now(),
+            sender: self.name(),
+            level: Level::sensor_status_to_level(&status),
+        };
+
+        self.log.push(log, 5);
+
+        status
     }
 }
 
 impl SensorTrait for IMU {
     fn name(&self) -> String {
-        let result = String::new() + "IMU" + "." + &self.location();
+        let result = format!("{: ^16}", format!("IMU.{}", &self.location()));
         result.to_ascii_uppercase()
     }
 
@@ -707,10 +735,10 @@ impl SensorTrait for IMU {
 
     fn status(&mut self) -> SensorStatus {
         // First perform checks that use instantaneous values
-        // println!("Tilt:\t\t{:?}", self.check_tilt());
-        // println!("Roll rate:\t{:?}", self.check_roll_rate());
-        // println!("Tilt rate:\t{:?}", self.check_tilt_rate());
-        println!("Acceleration:\t{:?}", self.check_acc());
+        self.check_tilt();
+        self.check_roll_rate();
+        self.check_tilt_rate();
+        self.check_acc();
 
         SensorStatus::Safe
     }

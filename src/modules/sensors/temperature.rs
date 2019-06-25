@@ -1,5 +1,6 @@
 extern crate rand;
 
+use chrono::prelude::*;
 use priority_queue::PriorityQueue;
 use rand::Rng;
 
@@ -33,19 +34,33 @@ impl Temperature {
     }
 
     fn check_temp(&mut self) -> SensorStatus {
-        if self.temp() > self.TEMP_STATUS_CRIT {
-            SensorStatus::Crit
-        } else if self.temp() > self.TEMP_STATUS_WARN {
-            SensorStatus::Warn
+        let temp = self.temp();
+        let status: SensorStatus;
+
+        if temp > self.TEMP_STATUS_CRIT {
+            status = SensorStatus::Crit;
+        } else if temp > self.TEMP_STATUS_WARN {
+            status = SensorStatus::Warn;
         } else {
-            SensorStatus::Safe
+            status = SensorStatus::Safe;
         }
+
+        let log = Log {
+            message: format!("{} K", &temp.to_string()),
+            timestamp: Utc::now(),
+            sender: self.name(),
+            level: Level::sensor_status_to_level(&status),
+        };
+
+        self.log.push(log, 5);
+
+        status
     }
 }
 
 impl SensorTrait for Temperature {
     fn name(&self) -> String {
-        let result = String::new() + "Temperature" + "." + &self.location();
+        let result = format!("{: ^16}", format!("TEMP.{}", &self.location()));
         result.to_ascii_uppercase()
     }
 
