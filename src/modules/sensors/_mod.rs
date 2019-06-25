@@ -1,5 +1,7 @@
 use priority_queue::PriorityQueue;
 
+use crate::modules::telemetry::logging::Log;
+
 pub mod imu;
 pub mod pressure;
 pub mod temperature;
@@ -25,5 +27,5 @@ pub trait SensorTrait {
     // Can't use `type` because it's a reserved keyword
     fn s_type(&self) -> SensorType;
     // Holds the status messages from the sensor object
-    fn log(&self) -> &PriorityQueue<String, usize>;
+    fn log(&mut self) -> &mut PriorityQueue<Log, usize>;
 }

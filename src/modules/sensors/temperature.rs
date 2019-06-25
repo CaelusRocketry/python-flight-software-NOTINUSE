@@ -6,10 +6,11 @@ use rand::Rng;
 use crate::modules::sensors::SensorStatus;
 use crate::modules::sensors::SensorTrait;
 use crate::modules::sensors::SensorType;
+use crate::modules::telemetry::logging::{Log, Level};
 
 pub struct Temperature {
     location: String,
-    log: PriorityQueue<String, usize>,
+    log: PriorityQueue<Log, usize>,
     // Unit: K
     TEMP_STATUS_WARN: f32,
     // Unit: K
@@ -60,7 +61,7 @@ impl SensorTrait for Temperature {
         SensorType::Temperature
     }
 
-    fn log(&self) -> &PriorityQueue<String, usize> {
-        &self.log
+    fn log(&mut self) -> &mut PriorityQueue<Log, usize> {
+        &mut self.log
     }
 }

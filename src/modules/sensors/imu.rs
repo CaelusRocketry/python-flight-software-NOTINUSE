@@ -551,6 +551,7 @@ use i2cdev::linux::LinuxI2CDevice;
 use crate::modules::sensors::SensorStatus;
 use crate::modules::sensors::SensorTrait;
 use crate::modules::sensors::SensorType;
+use crate::modules::telemetry::logging::{Log, Level};
 
 // Unit: rad
 const TILT_STATUS_WARN: f32 = 0.2617993878;
@@ -567,7 +568,7 @@ const ACC_STATUS_CRIT: f32 = 29.41995;
 
 pub struct IMU {
     location: String,
-    log: PriorityQueue<String, usize>,
+    log: PriorityQueue<Log, usize>,
     device: bno055::BNO055<LinuxI2CDevice>,
 }
 
@@ -718,7 +719,7 @@ impl SensorTrait for IMU {
         SensorType::IMU
     }
 
-    fn log(&self) -> &PriorityQueue<String, usize> {
-        &self.log
+    fn log(&mut self) -> &mut PriorityQueue<Log, usize> {
+        &mut self.log
     }
 }
