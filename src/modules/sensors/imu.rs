@@ -544,6 +544,7 @@ mod bno055 {
 }
 
 use std::thread;
+use priority_queue::PriorityQueue;
 
 use i2cdev::linux::LinuxI2CDevice;
 
@@ -566,6 +567,7 @@ const ACC_STATUS_CRIT: f32 = 29.41995;
 
 pub struct IMU {
     location: String,
+    log: PriorityQueue<String, usize>,
     device: bno055::BNO055<LinuxI2CDevice>,
 }
 
@@ -579,7 +581,8 @@ impl IMU {
 
         IMU {
             location: String::from(location),
-            device: imu_dev,
+            log: PriorityQueue::new(),
+            device: imu_dev
         }
     }
 
@@ -713,5 +716,9 @@ impl SensorTrait for IMU {
 
     fn s_type(&self) -> SensorType {
         SensorType::IMU
+    }
+
+    fn log(&self) -> &PriorityQueue<String, usize> {
+        &self.log
     }
 }

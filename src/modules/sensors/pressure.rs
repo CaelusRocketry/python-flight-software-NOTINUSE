@@ -1,5 +1,6 @@
 extern crate rand;
 
+use priority_queue::PriorityQueue;
 use rand::Rng;
 
 use crate::modules::sensors::SensorStatus;
@@ -8,6 +9,7 @@ use crate::modules::sensors::SensorType;
 
 pub struct Pressure {
     location: String,
+    log: PriorityQueue<String, usize>,
     // Unit: mPa
     PRESSURE_STATUS_WARN: f32,
     // Unit: mPa,
@@ -18,6 +20,7 @@ impl Pressure {
     pub fn new(location: &str, pressure_status_warn: f32, pressure_status_crit: f32) -> Self {
         Pressure {
             location: String::from(location),
+            log: PriorityQueue::new(),
             PRESSURE_STATUS_WARN: pressure_status_warn,
             PRESSURE_STATUS_CRIT: pressure_status_crit,
         }
@@ -55,5 +58,9 @@ impl SensorTrait for Pressure {
 
     fn s_type(&self) -> SensorType {
         SensorType::Pressure
+    }
+
+    fn log(&self) -> &PriorityQueue<String, usize> {
+        &self.log
     }
 }

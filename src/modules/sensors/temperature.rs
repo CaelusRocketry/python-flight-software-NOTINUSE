@@ -1,5 +1,6 @@
 extern crate rand;
 
+use priority_queue::PriorityQueue;
 use rand::Rng;
 
 use crate::modules::sensors::SensorStatus;
@@ -8,6 +9,7 @@ use crate::modules::sensors::SensorType;
 
 pub struct Temperature {
     location: String,
+    log: PriorityQueue<String, usize>,
     // Unit: K
     TEMP_STATUS_WARN: f32,
     // Unit: K
@@ -18,6 +20,7 @@ impl Temperature {
     pub fn new(location: &str, temp_status_warn: f32, temp_status_crit: f32) -> Self {
         Temperature {
             location: String::from(location),
+            log: PriorityQueue::new(),
             TEMP_STATUS_WARN: temp_status_warn,
             TEMP_STATUS_CRIT: temp_status_crit,
         }
@@ -55,5 +58,9 @@ impl SensorTrait for Temperature {
 
     fn s_type(&self) -> SensorType {
         SensorType::Temperature
+    }
+
+    fn log(&self) -> &PriorityQueue<String, usize> {
+        &self.log
     }
 }

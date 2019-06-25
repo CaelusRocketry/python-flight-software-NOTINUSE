@@ -1,3 +1,5 @@
+use priority_queue::PriorityQueue;
+
 pub mod imu;
 pub mod pressure;
 pub mod temperature;
@@ -22,4 +24,6 @@ pub trait SensorTrait {
     fn status(&mut self) -> SensorStatus;
     // Can't use `type` because it's a reserved keyword
     fn s_type(&self) -> SensorType;
+    // Holds the status messages from the sensor object
+    fn log(&self) -> &PriorityQueue<String, usize>;
 }
