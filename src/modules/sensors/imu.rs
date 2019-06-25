@@ -561,7 +561,6 @@ const ROLL_RATE_STATUS_CRIT: f32 = 1.5707963268;
 const TILT_RATE_STATUS_WARN: f32 = 0.02617993878;
 const TILT_RATE_STATUS_CRIT: f32 = 0.05235987756;
 
-
 pub struct IMU {
     location: String,
     device: bno055::BNO055<LinuxI2CDevice>,
@@ -594,21 +593,27 @@ impl IMU {
     }
 
     // Find change in angle rate for any direction
-    fn angle_rate(&mut self, angle: usize) -> f32 {
-        if angle > 2 {
-            panic!("Invalid angle specifier");
+    fn delta(&mut self, direction: usize, is_gyro: bool) -> f32 {
+        if direction > 2 {
+            panic!("Invalid reading specifier");
         }
 
         let capture_delay = 50;
 
-        let angle_start = self.gyro()[angle];
+        let reading_start;
+        if is_gyro { reading_start = self.gyro()[direction]; }
+        else { reading_start = self.acc()[direction]; }
+
         thread::sleep_ms(capture_delay);
-        let angle_end = self.gyro()[angle];
 
-        let angle_diff = (angle_end - angle_start).abs();
-        let angle_rate = angle_diff * ((1000 / capture_delay) as f32);
+        let reading_end;
+        if is_gyro { reading_end = self.gyro()[direction]; }
+        else { reading_end = self.acc()[direction]; }
 
-        angle_rate
+        let reading_diff = (reading_end - reading_start).abs();
+        let reading_delta = reading_diff * ((1000 / capture_delay) as f32);
+
+        reading_delta
     }
 
     // Check methods
@@ -640,7 +645,7 @@ impl IMU {
         }
     }
     fn check_roll_rate(&mut self) -> SensorStatus {
-        let roll_rate = self.angle_rate(0);
+        let roll_rate = self.delta(0, true);
 
         if roll_rate > ROLL_RATE_STATUS_CRIT {
             SensorStatus::Crit
@@ -651,12 +656,10 @@ impl IMU {
         }
     }
     fn check_tilt_rate(&mut self) -> SensorStatus {
-        let tilt_rate_y = self.angle_rate(1);
-        let tilt_rate_z = self.angle_rate(2);
+        let tilt_rate_y = self.angle_rate(1, true);
+        let tilt_rate_z = self.angle_rate(2, true);
 
-        if tilt_rate_y - TILT_RATE_STATUS_CRIT > 0.0
-            || tilt_rate_z - TILT_RATE_STATUS_CRIT > 0.0
-        {
+        if tilt_rate_y - TILT_RATE_STATUS_CRIT > 0.0 || tilt_rate_z - TILT_RATE_STATUS_CRIT > 0.0 {
             SensorStatus::Crit
         } else if tilt_rate_y - TILT_RATE_STATUS_WARN > 0.0
             || tilt_rate_z - TILT_RATE_STATUS_WARN > 0.0
@@ -665,6 +668,9 @@ impl IMU {
         } else {
             SensorStatus::Safe
         }
+    }
+    fn check_acc_rate(&mut self) -> SensorStatus {
+        SensorStatus::Safe
     }
 }
 
@@ -680,8 +686,8 @@ impl SensorTrait for IMU {
 
     fn status(&mut self) -> SensorStatus {
         // First perform checks that use instantaneous values
-        // println!("Tilt:\t\t{:?}", self.check_tilt());
-        // println!("Roll rate:\t{:?}", self.check_roll_rate());
+        println!("Tilt:\t\t{:?}", self.check_tilt());
+        println!("Roll rate:\t{:?}", self.check_roll_rate());
         println!("Tilt rate:\t{:?}", self.check_tilt_rate());
 
         SensorStatus::Safe
