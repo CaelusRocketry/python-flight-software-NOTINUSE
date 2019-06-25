@@ -734,13 +734,20 @@ impl SensorTrait for IMU {
     }
 
     fn status(&mut self) -> SensorStatus {
-        // First perform checks that use instantaneous values
-        self.check_tilt();
-        self.check_roll_rate();
-        self.check_tilt_rate();
-        self.check_acc();
+        let checks: [SensorStatus; 4] = [
+            self.check_tilt(),
+            self.check_roll_rate(),
+            self.check_tilt_rate(),
+            self.check_acc(),
+        ];
 
-        SensorStatus::Safe
+        if checks.iter().any(| s | *s == SensorStatus::Crit) {
+            SensorStatus::Crit
+        } else if checks.iter().any(| s | *s == SensorStatus::Warn) {
+            SensorStatus::Warn
+        } else {
+            SensorStatus::Safe
+        }
     }
 
     fn s_type(&self) -> SensorType {
