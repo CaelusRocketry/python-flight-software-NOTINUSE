@@ -21,4 +21,4 @@ before_cache:
 
 branches:
     only:
-        - master-rust
+        - master
