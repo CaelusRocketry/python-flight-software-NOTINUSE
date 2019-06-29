@@ -600,6 +600,11 @@ impl IMU {
         [result.x, result.y, result.z]
     }
 
+    pub fn gyro_rate(&mut self) -> [f32; 3] {
+        let result: i2csensors::Vec3 = self.device.angular_rate_reading().unwrap();
+        [result.x, result.y, result.z]
+    }
+
     // Find change in angle rate for any direction
     fn delta(&mut self, direction: usize, is_gyro: bool) -> f32 {
         if direction > 2 {
@@ -683,18 +688,28 @@ impl IMU {
         status
     }
     fn check_tilt_rate(&mut self) -> SensorStatus {
-        let tilt_rate_y = self.delta(1, true);
-        let tilt_rate_z = self.delta(2, true);
+        let tilt_rate = self.gyro_rate();
 
-        if tilt_rate_y - TILT_RATE_STATUS_CRIT > 0.0 || tilt_rate_z - TILT_RATE_STATUS_CRIT > 0.0 {
-            SensorStatus::Crit
-        } else if tilt_rate_y - TILT_RATE_STATUS_WARN > 0.0
-            || tilt_rate_z - TILT_RATE_STATUS_WARN > 0.0
-        {
-            SensorStatus::Warn
+        let status: SensorStatus;
+
+        if tilt_rate > TILT_RATE_STATUS_CRIT {
+            status = SensorStatus::Crit;
+        } else if tilt_rate > TILT_RATE_STATUS_WARN {
+            status = SensorStatus::Warn;
         } else {
-            SensorStatus::Safe
+            status = SensorStatus::Safe;
         }
+
+        let log = Log {
+            message: format!("Tilt rate: {} rad/sec", &tilt_rate.to_string()),
+            timestamp: Utc::now(),
+            sender: self.name(),
+            level: Level::sensor_status_to_level(&status),
+        };
+
+        self.log.push(log, 5);
+
+        status
     }
     fn check_acc(&mut self) -> SensorStatus {
         // Vertical acceleration is the z-value
