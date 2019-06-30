@@ -549,6 +549,9 @@ use std::thread;
 
 use i2cdev::linux::LinuxI2CDevice;
 
+// Bring Gyroscope trait into scope
+use i2csensors::Gyroscope;
+
 use crate::modules::sensors::SensorStatus;
 use crate::modules::sensors::SensorTrait;
 use crate::modules::sensors::SensorType;
@@ -594,12 +597,13 @@ impl IMU {
         [result.x, result.y, result.z]
     }
 
-    // Unit: radians
+    // Unit: rad
     pub fn gyro(&mut self) -> [f32; 3] {
         let result: i2csensors::Vec3 = self.device.get_euler().unwrap();
         [result.x, result.y, result.z]
     }
 
+    // Unit: rad/sec
     pub fn gyro_rate(&mut self) -> [f32; 3] {
         let result: i2csensors::Vec3 = self.device.angular_rate_reading().unwrap();
         [result.x, result.y, result.z]
@@ -664,7 +668,7 @@ impl IMU {
         }
     }
     fn check_roll_rate(&mut self) -> SensorStatus {
-        let roll_rate = self.delta(0, true);
+        let roll_rate = self.gyro_rate()[0];
 
         let status: SensorStatus;
 
@@ -688,26 +692,36 @@ impl IMU {
         status
     }
     fn check_tilt_rate(&mut self) -> SensorStatus {
-        let tilt_rate = self.gyro_rate();
+        let tilt_rate_y = self.gyro_rate()[1];
+        let tilt_rate_z = self.gyro_rate()[2];
 
         let status: SensorStatus;
 
-        if tilt_rate > TILT_RATE_STATUS_CRIT {
+        if tilt_rate_y - TILT_RATE_STATUS_CRIT > 0.0 || tilt_rate_z - TILT_RATE_STATUS_CRIT > 0.0 {
             status = SensorStatus::Crit;
-        } else if tilt_rate > TILT_RATE_STATUS_WARN {
+        } else if tilt_rate_y - TILT_RATE_STATUS_WARN > 0.0
+            || tilt_rate_z - TILT_RATE_STATUS_WARN > 0.0
+        {
             status = SensorStatus::Warn;
         } else {
             status = SensorStatus::Safe;
         }
 
-        let log = Log {
-            message: format!("Tilt rate: {} rad/sec", &tilt_rate.to_string()),
+        let log_y = Log {
+            message: format!("Tilt rate (y): {} rad/sec", &tilt_rate_y.to_string()),
+            timestamp: Utc::now(),
+            sender: self.name(),
+            level: Level::sensor_status_to_level(&status),
+        };
+        let log_z = Log {
+            message: format!("Tilt rate (z): {} rad/sec", &tilt_rate_z.to_string()),
             timestamp: Utc::now(),
             sender: self.name(),
             level: Level::sensor_status_to_level(&status),
         };
 
-        self.log.push(log, 5);
+        self.log.push(log_y, 5);
+        self.log.push(log_z, 5);
 
         status
     }
