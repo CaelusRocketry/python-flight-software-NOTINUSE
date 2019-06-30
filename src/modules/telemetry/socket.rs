@@ -4,7 +4,10 @@ use std::thread;
 use std::thread::sleep;
 use std::time::Duration;
 
-use ws::{connect, listen, CloseCode, Sender, Handler, Message, Result};
+use ws::{connect, listen, CloseCode, Handler, Message, Result, Sender, Handshake};
+use chrono::prelude::*;
+
+use crate::modules::telemetry::logging::*;
 
 // Server WebSocket handler
 struct Server {
@@ -12,8 +15,24 @@ struct Server {
 }
 
 impl Handler for Server {
+    fn on_open(&mut self, shake: Handshake) -> Result<()> {
+        // Log that telemetry connection opened
+        let open_log = Log {
+            message: String::from("Open websocket connection"),
+            timestamp: Utc::now(),
+            sender: String::from("TELEM.SERVER"),
+            level: Level::Info
+        };
+
+        self.out.send(format!("{}", open_log));
+
+        Ok(())
+    }
+
     fn on_message(&mut self, msg: Message) -> Result<()> {
-        println!("RECV: '{}'. ", msg);
+        // TODO: Ingest and execute messages instead of printed them
+        println!("RECV: '{}'", msg);
+
         Ok(())
     }
 
