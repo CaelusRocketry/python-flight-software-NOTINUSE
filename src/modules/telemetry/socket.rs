@@ -24,7 +24,7 @@ impl Handler for Server {
             level: Level::Info
         };
 
-        self.out.send(format!("{}", open_log));
+        self.out.send(open_log.to_string());
 
         Ok(())
     }

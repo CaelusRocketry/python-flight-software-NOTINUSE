@@ -754,7 +754,7 @@ impl IMU {
 
 impl SensorTrait for IMU {
     fn name(&self) -> String {
-        let result = format!("{: ^16}", format!("IMU.{}", &self.location()));
+        let result = format!("IMU.{}", &self.location());
         result.to_ascii_uppercase()
     }
 

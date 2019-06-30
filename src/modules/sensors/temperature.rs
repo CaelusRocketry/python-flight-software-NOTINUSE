@@ -60,7 +60,7 @@ impl Temperature {
 
 impl SensorTrait for Temperature {
     fn name(&self) -> String {
-        let result = format!("{: ^16}", format!("TEMP.{}", &self.location()));
+        let result = format!("TEMP.{}", &self.location());
         result.to_ascii_uppercase()
     }
 

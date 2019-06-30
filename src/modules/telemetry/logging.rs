@@ -50,7 +50,7 @@ impl fmt::Display for Log {
             "[{}] [{}] [{}] {}",
             self.timestamp.format("%+"),
             self.level,
-            self.sender,
+            format!("{: ^16}", self.sender),
             self.message
         )
     }

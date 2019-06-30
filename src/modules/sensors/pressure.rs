@@ -60,7 +60,7 @@ impl Pressure {
 
 impl SensorTrait for Pressure {
     fn name(&self) -> String {
-        let result = format!("{: ^16}", format!("PRESSURE.{}", &self.location()));
+        let result = format!("PRESSURE.{}", &self.location());
         result.to_ascii_uppercase()
     }
 
