@@ -8,9 +8,13 @@ use crate::modules::sensors::pressure::Pressure;
 use crate::modules::sensors::temperature::Temperature;
 use crate::modules::sensors::SensorStatus;
 use crate::modules::sensors::SensorTrait;
+use crate::modules::telemetry::socket;
 use crate::modules::telemetry::logging::Log;
 
 pub fn start() {
+    // Start the web socket
+    socket::start();
+
     // Initialize sensors
     let mut sensors: [Box<SensorTrait>; 3] = [
         Box::new(IMU::new("NOSECONE", 0x28)),
@@ -30,7 +34,8 @@ pub fn start() {
             // TODO: Commit logs to send queue instead of printing them
             while !sensor_log.is_empty() {
                 match sensor_log.pop() {
-                    Some(log_tuple) => println!("{}", log_tuple.0),
+                    // Some(log_tuple) => println!("{}", log_tuple.0),
+                    Some(log_tuple) => (),
                     _ => (),
                 }
             }
