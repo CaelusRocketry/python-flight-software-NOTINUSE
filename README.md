@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ProjectCaelus/flight-software.svg?branch=master)](https://travis-ci.org/ProjectCaelus/flight-software)
 
 Flight software for Project Caelus.
-This software is written in **Rust** version **2018**.
+This software is written in **Rust**, edition **2018**.
 
 
 ## Setup
