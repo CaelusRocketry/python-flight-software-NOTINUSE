@@ -8,5 +8,4 @@ def run(c):
 
 @task
 def reformat(c):
-    print("invoke: reformat")
     c.run("autopep8 --in-place --aggressive -r ./")
