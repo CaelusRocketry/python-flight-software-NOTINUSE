@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-from typing import List
+from queue import PriorityQueue
 
 
 class SensorStatus(Enum):
@@ -39,5 +39,5 @@ class Sensor(ABC):
 
     @classmethod
     @abstractmethod
-    def log(cls) -> List:
+    def log(cls) -> PriorityQueue:
         pass
