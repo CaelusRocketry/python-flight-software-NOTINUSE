@@ -9,6 +9,7 @@ verify_ssl = true
 autopep8 = "*"
 invoke = "*"
 adafruit-gpio = "*"
+hx711 = "*"
 
 [requires]
 python_version = "3.7"
