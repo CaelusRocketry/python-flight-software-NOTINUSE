@@ -1,5 +1,6 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from enum import Enum, auto
+from typing import List
 
 
 class SensorStatus(Enum):
@@ -16,4 +17,27 @@ class SensorType(Enum):
 
 
 class Sensor(ABC):
-    pass
+    @classmethod
+    @abstractmethod
+    def name(cls) -> str:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def location(cls) -> str:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def status(cls) -> SensorStatus:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def sensor_type(cls) -> SensorType:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def log(cls) -> List:
+        pass
