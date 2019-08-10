@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
@@ -32,4 +32,3 @@ board = "*"
 
 [requires]
 python_version = "3.7"
->>>>>>> 3a0c3b3b515f6a0fd850345179b3e16f6bf37953
