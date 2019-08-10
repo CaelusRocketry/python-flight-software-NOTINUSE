@@ -24,7 +24,3 @@ def encode(packet):
 def decode(message):
     with open("privatekey.txt", "rb") as privatekey:
         return RSA.importKey(privatekey.read()).decrypt(message)
-
-def decode(message):
-    with open("privatekey.txt", "rb") as privatekey:
-        return RSA.importKey(privatekey.read()).decrypt(message)
