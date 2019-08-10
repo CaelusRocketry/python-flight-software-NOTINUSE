@@ -18,8 +18,12 @@ def start():
     print("Listening and sending")
 
 def encode(packet):
-    with open("publickey.txt", "rb") as privatekey:
-        return RSA.importKey(privatekey.read()).encrypt(packet);
+    with open("publickey.txt", "rb") as publickey:
+        return RSA.importKey(publickey.read()).encrypt(packet)
+
+def decode(message):
+    with open("privatekey.txt", "rb") as privatekey:
+        return RSA.importKey(privatekey.read()).decrypt(message)
 
 def decode(message):
     with open("privatekey.txt", "rb") as privatekey:
