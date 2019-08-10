@@ -22,6 +22,7 @@ def encode(packet):
 def send_messages():
     while True:
         try:
-            heapq.heappop(queue_send)[1]
-        except Exception:
+            heapq.heappop(queue_send)[1] #(priority, message)
+        except IndexError:
             pass #Queue is empty
+        
