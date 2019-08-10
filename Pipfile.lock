@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9591bc680edb2bf2aa9c6c17fbb73e784a879b5840fbe5628bca2fcc6270cda0"
+            "sha256": "71f42cd7251b76aed18fc826c0ad95475cbb51f55d66746a62f2b50e834e69c5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -25,6 +25,7 @@
         },
         "adafruit-pureio": {
             "hashes": [
+                "sha256:47040da2866bd1eedb66c23a03420b1be28a88b430d5a825ccfd6f89cce0715c",
                 "sha256:e65cd929f1d8e109513ed1e457c2742bf4f15349c1a9b7f5b1e04191624d7488"
             ],
             "version": "==0.2.3"
@@ -35,6 +36,14 @@
             ],
             "index": "pypi",
             "version": "==1.4.4"
+        },
+        "board": {
+            "hashes": [
+                "sha256:149e5dd87be1835ecfea76fc25bba29dc5ee9ed5088338e61557124601b9eaf4",
+                "sha256:831de92f159ae43d4b4458155a7156947fd48da7886d65598f0882453abe5b6d"
+            ],
+            "index": "pypi",
+            "version": "==0.0.0.post0"
         },
         "hx711": {
             "hashes": [

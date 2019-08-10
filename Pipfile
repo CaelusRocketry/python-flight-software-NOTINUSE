@@ -1,4 +1,3 @@
-
 [[source]]
 name = "pypi"
 url = "https://pypi.org/simple"
@@ -11,24 +10,8 @@ autopep8 = "*"
 invoke = "*"
 adafruit-gpio = "*"
 hx711 = "*"
-
-[requires]
-python_version = "3.7"
-=======
-[[source]]
-name = "pypi"
-url = "https://pypi.org/simple"
-verify_ssl = true
-
-[dev-packages]
-
-[packages]
-autopep8 = "*"
-invoke = "*"
-adafruit-gpio = "*"
-hx711 = "*"
-utime = "*"
 board = "*"
+multiprocessing = "*"
 
 [requires]
 python_version = "3.7"
