@@ -25,3 +25,5 @@ More information on Pipenv is available [in the docs](https://docs.pipenv.org/en
     - */modules/telemetry/*
         - Sends data through websockets
         
+## Encryption
+ - Public key is used for encryption, secret privatekey is stored in the remote pi for decryption
