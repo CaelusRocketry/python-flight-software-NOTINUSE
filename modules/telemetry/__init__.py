@@ -4,10 +4,15 @@ from Crypto.PublicKey import RSA
 from Crypto import Random
 import ast  
 import socket, json, time
+import multiprocessing
 
 queue_send=[]
 
-def enqueue_packet(packet="Heartbeat", priority=1): #e
+def start():
+    p = multiprocessing.Process(target=send_message)
+    p.start()
+
+def enqueue_packet(packet="Heartbeat", priority=1): #Encrypt then enqueue a message, if empyt send a heartbeat
     heapq.heappush(queue_send, (priority, packet))
 
 def encode(packet):
@@ -15,4 +20,8 @@ def encode(packet):
         return RSA.importKey(privatekey.read()).encrypt(packet);
 
 def send_messages():
-    heapq.heappop(quque_send)[1]
+    while True:
+        try:
+            heapq.heappop(queue_send)[1]
+        except Exception:
+            pass #Queue is empty
