@@ -289,4 +289,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-privatekey.txt
+private.pem
+.vscode
