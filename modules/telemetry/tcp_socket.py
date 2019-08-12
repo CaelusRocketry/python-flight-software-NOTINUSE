@@ -47,7 +47,7 @@ def enqueue(packet = Packet()):
 def ingest(encoded):
     packet_str = encryption.decode(encoded)
     packet = Packet.from_string(packet_str)
-    print(packet.message)
+    print("Incoming: "+packet.message)
     if(packet.message=="AT"):
         enqueue(Packet(message="OK"))
 
@@ -59,3 +59,5 @@ if __name__ == "__main__":
     send_thread.start()
     listen_thread.start()
     print("Listening and sending")
+    while(True):
+        enqueue(Packet(message=input("")))
