@@ -46,5 +46,16 @@ def enqueue(packet = Packet()):
 
 def ingest(encoded):
     packet_str = encryption.decode(encoded)
-    packet = Packet.from_string(Packet.from_string(packet_str))
-    print(packet)
+    packet = Packet.from_string(packet_str)
+    print(packet.message)
+    if(packet.message=="AT"):
+        enqueue(Packet(message="OK"))
+
+if __name__ == "__main__":
+    sock = create_socket()
+    send_thread = threading.Thread(target=send, args=(sock,))
+    listen_thread = threading.Thread(target=listen, args=(sock,))
+    listen_thread.daemon = True
+    send_thread.start()
+    listen_thread.start()
+    print("Listening and sending")
