@@ -6,6 +6,7 @@ from Crypto import Random
 import multiprocessing
 from packet import Packet
 import encryption
+import interpret
 
 GS_IP = '192.168.1.26'
 GS_PORT = 5005
@@ -50,6 +51,8 @@ def ingest(encoded):
     print("Incoming: "+packet.message)
     if(packet.message=="AT"):
         enqueue(Packet(message="OK"))
+    else:
+        enqueue(Packet(message=interpret.interpret(packet)))
 
 if __name__ == "__main__":
     sock = create_socket()
