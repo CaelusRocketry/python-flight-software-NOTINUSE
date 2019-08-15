@@ -7,6 +7,10 @@ import subprocess
 def interpret(packet):
 	try:
 		return(eval(packet.message))
+	except TypeError:
+		return("ERROR - command found, incorrect number of arguments")
+	except NameError:
+		return("ERROR - command not found")
 	except:
 		return("ERROR")
 def get_ip():
