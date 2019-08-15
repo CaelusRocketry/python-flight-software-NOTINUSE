@@ -13,6 +13,7 @@ def get_ip():
 	return(subprocess.getoutput("hostname -I").split()[1])
 
 def get_core_temp():
+	#return(subprocess.getoutput("/opt/vc/bin/vcgencmd measure_temp"))
 	return("48.0 C")
 
 def get_core_speed():
