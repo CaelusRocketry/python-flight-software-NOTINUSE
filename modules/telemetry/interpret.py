@@ -3,13 +3,16 @@ import heapq
 import socket
 import tcp_socket
 import subprocess
-import types
 
 ABORT = "ABORT"
 TOK_DEL, TYPE_DEL = " ", ":"
 
 def interpret(pck):
-    print(pck)
+    types = {"int": int,
+             "float": float,
+             "str": str,
+            }
+
     funcs = {
         ABORT: {
             ABORT: abort,
@@ -27,12 +30,17 @@ def interpret(pck):
         # }
     }
 
-    args = pck.message.split(TOK_DEL)[1:]
+    tokens = pck.message.split(TOK_DEL)
+    if len(tokens) == 1:
+        return "ERROR: header found, missing command"
+    else:
+        header, cmd, args = *tokens[:2], tokens[2:]
+
     args = list(map(lambda x: types[x.split(TYPE_DEL)[0]](x.split(TYPE_DEL)[1]), args))
 
-    if pck.header in funcs:
-        if pck.cmd in funcs[pck.header]:
-            return str(funcs[pck.header][pck.cmd](*args))
+    if header in funcs:
+        if cmd in funcs[header]:
+            return str(funcs[header][cmd](*args))
         return "Unknown command!"
     return "Unknown header!"
 
