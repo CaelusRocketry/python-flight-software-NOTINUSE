@@ -8,9 +8,9 @@ from packet import Packet
 import encryption
 import interpret
 
-GS_IP = '192.168.1.26'
+GS_IP = '127.0.0.1'
 GS_PORT = 5005
-BYTE_SIZE = 1024
+BYTE_SIZE = 8192
 
 DELAY = .05
 DELAY_LISTEN = .05

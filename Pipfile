@@ -11,7 +11,8 @@ invoke = "*"
 adafruit-gpio = "*"
 hx711 = "*"
 board = "*"
-multiprocessing = "*"
+pycryptodome = "*"
+jsonpickle = "*"
 
 [requires]
 python_version = "3.7"
