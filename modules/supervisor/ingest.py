@@ -1,13 +1,17 @@
-import packet
-import heapq
-import socket
-import tcp_socket
+from modules.telemetry.packet import Packet
+from modules.telemetry.encryption import decode
 import subprocess
 
 ABORT = "ABORT"
 TOK_DEL, TYPE_DEL = " ", ":"
 
-def interpret(pck):
+def ingest(encoded):
+    packet_str = decode(encoded)
+    pck = Packet.from_string(packet_str)
+    print("Incoming:", pck.message)
+    if pck.message=="AT":
+        return "Enqueue", Packet(header="HEARTBEAT", message="OK")
+
     types = {"int": int,
              "float": float,
              "str": str,
@@ -19,12 +23,12 @@ def interpret(pck):
         },
         "internet": {
             "ip": get_ip
-        }
-        # "sensor": {
-        #     "temp": temp,
+        },
+        "sensor": {
+            "temp": temp,
         #     "pressure": pressure,
         #     "gyro": gyro,
-        # },
+        },
         # "valve": {
         #     "actuate": actuate_valve
         # }
@@ -32,7 +36,7 @@ def interpret(pck):
 
     tokens = pck.message.split(TOK_DEL)
     if len(tokens) == 1:
-        return "ERROR: header found, missing command"
+        return "Error", "Header found, but missing command"
     else:
         header, cmd, args = *tokens[:2], tokens[2:]
 
@@ -40,20 +44,20 @@ def interpret(pck):
 
     if header in funcs:
         if cmd in funcs[header]:
-            return str(funcs[header][cmd](*args))
-        return "Unknown command!"
-    return "Unknown header!"
+            return "Enqueue", str(funcs[header][cmd](*args))
+        return "Error", "Unknown command!"
+    return "Error", "Unknown header!"
 
 def get_ip():
     return(subprocess.getoutput("hostname -I").split()[1])
 
 def get_core_temp():
     #return(subprocess.getoutput("/opt/vc/bin/vcgencmd measure_temp"))
-    return("48.0 C")
+    return packet.Packet(header="DATA", message="48.0 C")
 
 def get_core_speed():
     #return(subprocess.getoutput("lscpu | grep MHz").split()[1]+" MHz")
-    return("1.400 MHz")
+    return packet.Packet(header="DATA", message="1.400 MHz")
 
 def abort():
-    return("ABORTING")
+    return packet.Packet(header="DATA", message="ABORTING")

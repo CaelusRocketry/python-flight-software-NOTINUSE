@@ -1,12 +1,7 @@
-import heapq
 import Crypto
 from Crypto.PublicKey import RSA
-from Crypto import Random
-import ast
-import socket, json, time, threading
-import multiprocessing
-import tcp_socket
 from Crypto.Cipher import PKCS1_OAEP
+import ast
 
 def encode(packet):
     with open("public.pem", "rb") as publickey:

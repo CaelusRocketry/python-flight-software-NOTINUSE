@@ -1,4 +1,4 @@
-import modules.telemetry as telemetry
+import modules.supervisor as supervisor
 
 if __name__ == "__main__":
-    telemetry.start()
+    supervisor.start()

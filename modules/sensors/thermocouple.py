@@ -1,23 +1,24 @@
 import yaml
 import time
-import Adafruit_GPIO
+from . import Sensor, SensorStatus, SensorType
+#import Adafruit_GPIO
 # Local Imports
-from Adafruit_MAX31856 import MAX31856 as MAX31856
+#from Adafruit_MAX31856 import MAX31856 as MAX31856
 
 class Thermocouple(Sensor):
     
     def __init__(self, location):
         SPI_PORT = 0
         SPI_DEVICE = 0
-        self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE)
-        self.name = "Thermocouple"
-        self.location = location
-        self.status = SensorStatus.Safe
-        self.sensor_type = SensorType.Temperature
+#        self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE)
+        self._name = "Thermocouple"
+        self._location = location
+        self._status = SensorStatus.Safe
+        self._sensor_type = SensorType.Temperature
         self.data = {}
         self.timestamp = None #Indication of when last data was calculated
         
-        with open("boundaries.yml", 'r') as ymlfile:
+        with open("boundaries.yaml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
         assert location in cfg['thermocouple']
         self.boundaries = {}
@@ -33,10 +34,13 @@ class Thermocouple(Sensor):
     
     def get_data(self):
         data = {}
-        data["internal"] = self.internal()
-        data["temp"] = self.temp()
-        self.data = data
+#        data["internal"] = self.internal()
+#        data["temp"] = self.temp()
+        data["internal"] = 20
+        data["temp"] = 50
+        data["timestamp"] = time.time()
         self.timestamp = time.time()
+        self.data = data
         return data
     
     #This method should be constantly running in a thread, and should be the only thing calling get_data
@@ -44,23 +48,23 @@ class Thermocouple(Sensor):
         while True:
             data = self.get_data()
             if data["temp"] >= self.boundaries[SensorStatus.Safe][0] and data["temp"] <= self.boundaries[SensorStatus.Safe][1]:
-                self.status = SensorStatus.Safe
+                self._status = SensorStatus.Safe
             elif data["temp"] >= self.boundaries[SensorStatus.Warn][0] and data["temp"] <= self.boundaries[SensorStatus.Warn][1]:
-                self.status = SensorStatus.Warn
+                self._status = SensorStatus.Warn
             else:
-                self.status = SensorStatus.Crit
+                self._status = SensorStatus.Crit
 
     def name(self):
-        return self.name
+        return self._name
     
     def location(self):
-        return self.location
+        return self._location
     
     def status(self):
-        return self.status
+        return self._status
     
     def sensor_type(self):
-        return self.sensor_type
+        return self._sensor_type
     
     def log(self):
         pass
