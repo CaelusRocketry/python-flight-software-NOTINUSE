@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import IntEnum, Enum
 from aenum import auto
 from queue import PriorityQueue
 
-class SensorStatus(Enum):
-    Safe = auto()
-    Warn = auto()
-    Crit = auto()
+class SensorStatus(IntEnum):
+    Safe = 3
+    Warn = 2
+    Crit = 1
 
 class SensorType(Enum):
     Temperature = auto()

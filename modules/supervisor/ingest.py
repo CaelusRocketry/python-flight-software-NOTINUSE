@@ -25,7 +25,7 @@ def ingest(encoded):
             "ip": get_ip
         },
         "sensor": {
-            "temp": temp,
+        #    "temp": temp,
         #     "pressure": pressure,
         #     "gyro": gyro,
         },
