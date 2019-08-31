@@ -9,8 +9,6 @@ EMULATE_HX711=False
 
 referenceUnit = 1
 print("How far is this getting... im finna kill myself")
-else:
-    from emulated_hx711 import HX711
 
 def cleanAndExit():
     print("Cleaning...")
