@@ -2,12 +2,12 @@ from hx711 import HX711
 import time
 import sys
 
-GPIO.setWarnings(False)
+GPIO.setwarnings(False)
 
 EMULATE_HX711=False
 
 referenceUnit = 1
-
+print("How far is this getting... im finna kill myself")
 if not EMULATE_HX711:
     import RPi.GPIO as GPIO
     from hx711 import HX711
