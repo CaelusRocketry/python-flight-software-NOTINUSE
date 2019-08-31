@@ -1,16 +1,14 @@
-import Crypto
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
-import ast
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import base64
+
+key = b'getmeoutgetmeout'
+BLOCK_SIZE = 32
 
 def encode(packet):
-    with open("public.pem", "rb") as publickey:
-        key = RSA.import_key(publickey.read())
-    cipher = PKCS1_OAEP.new(key)
-    return cipher.encrypt(str.encode(packet))
+    cipher = AES.new(key, AES.MODE_ECB)
+    return base64.b64encode(cipher.encrypt(pad(packet, BLOCK_SIZE)))
 
 def decode(message):
-    with open("private.pem", "rb") as privatekey:
-        key = RSA.import_key(privatekey.read())
-    cipher = PKCS1_OAEP.new(key)
-    return cipher.decrypt(ast.literal_eval(str(message))).decode("utf-8")
+    cipher = AES.new(key, AES.MODE_ECB)
+    return unpad(cipher.decrypt(base64.b64decode(message)), BLOCK_SIZE)

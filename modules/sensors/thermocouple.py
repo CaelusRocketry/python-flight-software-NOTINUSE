@@ -27,10 +27,10 @@ class Thermocouple(Sensor):
         self.boundaries[SensorStatus.Crit] = cfg['thermocouple'][location]['crit']
     
     def internal(self):
-        return sensor.read_internal_temp_c()
+        return self.sensor.read_internal_temp_c()
 
     def temp(self):
-        return sensor.read_temp_c()
+        return self.sensor.read_temp_c()
     
     def get_data(self):
         data = {}
