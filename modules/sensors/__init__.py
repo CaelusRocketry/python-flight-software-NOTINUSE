@@ -56,4 +56,4 @@ class Sensor(ABC):
     def updateKalman(self, reading):
         self.kf.predict() 
         self.kf.update(reading)
-        return kf.x
+        return self.kf.x
