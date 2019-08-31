@@ -63,6 +63,9 @@ print('Magnetometer ID:    0x{0:02X}'.format(mag))
 print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
 
 print('Reading BNO055 data, press Ctrl-C to quit...')
+
+outFile = open("data.txt", "w")
+
 while True:
     # Read the Euler angles for heading, roll, pitch (all in degrees).
     heading, roll, pitch = bno.read_euler()
@@ -89,4 +92,5 @@ while True:
     # in meters per second squared):
     #x,y,z = bno.read_gravity()
     # Sleep for a second until the next reading.
+    outFile.write(roll + " ")
     time.sleep(1)
