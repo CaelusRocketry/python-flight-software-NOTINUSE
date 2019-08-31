@@ -4,7 +4,7 @@ from modules.telemetry.packet import Packet
 from modules.sensors.thermocouple import Thermocouple
 from .ingest import ingest
 
-GS_IP = '127.0.0.1'
+GS_IP = '192.168.1.198'
 GS_PORT = 5005
 
 def handle_telem(telem):

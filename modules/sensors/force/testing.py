@@ -3,7 +3,6 @@ import RPi.GPIO as GPIO
 import time
 import sys
 
-GPIO.setwarnings(False)
 
 EMULATE_HX711=False
 

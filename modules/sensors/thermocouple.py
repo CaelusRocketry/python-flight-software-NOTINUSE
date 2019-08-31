@@ -1,16 +1,16 @@
 import yaml
 import time
 from . import Sensor, SensorStatus, SensorType
-#import Adafruit_GPIO
+import Adafruit_GPIO
 # Local Imports
-#from Adafruit_MAX31856 import MAX31856 as MAX31856
+from Adafruit_MAX31856 import MAX31856 as MAX31856
 
 class Thermocouple(Sensor):
     
     def __init__(self, location):
         SPI_PORT = 0
         SPI_DEVICE = 0
-#        self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE)
+        self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE)
         self._name = "Thermocouple"
         self._location = location
         self._status = SensorStatus.Safe
@@ -25,7 +25,7 @@ class Thermocouple(Sensor):
         self.boundaries[SensorStatus.Safe] = cfg['thermocouple'][location]['safe']
         self.boundaries[SensorStatus.Warn] = cfg['thermocouple'][location]['warn']
         self.boundaries[SensorStatus.Crit] = cfg['thermocouple'][location]['crit']
-        
+    
     def internal(self):
         return sensor.read_internal_temp_c()
 
@@ -34,10 +34,8 @@ class Thermocouple(Sensor):
     
     def get_data(self):
         data = {}
-#        data["internal"] = self.internal()
-#        data["temp"] = self.temp()
-        data["internal"] = 20
-        data["temp"] = 50
+        data["internal"] = self.internal()
+        data["temp"] = self.temp()
         data["timestamp"] = time.time()
         self.timestamp = time.time()
         self.data = data

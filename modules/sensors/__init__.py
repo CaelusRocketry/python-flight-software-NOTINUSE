@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from enum import Enum, auto
+from enum import Enum
+from aenum import auto
 from queue import PriorityQueue
 
 class SensorStatus(Enum):
