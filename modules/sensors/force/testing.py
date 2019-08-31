@@ -1,4 +1,5 @@
 from hx711 import HX711
+import RPi.GPIO as GPIO
 import time
 import sys
 
@@ -8,9 +9,6 @@ EMULATE_HX711=False
 
 referenceUnit = 1
 print("How far is this getting... im finna kill myself")
-if not EMULATE_HX711:
-    import RPi.GPIO as GPIO
-    from hx711 import HX711
 else:
     from emulated_hx711 import HX711
 
@@ -32,7 +30,7 @@ hx = HX711(5, 6)
 # The first parameter is the order in which the bytes are used to build the "long" value.
 # The second paramter is the order of the bits inside each byte.
 # According to the HX711 Datasheet, the second parameter is MSB so you shouldn't need to modify it.
-hx.set_reading_format("MSB", "MSB")
+hx.set_reading_format("LSB", "MSB")
 
 # HOW TO CALCULATE THE REFFERENCE UNIT
 # To set the reference unit to 1. Put 1kg on your sensor or anything you have and know exactly how much it weights.
@@ -40,9 +38,9 @@ hx.set_reading_format("MSB", "MSB")
 # and I got numbers around 184000 when I added 2kg. So, according to the rule of thirds:
 # If 2000 grams is 184000 then 1000 grams is 184000 / 2000 = 92.
 #hx.set_reference_unit(113)
-hx.set_reference_unit(referenceUnit)
+#hx.set_reference_unit(referenceUnit)
 
-hx.reset()
+#hx.reset()
 
 hx.tare()
 
