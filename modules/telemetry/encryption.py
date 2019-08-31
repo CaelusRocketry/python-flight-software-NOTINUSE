@@ -7,8 +7,8 @@ BLOCK_SIZE = 32
 
 def encode(packet):
     cipher = AES.new(key, AES.MODE_ECB)
-    return base64.b64encode(cipher.encrypt(pad(packet, BLOCK_SIZE)))
+    return cipher.encrypt(pad(packet.encode(), BLOCK_SIZE))
 
 def decode(message):
     cipher = AES.new(key, AES.MODE_ECB)
-    return unpad(cipher.decrypt(base64.b64decode(message)), BLOCK_SIZE)
+    return unpad(cipher.decrypt(message), BLOCK_SIZE).decode()

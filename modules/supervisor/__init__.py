@@ -18,6 +18,7 @@ def handle_telem(telem):
 
 def interpret(telem, data):
     response = ingest(data)
+    print(response)
     if response[0] == "Enqueue":
         telem.enqueue(response[1])
     elif response[0] == "Error":
@@ -29,7 +30,7 @@ def start():
     telem_thread = threading.Thread(target=handle_telem, args=(telem,))
     telem_thread.daemon = True
     telem_thread.start()
-    
+
     sensors = [
         Thermocouple("nose"),
         Thermocouple("tank"),
@@ -53,3 +54,4 @@ def start():
 #            packet = Packet(header='DATA', message=data, level=status, timestamp=timestamp)
 #            telem.enqueue(packet)
         time.sleep(delay_time)
+
