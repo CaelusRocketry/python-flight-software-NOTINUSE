@@ -3,11 +3,9 @@ import RPi.GPIO as GPIO
 import time
 import sys
 
-
 EMULATE_HX711=False
 
 referenceUnit = 1
-print("How far is this getting... im finna kill myself")
 
 def cleanAndExit():
     print("Cleaning...")
@@ -40,9 +38,7 @@ hx.set_reading_format("LSB", "MSB")
 #hx.reset()
 
 hx.tare()
-
-print("Tare done! Add weight now...")
-
+print("Tare done! Testing will begin...")
 # to use both channels, you'll need to tare them both
 #hx.tare_A()
 #hx.tare_B()
