@@ -2,15 +2,13 @@ import yaml
 import time
 from . import Sensor, SensorStatus, SensorType
 # Local Imports
-try:
+REAL = True
+if REAL:
     import adafruit_bno055
     import busio
     import board
-except ModuleNotFoundError:
-    print("Skipping IMU on non-pi...")
-    REAL = False
 else:
-    REAL = True
+    print("Skipping IMU on non-pi...")
 
 
 class PseudoIMU():

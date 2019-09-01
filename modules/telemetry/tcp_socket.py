@@ -18,6 +18,7 @@ class Telemetry:
         self.queue_send = []
         self.queue_ingest = deque([])
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.connect((IP, PORT))
         print("Connected socket")
 
@@ -30,6 +31,10 @@ class Telemetry:
         listen_thread.start()
             #Used for testing purposes
 #            self.enqueue(Packet(message=input("")))
+
+    def end(self):
+        self.sock.shutdown()
+        self.sock.close()
 
     def send(self):
         while True:
@@ -45,6 +50,7 @@ class Telemetry:
             time.sleep(DELAY_LISTEN)
 
     def enqueue(self, packet):
+        print("Sending", packet.to_string())
         packet_string = packet.to_string()
         encoded = encryption.encode(packet_string)
         heapq.heappush(self.queue_send, (packet.level, encoded))

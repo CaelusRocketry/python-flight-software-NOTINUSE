@@ -3,13 +3,11 @@ import time
 from . import Sensor, SensorStatus, SensorType
 import Adafruit_GPIO
 # Local Imports
-try:
+REAL = True
+if REAL:
     from Adafruit_MAX31856 import MAX31856 as MAX31856
-except ModuleNotFoundError:
-    print("Skipping thermocouple on non-pi...")
-    REAL = False
 else:
-    REAL = True
+    print("Skipping thermocouple on non-pi...")
 
 
 class PsuedoThermocouple():
@@ -34,6 +32,7 @@ class Thermocouple(Sensor):
         self._sensor_type = SensorType.Temperature
         self.data = {}
         self.timestamp = None #Indication of when last data was calculated
+        self.ABORT = True
 
         with open("boundaries.yaml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)

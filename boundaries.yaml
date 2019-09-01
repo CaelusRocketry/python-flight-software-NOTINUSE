@@ -41,3 +41,13 @@ imu:
       warn: [0,0]
       crit: [0,0]
     
+load:
+  fuel:
+    safe: [0,0]
+    warn: [0,0]
+    crit: [0,0]
+  oxidizer:
+    safe: [0,0]
+    warn: [0,0]
+    crit: [0,0]
+  

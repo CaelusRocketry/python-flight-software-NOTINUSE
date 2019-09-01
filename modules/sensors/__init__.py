@@ -12,11 +12,11 @@ class SensorStatus(IntEnum):
     Warn = 2
     Crit = 1
 
-class SensorType(Enum):
-    Temperature = auto()
-    Pressure = auto()
-    IMU = auto()
-    Force = auto()
+class SensorType(StringEnum):
+    Temperature = "Temperature"
+    Pressure = "Pressure"
+    IMU = "IMU"
+    Force = "Force"
 
 class Sensor(ABC):
     @classmethod
@@ -57,3 +57,8 @@ class Sensor(ABC):
 #        self.kf.predict() 
 #        self.kf.update(reading)
 #        return self.kf.x
+
+class ValveType(Enum):
+    Ball = auto()
+    Vent = auto()
+    Drain = auto()

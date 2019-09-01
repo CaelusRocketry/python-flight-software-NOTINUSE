@@ -1,16 +1,24 @@
 import RPi.GPIO as GPIO
 from RPi.GPIO import HIGH, LOW
 from time import sleep
+from . import ValveType
 import threading
 import time
 
 GEAR_RATIO = 50
 DELAY_TIME = .001
 
+# change later
+ABORT_PRIORITY = 10
+PURGE_PRIORITY = 10 
+PULSE_PRIORITY = 10 
+VENT_PRIORITY = 10
 
 class Valve:
 
-    def __init__(self, dir, step, gear_ratio=GEAR_RATIO, delay=DELAY_TIME):
+    def __init__(self, id, valve_type, dir, step, gear_ratio=GEAR_RATIO, delay=DELAY_TIME):
+        self.id = id
+        self.type = valve_type
         self.is_acuating = False
         self.gear_ratio = gear_ratio
         self.dir = dir
@@ -29,9 +37,10 @@ class Valve:
         GPIO.setup(self.step, GPIO.OUT)
 
     def abort(self):
-        GPIO.output(self.step, LOW)
-        GPIO.cleanup()
-        self.aborted = True
+        if self.type == Valve.Ball:
+            self.actuate(0, ABORT_PRIORITY) # emptying
+        else:
+            self.actuate(90, ABORT_PRIORITY) # ep
 
     def _step(self):
         GPIO.output(self.step, HIGH)
@@ -68,6 +77,41 @@ class Valve:
         self.is_acuating = False
         self.interrupt = False
         print("Done actuating")
+    
+    def start_vent():
+        self.is_venting = True
+        if self.type == Valve.Ball:
+            self.actuate(0, VENT_PRIORITY) 
+        else:
+            self.actuate(90, VENT_PRIORITY) 
+
+    def stop_vent():
+        if self.is_venting == True:
+            self.is_venting = False
+            if self.type == Valve.Ball:
+                self.actuate(90, VENT_PRIORITY) 
+            else:
+                self.actuate(0, VENT_PRIORITY) 
+
+    def pulse(self):
+        if self.type == Valve.Ball:
+            for x in range(5): 
+                self.actuate(90, PULSE_PRIORITY)
+                time.sleep(0.5)
+                self.actuate(0, PULSE_PRIORITY)
+                time.sleep(0.5)
+        else:
+            for x in range(5): 
+                self.actuate(0, PULSE_PRIORITY)
+                time.sleep(0.5)
+                self.actuate(90, PULSE_PRIORITY)
+                time.sleep(0.5)
+    
+    def purge(self, priority):
+        if self.type == Valve.Ball:
+            self.actuate(90, PURGE_PRIORITY)
+        else:
+            self.actuate(0, PURGE_PRIORITY)
 
     def actuate(self, target, priority):
         print(target, priority)
