@@ -2,6 +2,7 @@ import threading, time, heapq
 from modules.telemetry.tcp_socket import Telemetry
 from modules.telemetry.packet import Packet
 from modules.sensors.thermocouple import Thermocouple
+from modules.sensors.imu import IMU
 from .ingest import ingest
 
 GS_IP = '127.0.0.1'
@@ -32,9 +33,8 @@ def start():
     telem_thread.start()
 
     sensors = [
-        Thermocouple("nose"),
-        Thermocouple("tank"),
-        Thermocouple("chamber")
+        Thermocouple(0, 0, "chamber"),
+        IMU("nose")
     ]
 
     #Begin the checking method for all sensors

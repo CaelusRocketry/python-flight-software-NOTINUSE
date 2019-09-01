@@ -1,96 +1,106 @@
-# Simple Adafruit BNO055 sensor reading example.  Will print the orientation
-# and calibration data every second.
-#
-# Copyright (c) 2015 Adafruit Industries
-# Author: Tony DiCola
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-import logging
-import sys
+import yaml
 import time
+from . import Sensor, SensorStatus, SensorType
+# Local Imports
+try:
+    import adafruit_bno055
+    import busio
+    import board
+except ModuleNotFoundError:
+    print("Skipping IMU on non-pi...")
+    REAL = False
+else:
+    REAL = True
 
-from Adafruit_BNO055 import BNO055
+
+class PseudoIMU():
+
+    def read_accelerometer(self):
+        return (1, 1, 1)
+
+    def read_euler(self):
+        return (2, 2, 2)
+
+    def read_gravity(self):
+        return (3, 3, 3)
+
+    def read_gyroscope(self):
+        return (4, 4, 4)
+
+    def read_linear_acceleration(self):
+        return (5, 5, 5)
 
 
-# Create and configure the BNO sensor connection.  Make sure only ONE of the
-# below 'bno = ...' lines is uncommented:
-# Raspberry Pi configuration with serial UART and RST connected to GPIO 18:
-bno = BNO055.BNO055(serial_port='/dev/serial0', rst=18)
-# BeagleBone Black configuration with default I2C connection (SCL=P9_19, SDA=P9_20),
-# and RST connected to pin P9_12:
-#bno = BNO055.BNO055(rst='P9_12')
+class IMU(Sensor):
 
+    def __init__(self, location):
+        if REAL:
+            i2c = busio.I2C(board.SCL, board.SDA)
+            self.sensor = adafruit_bno055.BNO055(i2c)
+        else:
+            self.sensor = PseudoIMU()
+        self._name = "IMU"
+        self._location = location
+        self._status = SensorStatus.Safe
+        self._sensor_type = SensorType.IMU
+        self.data = {}
+        self.timestamp = None  # Indication of when last data was calculated
 
-# Enable verbose debug logging if -v is passed as a parameter.
-if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
-    logging.basicConfig(level=logging.DEBUG)
+        with open("boundaries.yaml", "r") as ymlfile:
+            cfg = yaml.load(ymlfile)
+        assert location in cfg["imu"]
+        self.boundaries = {}
+        for datatype in ["acceleration", "roll", "tilt"]:
+            self.boundaries[datatype] = {}
+            self.boundaries[datatype][SensorStatus.Safe] = cfg["imu"][location][datatype]["safe"]
+            self.boundaries[datatype][SensorStatus.Warn] = cfg["imu"][location][datatype]["warn"]
+            self.boundaries[datatype][SensorStatus.Crit] = cfg["imu"][location][datatype]["crit"]
 
-# Initialize the BNO055 and stop if something went wrong.
-if not bno.begin():
-    raise RuntimeError('Failed to initialize BNO055! Is the sensor connected?')
+    def get_data(self):
+        data = {}
+        data["accleration"] = self.sensor.accelerometer
+        data["euler"] = self.sensor.euler
+        data["gravity"] = self.sensor.gravity
+        data["gyroscope"] = self.sensor.gyroscope
+        data["linear_acceleration"] = self.sensor.linear_acceleration
+        data["timestamp"] = time.time()
+        self.timestamp = time.time()
+        self.data = data
+        return data
 
-# Print system status and self test result.
-status, self_test, error = bno.get_system_status()
-print('System status: {0}'.format(status))
-print('Self test result (0x0F is normal): 0x{0:02X}'.format(self_test))
-# Print out an error if system status is in error mode.
-if status == 0x01:
-    print('System error: {0}'.format(error))
-    print('See datasheet section 4.3.59 for the meaning.')
+    # This method should be constantly running in a thread, and should be the only thing calling get_data
+    def check(self):
+        while True:
+            data = self.get_data()
+            # Find current tilt (either pitch or yaw, whichever one is farther away from 0), roll (in deg/sec), and acceleration
+            check_data = {}
+            check_data["tilt"] = max(abs(180 - data["euler"][0]),
+                                     abs(180 - data["euler"][2]))
+            check_data["roll"] = abs(data["gyroscope"][1])
+            check_data["acceleration"] = (data["linear_acceleration"][0] ** 2 +
+                                          data["linear_acceleration"][1] ** 2 +
+                                          data["linear_acceleration"][2] ** 2) ** 0.5
+            stat = SensorStatus.Safe
+            for key in check_data:
+                if check_data[key] >= self.boundaries[key][SensorStatus.Safe][0] and check_data[key] <= self.boundaries[key][SensorStatus.Safe][1]:
+                    stat = min(SensorStatus.Safe, stat)
+                elif check_data[key] >= self.boundaries[key][SensorStatus.Warn][0] and check_data[key] <= self.boundaries[key][SensorStatus.Warn][1]:
+                    stat = min(SensorStatus.Warn, stat)
+                else:
+                    stat = min(SensorStatus.Crit, stat)
+            self._status = stat
 
-# Print BNO055 software revision and other diagnostic data.
-sw, bl, accel, mag, gyro = bno.get_revision()
-print('Software version:   {0}'.format(sw))
-print('Bootloader version: {0}'.format(bl))
-print('Accelerometer ID:   0x{0:02X}'.format(accel))
-print('Magnetometer ID:    0x{0:02X}'.format(mag))
-print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
+    def name(self):
+        return self._name
 
-print('Reading BNO055 data, press Ctrl-C to quit...')
+    def location(self):
+        return self._location
 
-outFile = open("data.txt", "w")
+    def status(self):
+        return self._status
 
-while True:
-    # Read the Euler angles for heading, roll, pitch (all in degrees).
-    heading, roll, pitch = bno.read_euler()
-    # Read the calibration status, 0=uncalibrated and 3=fully calibrated.
-    sys, gyro, accel, mag = bno.get_calibration_status()
-    # Print everything out.
-    print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
-          heading, roll, pitch, sys, gyro, accel, mag))
-    # Other values you can optionally read:
-    # Orientation as a quaternion:
-    #x,y,z,w = bno.read_quaterion()
-    # Sensor temperature in degrees Celsius:
-    #temp_c = bno.read_temp()
-    # Magnetometer data (in micro-Teslas):
-    #x,y,z = bno.read_magnetometer()
-    # Gyroscope data (in degrees per second):
-    #x,y,z = bno.read_gyroscope()
-    # Accelerometer data (in meters per second squared):
-    #x,y,z = bno.read_accelerometer()
-    # Linear acceleration data (i.e. acceleration from movement, not gravity--
-    # returned in meters per second squared):
-    #x,y,z = bno.read_linear_acceleration()
-    # Gravity acceleration data (i.e. acceleration just from gravity--returned
-    # in meters per second squared):
-    #x,y,z = bno.read_gravity()
-    # Sleep for a second until the next reading.
-    outFile.write(roll + " ")
-    time.sleep(1)
+    def sensor_type(self):
+        return self._sensor_type
+
+    def log(self):
+        pass

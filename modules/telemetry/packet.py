@@ -1,7 +1,6 @@
 import time
 import json
 from enum import IntEnum
-import jsonpickle
 
 class Level(IntEnum):
     INFO = 4
@@ -11,12 +10,12 @@ class Level(IntEnum):
 
 class Packet:
 
-    def __init__(self, header = 'heartbeat' , message = "alive" , level: Level = Level.INFO, timestamp: float = time.time()):
+    def __init__(self, header = 'heartbeat' , message = "alive" , level: Level = Level.INFO, timestamp: float = time.time(), sender="Flight Pi"):
         self.header = header
         self.message = message
         self.level = level
         self.timestamp = timestamp
-        self.sender = "Flight Pi"
+        self.sender = sender
 
     def to_string(self):
         return json.dumps(self.__dict__)

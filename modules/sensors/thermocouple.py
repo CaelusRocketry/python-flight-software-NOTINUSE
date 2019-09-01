@@ -23,9 +23,9 @@ class PsuedoThermocouple():
 
 class Thermocouple(Sensor):
 
-    def __init__(self, location):
-        SPI_PORT = 0
-        SPI_DEVICE = 0
+    def __init__(self, port, device, location):
+        SPI_PORT = port
+        SPI_DEVICE = device
         self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE) \
                       if REAL else PsuedoThermocouple()
         self._name = "Thermocouple"
