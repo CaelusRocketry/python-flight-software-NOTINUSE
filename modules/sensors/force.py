@@ -1,10 +1,10 @@
 import yaml
 import time
 from . import Sensor, SensorStatus, SensorType
-import RPI.GPIO as GPIO
+import RPi.GPIO as GPIO
 # Local Imports
 
-class Force(Sensor):
+class Load(Sensor):
 
     def __init__(self, sck, dat, location):
         self.sck = sck
@@ -23,8 +23,9 @@ class Force(Sensor):
         self.boundaries[SensorStatus.Safe] = cfg['load'][location]['safe']
         self.boundaries[SensorStatus.Warn] = cfg['load'][location]['warn']
         self.boundaries[SensorStatus.Crit] = cfg['load'][location]['crit']
+        self.setup()
 
-    def setup():
+    def setup(self):
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.sck, GPIO.OUT)
@@ -53,7 +54,7 @@ class Force(Sensor):
         GPIO.output(self.sck,0)
 
         #Calibration
-        weight = (958400 - count) / 845165
+        weight = (9584000 - count) / 845165
         return weight
 
     def get_data(self):

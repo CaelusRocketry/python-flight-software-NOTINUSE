@@ -12,11 +12,11 @@ class SensorStatus(IntEnum):
     Warn = 2
     Crit = 1
 
-class SensorType(StringEnum):
-    Temperature = "Temperature"
-    Pressure = "Pressure"
-    IMU = "IMU"
-    Force = "Force"
+class SensorType(IntEnum):
+    Temperature = 1
+    Pressure = 2
+    IMU = 3
+    Force = 4
 
 class Sensor(ABC):
     @classmethod

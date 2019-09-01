@@ -8,7 +8,7 @@ BYTE_SIZE = 8192
 
 DELAY = .05
 DELAY_LISTEN = .05
-DELAY_SEND = .05
+DELAY_SEND = .4
 
 SEND_ALLOWED=True
 
@@ -50,7 +50,7 @@ class Telemetry:
             time.sleep(DELAY_LISTEN)
 
     def enqueue(self, packet):
-        print("Sending", packet.to_string())
         packet_string = packet.to_string()
-        encoded = encryption.encode(packet_string)
+        print("Sending", packet_string)
+        encoded = encryption.encrypt(packet_string)
         heapq.heappush(self.queue_send, (packet.level, encoded))

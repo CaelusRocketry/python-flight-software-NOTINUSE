@@ -1,11 +1,17 @@
 import RPi.GPIO as GPIO
 from RPi.GPIO import HIGH, LOW
 from time import sleep
-from . import ValveType
 import threading
 import time
 
 GEAR_RATIO = 50
+SUPERVISOR = True
+
+if SUPERVISOR:
+    from . import ValveType
+else:
+    from __init__ import ValveType
+
 DELAY_TIME = .001
 
 # change later
@@ -67,6 +73,7 @@ class Valve:
 
         self.interrupt = False
         self.is_acuating = True
+        start = time.time()
         for i in range(steps):
             self._step()
             self.angle += angle / steps
@@ -77,6 +84,7 @@ class Valve:
         self.is_acuating = False
         self.interrupt = False
         print("Done actuating")
+        print("Took", str(time.time() - start), "seconds to actuate")
     
     def start_vent():
         self.is_venting = True
@@ -133,7 +141,7 @@ class Valve:
 
 
 if __name__ == '__main__':
-    valve = Valve(4, 17)
+    valve = Valve(0, ValveType.Ball, 4, 17)
     while 1:
         x = input()
         if x == "x":
