@@ -5,7 +5,7 @@ import threading
 import time
 
 GEAR_RATIO = 50
-SUPERVISOR = True
+SUPERVISOR = False
 
 if SUPERVISOR:
     from . import ValveType
@@ -139,8 +139,19 @@ class Valve:
             self.priority = priority
             self.goto(target)
 
+def indefinite(direction):
+    valve = Valve(0, ValveType.Ball, 4, 17)
+    if direction:
+        GPIO.output(valve.dir, HIGH)
+    else:
+        GPIO.output(valve.dir, HIGH)
+    while True:
+        valve._step()
 
 if __name__ == '__main__':
+    indefinite(True)
+
+""" if __name__ == '__main__':
     valve = Valve(0, ValveType.Ball, 4, 17)
     while 1:
         x = input()
@@ -151,5 +162,4 @@ if __name__ == '__main__':
             target=valve.actuate, args=(degree, priority))
         actuate_thread.daemon = True
         actuate_thread.start()
-
-    valve.abort()
+    valve.abort() """
