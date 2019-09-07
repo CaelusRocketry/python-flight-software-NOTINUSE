@@ -2,7 +2,6 @@
 
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum
-from aenum import auto
 from queue import PriorityQueue
 
 #from filterpy.kalman import KalmanFilter
@@ -62,9 +61,3 @@ class Sensor(ABC):
 #        self.kf.predict()
 #        self.kf.update(reading)
 #        return self.kf.x
-
-
-class ValveType(Enum):
-    Ball = auto()
-    Vent = auto()
-    Drain = auto()
