@@ -4,6 +4,7 @@ from . import Sensor, SensorStatus, SensorType
 import RPi.GPIO as GPIO
 # Local Imports
 
+
 class Load(Sensor):
 
     def __init__(self, sck, dat, location):
@@ -14,7 +15,7 @@ class Load(Sensor):
         self._status = SensorStatus.Safe
         self._sensor_type = SensorType.Force
         self.data = {}
-        self.timestamp = None #Indication of when last data was calculated
+        self.timestamp = None  # Indication of when last data was calculated
 
         with open("boundaries.yaml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
@@ -34,26 +35,27 @@ class Load(Sensor):
         i = 0
         count = 0
         GPIO.setup(self.dat, GPIO.OUT)
-        GPIO.output(self.dat,1)
-        GPIO.output(self.sck,0)
+        GPIO.output(self.dat, 1)
+        GPIO.output(self.sck, 0)
         GPIO.setup(self.dat, GPIO.IN)
 
-        while GPIO.input(self.dat) == 1: i = 0
+        while GPIO.input(self.dat) == 1:
+            i = 0
 
         for i in range(24):
             GPIO.output(self.sck, 1)
             count = count << 1
 
-            GPIO.output(self.sck,0)
+            GPIO.output(self.sck, 0)
             time.sleep(0.001)
-            if GPIO.input(self.dat) == 0: #HX711 values are in 2s complement
+            if GPIO.input(self.dat) == 0:  # HX711 values are in 2s complement
                 count = count + 1
 
-        GPIO.output(self.sck,1)
-        count = count ^ 0x800000 #clear 24th bit
-        GPIO.output(self.sck,0)
+        GPIO.output(self.sck, 1)
+        count = count ^ 0x800000  # clear 24th bit
+        GPIO.output(self.sck, 0)
 
-        #Calibration
+        # Calibration
         weight = (9584000 - count) / 845165
         return weight
 
@@ -65,7 +67,8 @@ class Load(Sensor):
         self.data = data
         return data
 
-    #This method should be constantly running in a thread, and should be the only thing calling get_data
+    # This method should be constantly running in a thread, and should be the
+    # only thing calling get_data
     def check(self):
         while True:
             data = self.get_data()
@@ -75,7 +78,6 @@ class Load(Sensor):
                 self._status = SensorStatus.Warn
             else:
                 self._status = SensorStatus.Crit
-
 
     def name(self):
         return self._name

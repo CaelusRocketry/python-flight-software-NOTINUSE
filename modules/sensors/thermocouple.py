@@ -12,12 +12,12 @@ else:
 
 class PsuedoThermocouple():
 
-
     def read_internal_temp_c(self):
         return 1
 
     def read_temp_c(self):
         return 2
+
 
 class Thermocouple(Sensor):
 
@@ -25,13 +25,13 @@ class Thermocouple(Sensor):
         SPI_PORT = port
         SPI_DEVICE = device
         self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE) \
-                      if REAL else PsuedoThermocouple()
+            if REAL else PsuedoThermocouple()
         self._name = "Thermocouple"
         self._location = location
         self._status = SensorStatus.Safe
         self._sensor_type = SensorType.Temperature
         self.data = {}
-        self.timestamp = None #Indication of when last data was calculated
+        self.timestamp = None  # Indication of when last data was calculated
         self.ABORT = True
 
         with open("boundaries.yaml", 'r') as ymlfile:
@@ -57,7 +57,8 @@ class Thermocouple(Sensor):
         self.data = data
         return data
 
-    #This method should be constantly running in a thread, and should be the only thing calling get_data
+    # This method should be constantly running in a thread, and should be the
+    # only thing calling get_data
     def check(self):
         while True:
             data = self.get_data()

@@ -66,11 +66,13 @@ class IMU(Sensor):
         self.data = data
         return data
 
-    # This method should be constantly running in a thread, and should be the only thing calling get_data
+    # This method should be constantly running in a thread, and should be the
+    # only thing calling get_data
     def check(self):
         while True:
             data = self.get_data()
-            # Find current tilt (either pitch or yaw, whichever one is farther away from 0), roll (in deg/sec), and acceleration
+            # Find current tilt (either pitch or yaw, whichever one is farther
+            # away from 0), roll (in deg/sec), and acceleration
             check_data = {}
             check_data["tilt"] = max(abs(180 - data["euler"][0]),
                                      abs(180 - data["euler"][2]))
@@ -80,7 +82,8 @@ class IMU(Sensor):
                                           data["linear_acceleration"][2] ** 2) ** 0.5
             stat = SensorStatus.Safe
             for key in check_data:
-                if check_data[key] >= self.boundaries[key][SensorStatus.Safe][0] and check_data[key] <= self.boundaries[key][SensorStatus.Safe][1]:
+                if check_data[key] >= self.boundaries[key][SensorStatus.Safe][
+                        0] and check_data[key] <= self.boundaries[key][SensorStatus.Safe][1]:
                     stat = min(SensorStatus.Safe, stat)
                 elif check_data[key] >= self.boundaries[key][SensorStatus.Warn][0] and check_data[key] <= self.boundaries[key][SensorStatus.Warn][1]:
                     stat = min(SensorStatus.Warn, stat)

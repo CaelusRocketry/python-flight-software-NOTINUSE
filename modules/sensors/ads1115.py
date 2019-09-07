@@ -157,9 +157,9 @@ class ADS1115:
         """Read voltage between a channel and GND.
            Time depends on conversion rate."""
         self._write_register(_REGISTER_CONFIG, (_CQUE_NONE | _CLAT_NONLAT |
-                             _CPOL_ACTVLOW | _CMODE_TRAD | _RATES[rate] |
-                             _MODE_SINGLE | _OS_SINGLE | _GAINS[self.gain] |
-                             _CHANNELS[(channel1, channel2)]))
+                                                _CPOL_ACTVLOW | _CMODE_TRAD | _RATES[rate] |
+                                                _MODE_SINGLE | _OS_SINGLE | _GAINS[self.gain] |
+                                                _CHANNELS[(channel1, channel2)]))
         while not self._read_register(_REGISTER_CONFIG) & _OS_NOTBUSY:
             time.sleep_ms(1)
         res = self._read_register(_REGISTER_CONVERT)

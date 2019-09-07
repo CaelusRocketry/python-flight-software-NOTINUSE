@@ -4,14 +4,16 @@
 # 2018-03-05
 # Public Domain
 
-CH_A_GAIN_64  = 0 # Channel A gain 64
-CH_A_GAIN_128 = 1 # Channel A gain 128
-CH_B_GAIN_32  = 2 # Channel B gain 32
+import pigpio  # http://abyz.co.uk/rpi/pigpio/python.html
+import time
+CH_A_GAIN_64 = 0  # Channel A gain 64
+CH_A_GAIN_128 = 1  # Channel A gain 128
+CH_B_GAIN_32 = 2  # Channel B gain 32
 
 DATA_CLKS = 24
 X_128_CLK = 25
-X_32_CLK  = 26
-X_64_CLK  = 27
+X_32_CLK = 26
+X_64_CLK = 27
 
 PULSE_LEN = 15
 
@@ -24,10 +26,7 @@ TIMEOUT = ((X_64_CLK + 3) * 2 * PULSE_LEN)
 
 SETTLE_READINGS = 5
 
-import time
 
-import pigpio # http://abyz.co.uk/rpi/pigpio/python.html
-            
 class sensor:
 
     """
@@ -73,13 +72,13 @@ class sensor:
 
         self._skip_readings = SETTLE_READINGS
 
-        pi.write(CLOCK, 1) # Reset the sensor.
+        pi.write(CLOCK, 1)  # Reset the sensor.
 
         pi.set_mode(DATA, pigpio.INPUT)
 
         pi.wave_add_generic(
-            [pigpio.pulse(1<<CLOCK, 0, PULSE_LEN),
-             pigpio.pulse(0, 1<<CLOCK, PULSE_LEN)])
+            [pigpio.pulse(1 << CLOCK, 0, PULSE_LEN),
+             pigpio.pulse(0, 1 << CLOCK, PULSE_LEN)])
 
         self._wid = pi.wave_create()
 
@@ -184,7 +183,7 @@ class sensor:
 
                         self._in_wave = False
 
-                        if self._value & 0x800000: # unsigned to signed
+                        if self._value & 0x800000:  # unsigned to signed
                             self._value |= ~0xffffff
 
                         if not self._paused:
@@ -196,7 +195,8 @@ class sensor:
                                 self._rval = self._value
 
                                 if self.callback is not None:
-                                    self.callback(self._count, self._rmode, self._rval)
+                                    self.callback(
+                                        self._count, self._rmode, self._rval)
 
                             else:
                                 self._skip_readings -= 1
@@ -227,6 +227,7 @@ class sensor:
 
             self._data_tick = tick
             self._previous_edge_long = current_edge_long
+
 
 if __name__ == "__main__":
 
@@ -305,4 +306,3 @@ if __name__ == "__main__":
     s.pause()
     s.cancel()
     pi.stop()
-

@@ -5,9 +5,11 @@ import base64
 key = b'getmeoutgetmeout'
 BLOCK_SIZE = 32
 
+
 def encrypt(packet):
     cipher = AES.new(key, AES.MODE_ECB)
     return cipher.encrypt(pad(packet.encode(), BLOCK_SIZE))
+
 
 def decrypt(message):
     cipher = AES.new(key, AES.MODE_ECB)

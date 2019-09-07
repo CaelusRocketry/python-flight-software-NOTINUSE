@@ -1,4 +1,7 @@
-import socket, threading, time, json
+import socket
+import threading
+import time
+import json
 import heapq
 from . import packet, encryption
 from .packet import Packet
@@ -10,10 +13,11 @@ DELAY = .05
 DELAY_LISTEN = .05
 DELAY_SEND = .4
 
-SEND_ALLOWED=True
+SEND_ALLOWED = True
+
 
 class Telemetry:
-    
+
     def __init__(self, IP, PORT):
         self.queue_send = []
         self.queue_ingest = deque([])
@@ -29,7 +33,7 @@ class Telemetry:
         send_thread.daemon = True
         send_thread.start()
         listen_thread.start()
-            #Used for testing purposes
+        # Used for testing purposes
 #            self.enqueue(Packet(message=input("")))
 
     def end(self):

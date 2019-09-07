@@ -33,27 +33,28 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 _logger = logging.getLogger(__name__)
 
+
 class Adafruit_MAX31856(unittest.TestCase):
-    
+
     def tearDown(self):
         GPIO.cleanup()
 
-    #def test_software_spi_initialize(self):
-        #"""Checks to see if the sensor can initialize on the software SPI interface.
+    # def test_software_spi_initialize(self):
+        # """Checks to see if the sensor can initialize on the software SPI interface.
 
-        #Will fail if it cannot find the MAX31856 library or any dependencies.
-        #Test only checks to see that the sensor can be initialized in Software, does not check the
-        #hardware connection.
-        #"""
-        #_logger.debug('test_software_SPI_initialize()')
-        ## Raspberry Pi software SPI configuration.
+        # Will fail if it cannot find the MAX31856 library or any dependencies.
+        # Test only checks to see that the sensor can be initialized in Software, does not check the
+        # hardware connection.
+        # """
+        # _logger.debug('test_software_SPI_initialize()')
+        # Raspberry Pi software SPI configuration.
         #software_spi = {"clk": 25, "cs": 8, "do": 9, "di": 10}
         #sensor = MAX31856(software_spi=software_spi)
 
-        #if sensor:
-            #self.assertTrue(True)
-        #else:
-            #self.assertTrue(False)
+        # if sensor:
+        # self.assertTrue(True)
+        # else:
+        # self.assertTrue(False)
 
     def test_hardware_spi_initialize(self):
         """
@@ -87,27 +88,27 @@ class Adafruit_MAX31856(unittest.TestCase):
         value = sensor._read_register(MAX31856.MAX31856_REG_READ_CR0)
         for ii in range(0x00, 0x10):
             # Read all of the registers, will store data to log
-            sensor._read_register(ii) # pylint: disable-msg=protected-access
+            sensor._read_register(ii)  # pylint: disable-msg=protected-access
 
         if value:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
 
-    #def test_get_temperaure_reading_software_spi(self):
-        #"""Checks to see if we can read a temperature from the board, using software SPI
-        #"""
-        #_logger.debug('test_get_temperature_reading_software_spi')
-        ## Raspberry Pi software SPI configuration.
+    # def test_get_temperaure_reading_software_spi(self):
+        # """Checks to see if we can read a temperature from the board, using software SPI
+        # """
+        # _logger.debug('test_get_temperature_reading_software_spi')
+        # Raspberry Pi software SPI configuration.
         #software_spi = {"clk": 25, "cs": 8, "do": 9, "di": 10}
         #sensor = MAX31856(software_spi=software_spi)
 
         #temp = sensor.read_temp_c()
 
-        #if temp:
-            #self.assertTrue(True)
-        #else:
-            #self.assertTrue(False)
+        # if temp:
+            # self.assertTrue(True)
+        # else:
+            # self.assertTrue(False)
 
     def test_get_temperaure_reading(self):
         """
@@ -125,7 +126,7 @@ class Adafruit_MAX31856(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-            
+
     def test_get_internal_temperaure_reading(self):
         """
         Checks to see if we can read a temperature from the board, using Hardware SPI
@@ -151,7 +152,11 @@ class Adafruit_MAX31856(unittest.TestCase):
         # Raspberry Pi hardware SPI configuration.
         spi_port = 0
         spi_device = 0
-        sensor = MAX31856(hardware_spi=SPI.SpiDev(spi_port, spi_device), tc_type=MAX31856.MAX31856_K_TYPE)
+        sensor = MAX31856(
+            hardware_spi=SPI.SpiDev(
+                spi_port,
+                spi_device),
+            tc_type=MAX31856.MAX31856_K_TYPE)
 
         temp = sensor.read_internal_temp_c()
 
@@ -171,65 +176,76 @@ class Adafruit_MAX31856(unittest.TestCase):
         byte2 = 0x01
         byte1 = 0x70
         byte0 = 0x20
-        decimal_temp = MAX31856._thermocouple_temp_from_bytes(byte0, byte1, byte2)  # pylint: disable-msg=protected-access
+        decimal_temp = MAX31856._thermocouple_temp_from_bytes(
+            byte0, byte1, byte2)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_temp, 23.0078125)
 
         # Check a couple values from the datasheet
         byte2 = 0b00000001
         byte1 = 0b10010000
         byte0 = 0b00000000
-        decimal_temp = MAX31856._thermocouple_temp_from_bytes(byte0, byte1, byte2) # pylint: disable-msg=protected-access
+        decimal_temp = MAX31856._thermocouple_temp_from_bytes(
+            byte0, byte1, byte2)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_temp, 25.0)
 
         byte2 = 0b00000000
         byte1 = 0b00000000
         byte0 = 0b00000000
-        decimal_temp = MAX31856._thermocouple_temp_from_bytes(byte0, byte1, byte2) # pylint: disable-msg=protected-access
+        decimal_temp = MAX31856._thermocouple_temp_from_bytes(
+            byte0, byte1, byte2)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_temp, 0.0)
 
         byte2 = 0b11111111
         byte1 = 0b11110000
         byte0 = 0b00000000
-        decimal_temp = MAX31856._thermocouple_temp_from_bytes(byte0, byte1, byte2) # pylint: disable-msg=protected-access
+        decimal_temp = MAX31856._thermocouple_temp_from_bytes(
+            byte0, byte1, byte2)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_temp, -1.0)
 
         byte2 = 0b11110000
         byte1 = 0b01100000
         byte0 = 0b00000000
-        decimal_temp = MAX31856._thermocouple_temp_from_bytes(byte0, byte1, byte2) # pylint: disable-msg=protected-access
+        decimal_temp = MAX31856._thermocouple_temp_from_bytes(
+            byte0, byte1, byte2)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_temp, -250.0)
 
         #---------------------------------#
         # Test CJ Temperature Conversions #
         msb = 0x1C
         lsb = 0x64
-        decimal_cj_temp = MAX31856._cj_temp_from_bytes(msb, lsb) # pylint: disable-msg=protected-access
+        decimal_cj_temp = MAX31856._cj_temp_from_bytes(
+            msb, lsb)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_cj_temp, 28.390625)
 
         # Check a couple values from the datasheet
         msb = 0b01111111
         lsb = 0b11111100
-        decimal_cj_temp = MAX31856._cj_temp_from_bytes(msb, lsb) # pylint: disable-msg=protected-access
+        decimal_cj_temp = MAX31856._cj_temp_from_bytes(
+            msb, lsb)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_cj_temp, 127.984375)
 
         msb = 0b00011001
         lsb = 0b00000000
-        decimal_cj_temp = MAX31856._cj_temp_from_bytes(msb, lsb) # pylint: disable-msg=protected-access
+        decimal_cj_temp = MAX31856._cj_temp_from_bytes(
+            msb, lsb)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_cj_temp, 25)
 
         msb = 0b00000000
         lsb = 0b00000000
-        decimal_cj_temp = MAX31856._cj_temp_from_bytes(msb, lsb) # pylint: disable-msg=protected-access
+        decimal_cj_temp = MAX31856._cj_temp_from_bytes(
+            msb, lsb)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_cj_temp, 0)
 
         msb = 0b11100111
         lsb = 0b00000000
-        decimal_cj_temp = MAX31856._cj_temp_from_bytes(msb, lsb) # pylint: disable-msg=protected-access
+        decimal_cj_temp = MAX31856._cj_temp_from_bytes(
+            msb, lsb)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_cj_temp, -25)
 
         msb = 0b11001001
         lsb = 0b00000000
-        decimal_cj_temp = MAX31856._cj_temp_from_bytes(msb, lsb) # pylint: disable-msg=protected-access
+        decimal_cj_temp = MAX31856._cj_temp_from_bytes(
+            msb, lsb)  # pylint: disable-msg=protected-access
         self.assertEqual(decimal_cj_temp, -55)
 
 

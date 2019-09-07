@@ -6,6 +6,7 @@ import sys
 
 TOK_DEL, TYPE_DEL = " ", ":"
 
+
 def ingest(encoded, sense, valv):
     global sensors, valves
     sensors = sense
@@ -17,7 +18,7 @@ def ingest(encoded, sense, valv):
     types = {"int": int,
              "float": float,
              "str": str,
-            }
+             }
 
     funcs = {
         "ABORT": {
@@ -43,7 +44,8 @@ def ingest(encoded, sense, valv):
     tokens = pck.message.split(TOK_DEL)
     cmd, args = tokens[0], tokens[1:]
 
-    args = list(map(lambda x: types[x.split(TYPE_DEL)[0]](x.split(TYPE_DEL)[1]), args))
+    args = list(map(lambda x: types[x.split(TYPE_DEL)[0]](
+        x.split(TYPE_DEL)[1]), args))
 
     if header in funcs:
         if cmd in funcs[header]:
@@ -58,15 +60,19 @@ def get_ip():
     return "Enqueue", Packet(header="RESPONSE", message="192.168.1.35")
 #    return(subprocess.getoutput("hostname -I").split()[1])
 
+
 def get_core_temp():
     msg = subprocess.getoutput("/opt/vc/bin/vcgencmd measure_temp")[5:]
     return "Enqueue", Packet(header="RESPONSE", message=msg)
 
+
 def get_core_speed():
-    msg  = subprocess.getoutput("lscpu | grep MHz").split()[3]+" MHz"
+    msg = subprocess.getoutput("lscpu | grep MHz").split()[3] + " MHz"
     return "Enqueue", Packet(header="RESPONSE", message=msg)
 
 # Sensor methods
+
+
 def find_sensor(type, location):
     global sensors
     for sensor in sensors:
@@ -74,12 +80,15 @@ def find_sensor(type, location):
             return sensor
     return None
 
+
 def sensor_data(type, location):
     sensor = find_sensor(type, location, sensors)
     assert sensor is not None
-    return "Enqueue", Packet(header="RESPONSE", message=sensor.data, timestamp=timestamp, sender=sensor.name())
+    return "Enqueue", Packet(
+        header="RESPONSE", message=sensor.data, timestamp=timestamp, sender=sensor.name())
 
 # Valve methods
+
 
 def find_valve(id):
     global valves
@@ -88,18 +97,23 @@ def find_valve(id):
             return valve
     return None
 
+
 def actuate_valve(id, target, priority):
     valve = find_valve(id)
     valve.actuate(target, priority)
-    return "Enqueue", Packet(header="INFO", message="Actuated valve", sender="supervisor")
+    return "Enqueue", Packet(
+        header="INFO", message="Actuated valve", sender="supervisor")
 
 # Other methods
 
+
 def heartbeat():
     return "Enqueue", Packet(header="HEARTBEAT", message="Ok")
+
 
 def abort():
     ABORT = True
     for valve in valves:
         valve.abort()
-    return "Enqueue", Packet(haeder="INFO", message="Aborting now", sender="supervisor")
+    return "Enqueue", Packet(
+        haeder="INFO", message="Aborting now", sender="supervisor")
