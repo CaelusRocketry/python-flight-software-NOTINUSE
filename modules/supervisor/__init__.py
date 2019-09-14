@@ -1,6 +1,6 @@
 # /modules/supervisor
 
-import threading
+from threading import Thread
 import time
 import heapq
 from modules.telemetry.tcp_socket import Telemetry
@@ -10,7 +10,6 @@ from modules.sensors.imu import IMU
 from modules.sensors.force import Load
 from modules.valve import ValveType, Valve
 from .ingest import ingest
-from multiprocessing import Process
 
 GS_IP = '192.168.1.75'
 GS_PORT = 5005
@@ -33,35 +32,31 @@ def handle_telem(telem):
     while True:
         if telem.queue_ingest:
             data = telem.queue_ingest.popleft()
-            ingest_thread = Process(target=interpret, args=(telem, data))
+            ingest_thread = Thread(target=interpret, args=(telem, data))
             ingest_thread.daemon = True
             ingest_thread.start()
-#            ingest_thread.join()
-#            ingest_thread = threading.Thread(target=interpret, args=(telem,data))
-#            ingest_thread.daemon = True
-#            ingest_thread.start()
-
 
 def interpret(telem, data):
     response = ingest(data, sensors, valves)
-    print(response)
     if response[0] == "Enqueue":
+        print("Enqueuing", len(telem.queue_send), response[1])
         telem.enqueue(response[1])
     elif response[0] == "Error":
-        print("Erorr occured while ingesting packet:", response[1])
+        print("Error occured while ingesting packet:", response[1])
     return
 
 
 def start():
     telem = Telemetry(GS_IP, GS_PORT)
 
-    telem_thread = threading.Thread(target=handle_telem, args=(telem,))
+    telem_thread = Thread(target=handle_telem, args=(telem,))
     telem_thread.daemon = True
     telem_thread.start()
+#    handle_telem(telem)
 
     # Begin the checking method for all sensors
     for sensor in sensors:
-        sensor_thread = threading.Thread(target=sensor.check)
+        sensor_thread = Thread(target=sensor.check)
         sensor_thread.daemon = True
         sensor_thread.start()
 
@@ -81,5 +76,5 @@ def start():
                 level=status,
                 timestamp=timestamp,
                 sender=sensor.name())
-            telem.enqueue(packet)
+#            telem.enqueue(packet)
         time.sleep(SENSOR_DELAY)

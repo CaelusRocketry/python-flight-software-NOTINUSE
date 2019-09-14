@@ -47,6 +47,7 @@ def ingest(encoded, sense, valv):
     args = list(map(lambda x: types[x.split(TYPE_DEL)[0]](
         x.split(TYPE_DEL)[1]), args))
 
+    print(pck)
     if header in funcs:
         if cmd in funcs[header]:
             return funcs[header][cmd](*args)
@@ -58,11 +59,12 @@ def ingest(encoded, sense, valv):
 
 def get_ip():
     return "Enqueue", Packet(header="RESPONSE", message="192.168.1.35")
-#    return(subprocess.getoutput("hostname -I").split()[1])
+#    return "Enqueue", Packet(header="RESPONSE", message=(subprocess.getoutput("hostname -I").split()[1]))
 
 
 def get_core_temp():
     msg = subprocess.getoutput("/opt/vc/bin/vcgencmd measure_temp")[5:]
+    print("Message:", msg)
     return "Enqueue", Packet(header="RESPONSE", message=msg)
 
 

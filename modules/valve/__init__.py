@@ -3,7 +3,7 @@
 import time
 from aenum import Enum, auto
 from time import sleep
-
+from multiprocessing import Process
 import RPi.GPIO as GPIO
 from RPi.GPIO import HIGH, LOW
 
@@ -18,6 +18,10 @@ PURGE_PRIORITY = 10
 PULSE_PRIORITY = 10
 VENT_PRIORITY = 10
 
+class ValveType(Enum):
+    Ball = auto()
+    Vent = auto()
+    Drain = auto() 
 
 class Valve:
     def __init__(self, id, valve_type, dir, step,
@@ -54,7 +58,7 @@ class Valve:
         sleep(self.delay)
 
     def goto(self, target):
-        print(self.angle, target)
+        print("Going to", self.angle, target)
         start = time.time()
         angle = target - self.angle
         angle %= 360
@@ -68,7 +72,7 @@ class Valve:
             GPIO.output(self.dir, LOW)
             steps *= -1
 
-        print(target, self.angle, steps * direction)
+#        print(target, self.angle, steps * direction)
 
         self.interrupt = False
         self.is_acuating = True
@@ -121,7 +125,14 @@ class Valve:
             self.actuate(0, PURGE_PRIORITY)
 
     def actuate(self, target, priority):
-        print(target, priority)
+        print("Started actuation thread")
+        actuate_thread = Process(target=self._actuate, args=(target, priority))
+        actuate_thread.daemon = True
+        actuate_thread.start()
+        actuate_thread.join()
+
+    def _actuate(self, target, priority):
+        print("Actuating", self.id, target, priority)
         if self.aborted:
             return
         if self.is_acuating:
@@ -165,8 +176,3 @@ if __name__ == '__main__':
         actuate_thread.start()
     valve.abort() """
 
-
-class ValveType(Enum):
-    Ball = auto()
-    Vent = auto()
-    Drain = auto()
