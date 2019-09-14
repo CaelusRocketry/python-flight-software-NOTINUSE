@@ -1,7 +1,7 @@
 # /modules/valve
 
 import time
-from enum import Enum, auto
+from aenum import Enum, auto
 from time import sleep
 
 import RPi.GPIO as GPIO

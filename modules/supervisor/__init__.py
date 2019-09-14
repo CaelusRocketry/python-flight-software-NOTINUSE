@@ -8,8 +8,7 @@ from modules.telemetry.packet import Packet
 from modules.sensors.thermocouple import Thermocouple
 from modules.sensors.imu import IMU
 from modules.sensors.force import Load
-from modules.sensors import ValveType
-from modules.sensors.valve import Valve
+from modules.valve import ValveType, Valve
 from .ingest import ingest
 from multiprocessing import Process
 
