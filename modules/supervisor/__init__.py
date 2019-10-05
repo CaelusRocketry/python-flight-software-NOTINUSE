@@ -61,6 +61,7 @@ def start():
         sensor_thread.start()
 
     while True:
+        packet_data = {}
         for sensor in sensors:
             # TODO: Handle sensor status by doing something
             status = sensor.status()
@@ -70,11 +71,12 @@ def start():
             if sensor.data == {}:
                 continue
             timestamp = sensor.timestamp
-            packet = Packet(
-                header='DATA',
-                message=data,
-                level=status,
-                timestamp=timestamp,
-                sender=sensor.name())
+            packet_data[sensor.name] = data
 #            telem.enqueue(packet)
+        packet = Packet(
+            header='DATA',
+            message=packet_data,
+            level=status,
+            timestamp=time.time(),
+            sender="Flight Pi")
         time.sleep(SENSOR_DELAY)
