@@ -2,14 +2,14 @@ import time
 import json
 from enum import IntEnum
 
-
+# Level Enum indicates the priority or status of the Packet
 class Level(IntEnum):
     INFO = 4
     DEBUG = 3
     WARN = 2
     CRIT = 1
 
-
+# Packet class stores messages to be sent to and from ground and flight station
 class Packet:
 
     def __init__(self, header='heartbeat', message="alive", level: Level = Level.INFO,

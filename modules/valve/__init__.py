@@ -9,7 +9,6 @@ from RPi.GPIO import HIGH, LOW
 
 GEAR_RATIO = 50
 
-
 DELAY_TIME = .001
 
 # change later

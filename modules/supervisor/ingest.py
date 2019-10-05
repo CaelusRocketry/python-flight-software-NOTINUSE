@@ -59,7 +59,7 @@ def ingest(encoded, sense, valv):
 
 
 # TODO: Return only the information from these three methods, and have the caller package into a Packet
-# TODO: change Enqueue into Enum
+# TODO: change Enqueue and other things into Enum
 
 # Core method - Returns a Packet containing the ip of the pi 
 def get_ip():
@@ -78,7 +78,7 @@ def get_core_speed():
     return "Enqueue", Packet(header="RESPONSE", message=msg)
 
 
-# Sensor method - Given a sensor array, returns the sensor object at a certain location
+# Sensor method - Given a sensor location, returns the sensor object from the array
 # TODO: Convert sensors into a dictionary
 def find_sensor(type, location):
     global sensors
@@ -87,7 +87,8 @@ def find_sensor(type, location):
             return sensor
     return None
 
-# Sensor method - 
+# Sensor method - Returns the data of the sensor given a location
+# TODO: Remove assert
 def sensor_data(type, location):
     sensor = find_sensor(type, location, sensors)
     assert sensor is not None
@@ -95,8 +96,8 @@ def sensor_data(type, location):
         header="RESPONSE", message=sensor.data, timestamp=timestamp, sender=sensor.name())
 
 
-# Valve methods
-
+# Valve method - Given a valve id, returns the value object from the array
+# TODO: turn valves into dictionary
 def find_valve(id):
     global valves
     for valve in valves:
@@ -104,7 +105,7 @@ def find_valve(id):
             return valve
     return None
 
-
+# Valve method - Actuates the valve at a given proprity, return a Packet to be enqueued
 def actuate_valve(id, target, priority):
     valve = find_valve(id)
     valve.actuate(target, priority)
@@ -112,12 +113,11 @@ def actuate_valve(id, target, priority):
         header="INFO", message="Actuated valve", sender="supervisor")
 
 
-# Other methods
-
+# Returns a heartbeat Packet to show that the connection is alive
 def heartbeat():
     return "Enqueue", Packet(header="HEARTBEAT", message="Ok")
 
-
+# Runs the abort methods of all valves
 def abort():
     ABORT = True
     for valve in valves:
