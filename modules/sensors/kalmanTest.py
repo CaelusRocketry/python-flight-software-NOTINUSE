@@ -29,6 +29,7 @@ training = np.array([399, 403, 409, 416])
 readings = [418, 420, 429, 423, 429, 431, 433, 434, 434, 433, 431, 430, 428, 427, 425, 429, 431, 410, 406, 402, 397, 391, 376, 372, 351, 336, 327, 307]
     
 sensor.initKalman(training, 150)
+
 expected_readings = sensor.updateKalman(readings)
 
 readings = np.asarray(readings)
