@@ -8,6 +8,10 @@ import RPi.GPIO as GPIO
 class Load(Sensor):
 
     def __init__(self, sck, dat, location):
+        """ Initiates attributes needed for Load sensor class
+            :param sck: Serial clock
+            :param dat: Data pin number
+            :param location: Location on rocket"""
         self.sck = sck
         self.dat = dat
         self._name = "Load Cell"
@@ -42,6 +46,7 @@ class Load(Sensor):
         while GPIO.input(self.dat) == 1:
             i = 0
 
+        """Calculates the kg value of the load cell using the clock and reading from the data pin"""
         for i in range(24):
             GPIO.output(self.sck, 1)
             count = count << 1
@@ -55,7 +60,7 @@ class Load(Sensor):
         count = count ^ 0x800000  # clear 24th bit
         GPIO.output(self.sck, 0)
 
-        # Calibration
+        """Calibration"""
         weight = (9584000 - count) / 845165
         return weight
 
@@ -70,6 +75,8 @@ class Load(Sensor):
     # This method should be constantly running in a thread, and should be the
     # only thing calling get_data
     def check(self):
+        """ Constantly runs in the thread, calling get_data which is checked to set
+            status to safe, warning, or critical"""
         while True:
             data = self.get_data()
             if data["weight"] >= self.boundaries[SensorStatus.Safe][0] and data["weight"] <= self.boundaries[SensorStatus.Safe][1]:

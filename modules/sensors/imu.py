@@ -32,6 +32,8 @@ class PseudoIMU():
 class IMU(Sensor):
 
     def __init__(self, location):
+        """ Initiates attributes needed for IMU sensor class
+            :param location: Location on rocket"""
         if REAL:
             i2c = busio.I2C(board.SCL, board.SDA)
             self.sensor = adafruit_bno055.BNO055(i2c)
@@ -66,13 +68,12 @@ class IMU(Sensor):
         self.data = data
         return data
 
-    # This method should be constantly running in a thread, and should be the
-    # only thing calling get_data
     def check(self):
+        """ Constantly runs in a thread and calls get_data. Calcculates current tile (pitch or yaw,
+            whichever one is farther away from 0), roll (deg/sec), and acceleration. Checks data 
+            and changes status to safe, warning, or critical"""
         while True:
             data = self.get_data()
-            # Find current tilt (either pitch or yaw, whichever one is farther
-            # away from 0), roll (in deg/sec), and acceleration
             check_data = {}
             check_data["tilt"] = max(abs(180 - data["euler"][0]),
                                      abs(180 - data["euler"][2]))

@@ -22,6 +22,10 @@ class PsuedoThermocouple():
 class Thermocouple(Sensor):
 
     def __init__(self, port, device, location):
+        """ Initializes attributes needed for thermocouple sensor class
+            :param port: SPi serial port
+            :param device: Which device is being communicated with
+            :param location: Where temperature is being taken"""
         SPI_PORT = port
         SPI_DEVICE = device
         self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE) \
@@ -49,6 +53,7 @@ class Thermocouple(Sensor):
         return self.sensor.read_temp_c()
 
     def get_data(self):
+        """ :return: Set of internal temperature, external temperature, and timestamp"""
         data = {}
         data["internal"] = self.internal()
         data["temp"] = self.temp()
@@ -60,6 +65,8 @@ class Thermocouple(Sensor):
     # This method should be constantly running in a thread, and should be the
     # only thing calling get_data
     def check(self):
+        """ Constantly runs in the thread, calling get_data which is checked to set
+            status to safe, warning, or critical"""
         while True:
             data = self.get_data()
             if data["temp"] >= self.boundaries[SensorStatus.Safe][0] and data["temp"] <= self.boundaries[SensorStatus.Safe][1]:
