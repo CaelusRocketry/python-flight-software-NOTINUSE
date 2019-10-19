@@ -4,14 +4,15 @@ from threading import Thread
 import time
 import heapq
 from modules.telemetry.tcp_socket import Telemetry
-from modules.telemetry.packet import Packet
+from modules.telemetry.logging import Packet, Log
+from modules.telemetry.encryption import decrypt
 from modules.sensors.thermocouple import Thermocouple
 from modules.sensors.imu import IMU
 from modules.sensors.force import Load
 from modules.valve import ValveType, Valve
 from .ingest import ingest
 
-GS_IP = '192.168.1.75' 
+GS_IP = '192.168.1.198' 
 GS_PORT = 5005
 SENSOR_DELAY = 1.5
 
@@ -39,14 +40,20 @@ def handle_telem(telem):
 
 # Handles the information returned by ingest
 def interpret(telem, data):
-    response = ingest(data, sensors, valves)  # Performs the action requested and returns a response
-    # TODO: Change "Enqueue" and "Error" into enums
-    if response[0] == "Enqueue":  # if the response if a packet, enqueue it
-        print("Enqueuing", len(telem.queue_send), response[1])
-        telem.enqueue(response[1])
-    elif response[0] == "Error":  # Otherwise, print the error to the flight consol
-        # TODO: Return the error back to ground station
-        print("Error occured while ingesting packet:", response[1])
+    pck_str = decrypt(data)
+    pck = Packet.from_string(pck_str)  # Deserialize the packet
+    pack = Packet(header='RESPONSE')
+    for log in pck.logs:
+        response = ingest(log, sensors, valves)  # Performs the action requested and returns a response
+        # TODO: Change "Enqueue" and "Error" into enums
+        if response[0] == "Enqueue":  # if the response if a packet, enqueue it
+            print("Enqueuing", len(telem.queue_send), response[1])
+            pack.add(response[1])
+
+        elif response[0] == "Error":  # Otherwise, print the error to the flight consol
+            # TODO: Return the error back to ground station
+            print("Error occured while ingesting packet:", response[1])
+    telem.enqueue(pack)
     return
 
 #  The main supervisor loop. An infinite loop that collects data from all sensors and sends it to ground station.
@@ -69,7 +76,8 @@ def start():
         packet = Packet(
             header='DATA',
             logs=[],
-            timestamp=time.time())
+            timestamp=time.time()
+            )
 
         for sensor in sensors:
             # TODO: Handle sensor status by doing something
@@ -77,12 +85,12 @@ def start():
 
             # Log is the current sensor's data
             log = Log(
-                data=sensor.data,
+                message=sensor.data,
                 level=status,
                 timestamp=sensor.timestamp,
-                sender=sensor.name)
+                sender=sensor.name())
 
-            packet.logs.append(log)
+            packet.add(log)
     
 
         telem.enqueue(packet)

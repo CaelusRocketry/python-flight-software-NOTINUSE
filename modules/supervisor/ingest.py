@@ -1,18 +1,14 @@
-from modules.telemetry.packet import Packet
-from modules.telemetry.encryption import decrypt
+from modules.telemetry.logging import Log
 import subprocess
 import sys
 
 TOK_DEL, TYPE_DEL = " ", ":"  # Token and type delimiters
 
-#  
-def ingest(encoded, sense, valv):
+def ingest(log, sense, valv):
     global sensors, valves
     sensors = sense
     valves = valv
-    packet_str = decrypt(encoded)
-    pck = Packet.from_string(packet_str)  # Deserialize the packet
-    print("Incoming:", pck.message)
+    print("Incoming:", log.message)
 
     # A dictionary to hep cast all data appropriately
     types = {"int": int,
@@ -41,8 +37,8 @@ def ingest(encoded, sense, valv):
         }
     }
 
-    header = pck.header
-    tokens = pck.message.split(TOK_DEL)
+    header = log.header
+    tokens = log.message.split(TOK_DEL)
     cmd, args = tokens[0], tokens[1:]
 
     # Casts the values as the type of the object in order to send message as a string
@@ -50,7 +46,7 @@ def ingest(encoded, sense, valv):
         x.split(TYPE_DEL)[1]), args))
 
     # Attemps to run the fuction assocated with the header, otherwise returns an error
-    print(pck)
+    print(log)
     if header in funcs:
         if cmd in funcs[header]:
             return funcs[header][cmd](*args)
@@ -58,24 +54,24 @@ def ingest(encoded, sense, valv):
     return "Error", "Unknown header!"
 
 
-# TODO: Return only the information from these three methods, and have the caller package into a Packet
+# TODO: Return only the information from these three methods, and have the caller package into a Log
 # TODO: change Enqueue and other things into Enum
 
-# Core method - Returns a Packet containing the ip of the pi 
+# Core method - Returns a Log containing the ip of the pi 
 def get_ip():
-    return "Enqueue", Packet(header="RESPONSE", message="192.168.1.35")
-    # return "Enqueue", Packet(header="RESPONSE", message=(subprocess.getoutput("hostname -I").split()[1]))
+    return "Enqueue", Log(header="RESPONSE", message="192.168.1.35")
+    # return "Enqueue", Log(header="RESPONSE", message=(subprocess.getoutput("hostname -I").split()[1]))
 
-# Core method - Returns a Packet containing the internal temperature of the pi
+# Core method - Returns a Log containing the internal temperature of the pi
 def get_core_temp():
     msg = subprocess.getoutput("/opt/vc/bin/vcgencmd measure_temp")[5:]
     print("Message:", msg)
-    return "Enqueue", Packet(header="RESPONSE", message=msg)
+    return "Enqueue", Log(header="RESPONSE", message=msg)
 
-# Core method - Returns a Packet containing the clock speed of the pi
+# Core method - Returns a Log containing the clock speed of the pi
 def get_core_speed():
     msg = subprocess.getoutput("lscpu | grep MHz").split()[3] + " MHz"
-    return "Enqueue", Packet(header="RESPONSE", message=msg)
+    return "Enqueue", Log(header="RESPONSE", message=msg)
 
 
 # Sensor method - Given a sensor location, returns the sensor object from the array
@@ -92,7 +88,7 @@ def find_sensor(type, location):
 def sensor_data(type, location):
     sensor = find_sensor(type, location, sensors)
     assert sensor is not None
-    return "Enqueue", Packet(
+    return "Enqueue", Log(
         header="RESPONSE", message=sensor.data, timestamp=timestamp, sender=sensor.name())
 
 
@@ -105,22 +101,22 @@ def find_valve(id):
             return valve
     return None
 
-# Valve method - Actuates the valve at a given proprity, return a Packet to be enqueued
+# Valve method - Actuates the valve at a given proprity, return a Log to be enqueued
 def actuate_valve(id, target, priority):
     valve = find_valve(id)
     valve.actuate(target, priority)
-    return "Enqueue", Packet(
+    return "Enqueue", Log(
         header="INFO", message="Actuated valve", sender="supervisor")
 
 
-# Returns a heartbeat Packet to show that the connection is alive
+# Returns a heartbeat Log to show that the connection is alive
 def heartbeat():
-    return "Enqueue", Packet(header="HEARTBEAT", message="Ok")
+    return "Enqueue", Log(header="HEARTBEAT", message="Ok")
 
 # Runs the abort methods of all valves
 def abort():
     ABORT = True
     for valve in valves:
         valve.abort()
-    return "Enqueue", Packet(
+    return "Enqueue", Log(
         haeder="INFO", message="Aborting now", sender="supervisor")
