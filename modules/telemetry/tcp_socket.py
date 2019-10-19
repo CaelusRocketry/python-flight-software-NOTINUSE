@@ -3,8 +3,8 @@ import threading
 import time
 import json
 import heapq
-from . import packet, encryption
-from .packet import Packet
+from . import logging, encryption
+from .logging import Packet, Log
 from collections import deque
 
 BYTE_SIZE = 8192
