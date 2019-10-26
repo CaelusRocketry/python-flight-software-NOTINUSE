@@ -2,15 +2,17 @@ import time
 import json
 from enum import IntEnum
 
-# Level Enum indicates the priority or status of the Packet
+
 class Level(IntEnum):
+    """ Level Enum indicates the priority or status of the Packet """
     INFO = 4
     DEBUG = 3
     WARN = 2
     CRIT = 1
 
-# Packet class stores messages to be sent to and from ground and flight station
+
 class Log:
+    """ Packet class stores messages to be sent to and from ground and flight station """
 
     def __init__(self, header='heartbeat', message="alive", level: Level = Level.INFO,
                  timestamp: float = time.time(), sender="Flight Pi"):
@@ -30,8 +32,9 @@ class Log:
         packet.__dict__ = input_dict
         return packet
 
-# Packet class stores messages to be sent to and from ground and flight station
+
 class Packet:
+    """ Packet class stores messages to be sent to and from ground and flight station """
 
     def __init__(self, header='heartbeat', logs: list = [], level: Level = Level.INFO, timestamp: float = time.time()):
         self.header = header
@@ -55,4 +58,3 @@ class Packet:
         packet = Packet()
         packet.__dict__ = input_dict
         return packet
-
