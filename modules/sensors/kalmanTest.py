@@ -1,4 +1,4 @@
-from sensor import Sensor, SensorStatus, SensorType
+from __init__ import Sensor, SensorStatus, SensorType
 from imu import IMU
 import numpy as np
 import matplotlib.pyplot as plt
@@ -65,7 +65,7 @@ print("Gathering Data")
 readings = np.array([])
 for i in range(50):
     readings.append(imu.get_data()["gyroscope"])
-    
+
 expected_readings = imu.updateKalman(readings)
 
 print("Reading\t\tExpected Readings")

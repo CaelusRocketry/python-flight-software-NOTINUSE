@@ -1,6 +1,6 @@
 import yaml
 import time
-from . import Sensor, SensorStatus, SensorType
+from __init__ import Sensor, SensorStatus, SensorType
 # Local Imports
 REAL = True
 if REAL:
