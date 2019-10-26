@@ -42,7 +42,7 @@ def ingest(log, sense, valv):
     cmd, args = tokens[0], tokens[1:]
 
     # Casts the values as the type of the object in order to send message as a string
-    args = list(map(lambda x: types[x.split(TYPE_DEL)[0]](  
+    args = list(map(lambda x: types[x.split(TYPE_DEL)[0]](
         x.split(TYPE_DEL)[1]), args))
 
     # Attemps to run the fuction assocated with the header, otherwise returns an error
@@ -57,64 +57,69 @@ def ingest(log, sense, valv):
 # TODO: Return only the information from these three methods, and have the caller package into a Log
 # TODO: change Enqueue and other things into Enum
 
-# Core method - Returns a Log containing the ip of the pi 
 def get_ip():
+    """ Core method - Returns a Log containing the ip of the pi. """
     return "Enqueue", Log(header="RESPONSE", message="192.168.1.35")
     # return "Enqueue", Log(header="RESPONSE", message=(subprocess.getoutput("hostname -I").split()[1]))
 
-# Core method - Returns a Log containing the internal temperature of the pi
 def get_core_temp():
+    """ Core method - Returns a Log containing the internal temperature of the pi. """
     msg = subprocess.getoutput("/opt/vc/bin/vcgencmd measure_temp")[5:]
     print("Message:", msg)
     return "Enqueue", Log(header="RESPONSE", message=msg)
 
-# Core method - Returns a Log containing the clock speed of the pi
 def get_core_speed():
+    """ Core method - Returns a Log containing the clock speed of the pi """
     msg = subprocess.getoutput("lscpu | grep MHz").split()[3] + " MHz"
     return "Enqueue", Log(header="RESPONSE", message=msg)
 
-
-# Sensor method - Given a sensor location, returns the sensor object from the array
-# TODO: Convert sensors into a dictionary
 def find_sensor(type, location):
+    """
+    Sensor method - Given a sensor location, returns the sensor object from the array
+    TODO: Convert sensors into a dictionary
+    """
     global sensors
     for sensor in sensors:
         if type == sensor.sensor_type() and location == sensor.location():
             return sensor
     return None
 
-# Sensor method - Returns the data of the sensor given a location
-# TODO: Remove assert
 def sensor_data(type, location):
+    """
+    Sensor method - Returns the data of the sensor given a location
+    TODO: Remove assert
+    """
     sensor = find_sensor(type, location, sensors)
     assert sensor is not None
     return "Enqueue", Log(
         header="RESPONSE", message=sensor.data, timestamp=timestamp, sender=sensor.name())
 
-
-# Valve method - Given a valve id, returns the value object from the array
-# TODO: turn valves into dictionary
 def find_valve(id):
+    """
+    Valve method - Given a valve id, returns the value object from the array
+    TODO: turn valves into dictionary
+    """
     global valves
     for valve in valves:
         if id == valve.id:
             return valve
     return None
 
-# Valve method - Actuates the valve at a given proprity, return a Log to be enqueued
 def actuate_valve(id, target, priority):
+    """
+    Valve method - Actuates the valve at a given proprity, return a Log to be enqueued
+    """
     valve = find_valve(id)
     valve.actuate(target, priority)
     return "Enqueue", Log(
         header="INFO", message="Actuated valve", sender="supervisor")
 
-
-# Returns a heartbeat Log to show that the connection is alive
 def heartbeat():
+    """ Returns a heartbeat Log to show that the connection is alive """
     return "Enqueue", Log(header="HEARTBEAT", message="Ok")
 
-# Runs the abort methods of all valves
 def abort():
+    """ Runs the abort methods of all valves """
     ABORT = True
     for valve in valves:
         valve.abort()
