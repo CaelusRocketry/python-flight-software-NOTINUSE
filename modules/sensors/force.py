@@ -53,7 +53,7 @@ class Load(Sensor):
 
             GPIO.output(self.sck, 0)
             time.sleep(0.001)
-            if GPIO.input(self.dat) == 0:  # HX711 values are in 2s complement™
+            if GPIO.input(self.dat) == 0:  # HX711 values are in 2s complement
                 count = count + 1
 
         GPIO.output(self.sck, 1)
