@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+pykalman = "*"
 autopep8 = "*"
 invoke = "*"
 adafruit-gpio = "*"
@@ -15,6 +16,10 @@ pycryptodome = "*"
 jsonpickle = "*"
 aenum = "*"
 pyyaml = "*"
+sphinx = "*"
+numpy = "*"
+scipy = "*"
+autodoc = "*"
 
 [requires]
 python_version = "3.7"
