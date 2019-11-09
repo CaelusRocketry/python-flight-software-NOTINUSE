@@ -1,5 +1,7 @@
 from __init__ import Sensor, SensorStatus, SensorType
 from imu import IMU
+from force import Load
+from thermocouple import Thermocouple
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -25,31 +27,8 @@ class KalmanTestSensor(Sensor):
     def log(self):
         pass
 
-
-# sensor = KalmanTestSensor("nowhere")
-# training = np.array([399, 403, 409, 416])
-# readings = [418, 420, 429, 423, 429, 431, 433, 434, 434, 433, 431, 430, 428, 427, 425, 429, 431, 410, 406, 402, 397, 391, 376, 372, 351, 336, 327, 307]
-    
-# sensor.initKalman(training, 150)
-
-# expected_readings = sensor.updateKalman(readings)
-
-# readings = np.asarray(readings)
-
-
-# plt.figure(3)
-# times = range(readings.shape[0])
-# old_times = range(training.shape[0])
-# new_times = range(readings.shape[0])
-
-# plt.plot(times, readings, 'bo')
-# plt.plot(new_times, expected_readings[:, 0], 'go')
-# plt.plot(new_times, expected_readings[:, 0], 'g--')
-# plt.plot(new_times, readings, 'yo')
-
-# plt.show()
-
-imu = IMU("test")
+# Testing IMU data normalizing
+imu = IMU("IMU")
 
 print("Gathering test data")
 
@@ -72,11 +51,51 @@ print("Reading\t\tExpected Readings")
 for i in range(len(readings)):
     print(readings[i] + "\t\t" + expected_readings[i])
 
+# Testing force
+force = Load("force")
 
+print("Gathering test data")
 
+training = np.array([])
+for i in range(10):
+    training.append(force.get_data()["weight"])
+    time.sleep(500)
 
+force.initKalman(training, 150)
 
+print("Gathering Data")
 
+readings = np.array([])
+for i in range(50):
+    readings.append(force.get_data()["weight"])
 
+expected_readings = force.updateKalman(readings)
 
+print("Reading\t\tExpected Readings")
+for i in range(len(readings)):
+    print(readings[i] + "\t\t" + expected_readings[i])
 
+# Testing thermocouple
+
+thermocouple = Thermocouple("Thermocouple")
+
+print("Gathering test data")
+
+training = np.array([])
+for i in range(10):
+    training.append(thermocouple.get_data()["temp"])
+    time.sleep(500)
+
+thermocouple.initKalman(training, 150)
+
+print("Gathering Data")
+
+readings = np.array([])
+for i in range(50):
+    readings.append(thermocouple.get_data()["temp"])
+
+expected_readings = thermocouple.updateKalman(readings)
+
+print("Reading\t\tExpected Readings")
+for i in range(len(readings)):
+    print(readings[i] + "\t\t" + expected_readings[i])
