@@ -3,9 +3,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum
 from queue import PriorityQueue
-
-from pykalman import KalmanFilter
-import numpy as np
+import yaml
 
 # from . import force, imu, thermocouple
 
@@ -23,68 +21,49 @@ class SensorType(IntEnum):
 
 
 class Sensor(ABC):
+
+    def __init__(self, name, sensortype, location):
+        self._name = name
+        self._location = location
+        self._status = SensorStatus.Safe
+        self._sensor_type = sensortype
+        self.data = {}
+        self.normalized = {}
+        self.filters = {}
+        self.timestamp = None  # Indication of when last data was calculated
+
+        with open("boundaries.yaml", "r") as ymlfile:
+            cfg = yaml.load(ymlfile)
+        assert location in cfg[self.sensor_type]
+        self.boundaries = {}
+        for datatype in ["acceleration", "roll", "tilt"]:
+            self.boundaries[datatype] = {}
+            self.boundaries[datatype][SensorStatus.Safe] = cfg[name][location][datatype]["safe"]
+            self.boundaries[datatype][SensorStatus.Warn] = cfg[name][location][datatype]["warn"]
+            self.boundaries[datatype][SensorStatus.Crit] = cfg[name][location][datatype]["crit"]
+
+
+
     @classmethod
-    @abstractmethod
     def name(cls) -> str:
-        pass
+        return self._name
 
     @classmethod
-    @abstractmethod
     def location(cls) -> str:
-        pass
+        return self._location
 
     @classmethod
-    @abstractmethod
     def status(cls) -> SensorStatus:
-        pass
+        return self._status
 
     @classmethod
-    @abstractmethod
     def sensor_type(cls) -> SensorType:
-        pass
+        self._sensor_type
 
     @classmethod
     @abstractmethod
     def log(cls) -> PriorityQueue:
         pass
 
-    def initKalman(self, training, normalizingFactor): 
-        training = np.asarray(training)
-        initial_state_mean = [training[0], 0] 
-        transition_matrix = [[1, 1], [0, 1]]
-        observation_matrix = [[1, 0]]
-
-        kf1 = KalmanFilter(transition_matrices = transition_matrix,
-                observation_matrices = observation_matrix,
-                initial_state_mean = initial_state_mean)
-        kf1 = kf1.em(training, n_iter=5)
-        # (smoothed_state_means, smoothed_state_covariances) = kf1.smooth(training)
-
-        self.kf = KalmanFilter(transition_matrices = transition_matrix,
-                        observation_matrices = observation_matrix,
-                        initial_state_mean = initial_state_mean,
-                        observation_covariance = normalizingFactor*kf1.observation_covariance,
-                        em_vars=['transition_covariance', 'initial_state_covariance'])
-
-        self.kf = self.kf.em(training, n_iter=5)
-        (self.filtered_state_means, self.filtered_state_covariances) = self.kf.filter(training)                
-
-    def updateKalman(self, readings):
-        readings = np.asarray(readings)
-        x_now = self.filtered_state_means[-1]
-        P_now = self.filtered_state_covariances[-1]
-        x_new = np.zeros((len(readings), self.filtered_state_means.shape[1]))
-
-
-        # For each new measurement (this is the live update loop)
-        for i, reading in enumerate(readings):
-            # kf.filter_update is basically the predict method
-            (x_now, P_now) = self.kf.filter_update(filtered_state_mean = x_now,
-                                                filtered_state_covariance = P_now,
-                                                observation = reading)
-            # x_now is the normalized data point
-            x_new[i] = x_now
-        
-        return x_new
 
 from . import force, imu, thermocouple

@@ -1,4 +1,3 @@
-import yaml
 import time
 # Local Imports
 from . import Sensor, SensorStatus, SensorType
@@ -46,7 +45,7 @@ class IMU(Sensor):
             self.sensor = adafruit_bno055.BNO055(i2c)
         else:
             self.sensor = PseudoIMU()
-        self._name = "IMU"
+        self._name = "imu"
         self._location = location
         self._status = SensorStatus.Safe
         self._sensor_type = SensorType.IMU
