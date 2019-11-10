@@ -40,27 +40,15 @@ class IMU(Sensor):
         Initiates attributes needed for IMU sensor class
         :param location: Location on rocket
         """
+
         if REAL:
             i2c = busio.I2C(board.SCL, board.SDA)
             self.sensor = adafruit_bno055.BNO055(i2c)
         else:
             self.sensor = PseudoIMU()
-        self._name = "imu"
-        self._location = location
-        self._status = SensorStatus.Safe
-        self._sensor_type = SensorType.IMU
-        self.data = {}
-        self.timestamp = None  # Indication of when last data was calculated
 
-        with open("boundaries.yaml" if REAL else "flight_software/boundaries.yaml", "r") as ymlfile:
-            cfg = yaml.load(ymlfile)
-        assert location in cfg["imu"]
-        self.boundaries = {}
-        for datatype in ["acceleration", "roll", "tilt"]:
-            self.boundaries[datatype] = {}
-            self.boundaries[datatype][SensorStatus.Safe] = cfg["imu"][location][datatype]["safe"]
-            self.boundaries[datatype][SensorStatus.Warn] = cfg["imu"][location][datatype]["warn"]
-            self.boundaries[datatype][SensorStatus.Crit] = cfg["imu"][location][datatype]["crit"]
+        self.datatypes = ["acceleration", "roll", "tilt"]
+        super(IMU, self).__init__("IMU", SensorType.IMU, location, self.datatypes)
 
     def get_data(self):
         data = {}
@@ -76,7 +64,7 @@ class IMU(Sensor):
 
     def check(self):
         """
-        Constantly runs in a thread and calls get_data. Calcculates current tile (pitch or yaw,
+        Constantly runs in a thread and calls get_data. Calcculates current tilt (pitch or yaw,
         whichever one is farther away from 0), roll (deg/sec), and acceleration. Checks data
         and changes status to safe, warning, or critical
         """
@@ -100,17 +88,3 @@ class IMU(Sensor):
                     stat = min(SensorStatus.Crit, stat)
             self._status = stat
 
-    def name(self):
-        return self._name
-
-    def location(self):
-        return self._location
-
-    def status(self):
-        return self._status
-
-    def sensor_type(self):
-        return self._sensor_type
-
-    def log(self):
-        pass

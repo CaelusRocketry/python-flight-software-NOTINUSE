@@ -20,20 +20,9 @@ class Load(Sensor):
             :param location: Location on rocket"""
         self.sck = sck
         self.dat = dat
-        self._name = "Load Cell"
-        self._location = location
-        self._status = SensorStatus.Safe
-        self._sensor_type = SensorType.Force
-        self.data = {}
-        self.timestamp = None  # Indication of when last data was calculated
 
-        with open("boundaries.yaml" if REAL else "flight_software/boundaries.yaml", 'r') as ymlfile:
-            cfg = yaml.load(ymlfile)
-        assert location in cfg['load']
-        self.boundaries = {}
-        self.boundaries[SensorStatus.Safe] = cfg['load'][location]['safe']
-        self.boundaries[SensorStatus.Warn] = cfg['load'][location]['warn']
-        self.boundaries[SensorStatus.Crit] = cfg['load'][location]['crit']
+        self.datatypes = ["weight"]
+        super(Load, self).__init__("Load", SensorType.Force, location, self.datatypes)
         self.setup()
 
     def setup(self):
@@ -95,19 +84,3 @@ class Load(Sensor):
                 self._status = SensorStatus.Warn
             else:
                 self._status = SensorStatus.Crit
-
-    def name(self):
-        return self._name
-
-    def location(self):
-        return self._location
-
-    def status(self):
-        return self._status
-
-    def sensor_type(self):
-        return self._sensor_type
-
-    def log(self):
-        pass
-

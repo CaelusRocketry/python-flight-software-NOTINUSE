@@ -35,25 +35,13 @@ class Thermocouple(Sensor):
         :param device: Which device is being communicated with
         :param location: Where temperature is being taken
         """
-        SPI_PORT = port
-        SPI_DEVICE = device
+        self.spi_port = port
+        self.spi_device = device
         self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE) \
             if REAL else PsuedoThermocouple()
-        self._name = "Thermocouple"
-        self._location = location
-        self._status = SensorStatus.Safe
-        self._sensor_type = SensorType.Temperature
-        self.data = {}
-        self.timestamp = None  # Indication of when last data was calculated
-        self.ABORT = True
 
-        with open("./boundaries.yaml" if REAL else "flight_software/boundaries.yaml", 'r') as ymlfile:
-            cfg = yaml.load(ymlfile)
-        assert location in cfg['thermocouple']
-        self.boundaries = {}
-        self.boundaries[SensorStatus.Safe] = cfg['thermocouple'][location]['safe']
-        self.boundaries[SensorStatus.Warn] = cfg['thermocouple'][location]['warn']
-        self.boundaries[SensorStatus.Crit] = cfg['thermocouple'][location]['crit']
+        self.datatypes = ["temperature"]
+        super(Thermocopule, self).__init__("Thermocouple", SensorType.Thermocouple, location, self.datatypes)
 
     def internal(self):
         return self.sensor.read_internal_temp_c()
@@ -87,18 +75,3 @@ class Thermocouple(Sensor):
                 self._status = SensorStatus.Warn
             else:
                 self._status = SensorStatus.Crit
-
-    def name(self):
-        return self._name
-
-    def location(self):
-        return self._location
-
-    def status(self):
-        return self._status
-
-    def sensor_type(self):
-        return self._sensor_type
-
-    def log(self):
-        pass
