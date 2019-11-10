@@ -72,8 +72,8 @@ class Sensor(ABC):
             self.kalmans[datatype] = kalman
             self.normalized[datatype] = prev
 
-        print("Testing kalmans for ", self.name)
-        print("Reading\t\tExpected Readings")
+        #print("Testing kalmans for ", self.name)
+        #print("Reading\t\tExpected Readings")
 
         # Tests each of the kalman filters with its respective data
         readings = {datatype: np.array([]) for datatype in self.datatypes}
@@ -82,7 +82,7 @@ class Sensor(ABC):
             for datatype in self.datatypes:
                 reading = data[datatype]
                 self.normalized[datatype] = updateKalman(self.kalmans[datatype], self.normalized[datatype], reading)
-                print(reading + "\t\t" + self.normalized[datatype][0])
+                #print(reading + "\t\t" + self.normalized[datatype][0])
             
         return self.kalmans
 

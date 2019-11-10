@@ -86,6 +86,7 @@ def start():
             # Log is the current sensor's data
             log = Log(
                 message=sensor.data,
+                predict=sensor.normalized,
                 level=status,
                 timestamp=sensor.timestamp,
                 sender=sensor.name())
