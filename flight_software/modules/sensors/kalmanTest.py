@@ -3,7 +3,7 @@ from imu import IMU
 # from force import Load
 # from thermocouple import Thermocouple
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import time
 
 imu = IMU("test")
