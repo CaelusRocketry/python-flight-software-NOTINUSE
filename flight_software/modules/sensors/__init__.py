@@ -3,6 +3,9 @@
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum
 from queue import PriorityQueue
+from pykalman import KalmanFilter
+import numpy as np
+import time
 import yaml
 
 # from . import force, imu, thermocouple
@@ -23,7 +26,7 @@ class SensorType(IntEnum):
 class Sensor(ABC):
 
     def __init__(self, name, sensortype, location, datatypes):
-        self._name = name
+        self._name = name   # string
         self._location = location
         self._status = SensorStatus.Safe
         self._sensor_type = sensortype
@@ -49,7 +52,7 @@ class Sensor(ABC):
         """
         Creates a kalman filter for each datatype of the sensor (i.e. for imu it would be [acceleration, tilt, roll]).
         - self.kalmans is a dictionary with the datatype as the key and the kalman filter object as the value.
-        - self.normalized is a tuple containing the previous value and covariance calculated by the kalman filter -> (normalized value, covariance).
+        - self.normalized is a tuple containing the previous (clarification: normalized, previous normalized, or read?) value and covariance calculated by the kalman filter -> (normalized value, covariance).
         - @returns self.kalmans
         """
 
@@ -61,28 +64,31 @@ class Sensor(ABC):
         # Gets data from each datatype of the sensor (i.e. for imu it would be [acceleration, tilt, roll])
         training = {datatype: np.array([]) for datatype in self.datatypes}
         for i in range(10):
-            data = self.get_data()
+            current_data = self.get_data()
+
             for datatype in self.datatypes:
-                training[datatype].append(self.get_data()[datatype])
+                training[datatype].append(current_data[datatype])
             time.sleep(.5)
 
         # Trains each of the kalman filters with its respective training data
         for datatype in self.datatypes:
-            kalman, prev = self.createKalman(training, 150)
+            kalman, x_now, p_now = self.createKalman(training, 150)
             self.kalmans[datatype] = kalman
-            self.normalized[datatype] = prev
+            self.normalized[datatype] = (x_now, p_now)
+            print(datatype, "kalman initialized")
 
-        #print("Testing kalmans for ", self.name)
-        #print("Reading\t\tExpected Readings")
+        print("Testing kalmans for ", self.name)
+        print("Reading\t\tExpected Readings")
 
         # Tests each of the kalman filters with its respective data
-        readings = {datatype: np.array([]) for datatype in self.datatypes}
+        #readings = {datatype: np.array([]) for datatype in self.datatypes}
         for i in range(50):
-            data = self.get_data()
+            current_data = self.get_data()
+            print("datatype:", datatype)
             for datatype in self.datatypes:
-                reading = data[datatype]
-                self.normalized[datatype] = updateKalman(self.kalmans[datatype], self.normalized[datatype], reading)
-                #print(reading + "\t\t" + self.normalized[datatype][0])
+                reading = current_data[datatype]
+                self.normalized[datatype] = self.updateKalman(datatype, reading)
+                print(reading + "\t\t" + self.normalized[datatype][0])
             
         return self.kalmans
 
@@ -91,7 +97,7 @@ class Sensor(ABC):
         """
         Initializes the kalman filter for the sensor class and trains it using the given training data.
         - @param training: the training data -> list
-        - @param normalizingFactor -> int: can anna or mitali explain this plz?
+        - @param normalizingFactor -> how smooth the curve will be
         """
 
         # Basic setup for kalman filter variables.
@@ -103,42 +109,45 @@ class Sensor(ABC):
         # Creates a preliminary kalman filter which is used to find an optimal observation_covariance
         # think of it like using a basic neural network to find an optimal learning rate in ML
         kf_prelim = KalmanFilter(transition_matrices = transition_matrix,
-                observation_matrices = observation_matrix,
-                initial_state_mean = initial_state_mean)
+                                 observation_matrices = observation_matrix,
+                                 initial_state_mean = initial_state_mean)
         kf_prelim = kf_prelim.em(training, n_iter=5)
         # (smoothed_state_means, smoothed_state_covariances) = kf1.smooth(training)
 
         # Creates the actual kalman filter model with the observation covariance from the first one
         kf = KalmanFilter(transition_matrices = transition_matrix,
-                        observation_matrices = observation_matrix,
-                        initial_state_mean = initial_state_mean,
-                        observation_covariance = normalizingFactor*kf_prelim.observation_covariance,
-                        em_vars=['transition_covariance', 'initial_state_covariance'])
+                          observation_matrices = observation_matrix,
+                          initial_state_mean = initial_state_mean,
+                          observation_covariance = normalizingFactor*kf_prelim.observation_covariance,
+                          em_vars=['transition_covariance', 'initial_state_covariance'])
 
         # Trains the actual kalman filter and finds the normalized values for the training data
         kf = kf.em(training, n_iter=5)
         (filtered_state_means, filtered_state_covariances) = kf.filter(training)
-        return kf, (filtered_state_means[-1], filtered_state_covariances[-1])
+        return (kf, filtered_state_means[-1], filtered_state_covariances[-1])
 
-    @staticmethod
-    def updateKalman(filter, prev, reading):
+    def updateKalman(self, datatype, reading):
         """
         - Updates the kalman filter based the on the current observation,
-        and calculates a normalized value for the observation.
-        - @param filter: the kalman filter to use
-        - @param prev: a tuple containing the previously calculated mean and covariance valuees.
+          and calculates a normalized value for the observation.
+        - @param datatype: the kalman filter to use
+        ####  - @param prev_res: a tuple containing the previously calculated mean and covariance valuees.
         - @param reading (number): the reading generated from the sensor.
-        - returns (mean, covariance) where the mean is the normalized value and the covariance is the 
+        - returns (mean, covariance) where the mean is the normalized value and the covariance is the measure of spread
         """
-
-        readings = np.asarray(readings)
-        (x_now, P_now) = prev
+        print("Updating", datatype, "kalman with reading = ", reading)
+        filter = self.kalmans[datatype]
+        (x_now, P_now) = self.normalized[datatype]
 
         # kf.filter_update is basically the predict method
-        (x_now, P_now) = self.kf.filter_update(filtered_state_mean = x_now,
+        x_now, P_now = filter.filter_update(filtered_state_mean = x_now,
                                             filtered_state_covariance = P_now,
                                             observation = reading)
-        return x_now, P_now
+
+        self.normalized[datatype] = (x_now, P_now)
+        print("New normalized value", self.normalized[datatype])
+
+        return (x_now, P_now)
 
     @abstractmethod
     def get_data(self) -> dict:
