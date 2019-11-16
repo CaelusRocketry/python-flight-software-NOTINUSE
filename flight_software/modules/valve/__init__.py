@@ -35,7 +35,7 @@ class Valve:
                  gear_ratio=GEAR_RATIO, delay=DELAY_TIME):
         self.id = id
         self.type = valve_type
-        self.is_acutating = False
+        self.is_actuating = False
         self.gear_ratio = gear_ratio
         self.dir = dir
         self.step = step
@@ -83,7 +83,7 @@ class Valve:
 #        print(target, self.angle, steps * direction)
 
         self.interrupt = False
-        self.is_acutating = True
+        self.is_actuating = True
         start = time.time()
         for i in range(steps):
             self._step()
@@ -92,7 +92,7 @@ class Valve:
                 print("Interrupting actuation for some reason")
                 break
         self.priority = -1
-        self.is_acutating = False
+        self.is_actuating = False
         self.interrupt = False
         print("Done actuating")
         print("Took", str(time.time() - start), "seconds to actuate")
@@ -143,11 +143,11 @@ class Valve:
         print("Actuating", self.id, target, priority)
         if self.aborted:
             return
-        if self.is_acutating:
+        if self.is_actuating:
             if priority >= self.priority:
                 print("Interrupting")
                 self.interrupt = True
-                while self.is_acutating:
+                while self.is_actuating:
                     pass
                 self.priority = priority
                 self.goto(target)
