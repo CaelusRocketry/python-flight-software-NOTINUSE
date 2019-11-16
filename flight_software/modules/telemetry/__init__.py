@@ -1,3 +1,3 @@
 # /modules/telemetry
 
-from . import encryption, logging, tcp_socket 
+from . import encryption, logging, telemetry

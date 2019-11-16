@@ -3,7 +3,7 @@
 from threading import Thread
 import time
 import heapq
-from ..telemetry.tcp_socket import Telemetry
+from ..telemetry.telemetry import Telemetry
 from ..telemetry.logging import Packet, Log
 from ..telemetry.encryption import decrypt
 from ..sensors.thermocouple import Thermocouple
