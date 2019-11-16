@@ -21,9 +21,9 @@ DELAY_TIME = .001
 
 # change later
 ABORT_PRIORITY = 10
-PURGE_PRIORITY = 10
-PULSE_PRIORITY = 10
-VENT_PRIORITY = 10
+PURGE_PRIORITY = 9
+PULSE_PRIORITY = 8
+VENT_PRIORITY = 7
 
 class ValveType(Enum):
     Ball = auto()
@@ -35,7 +35,7 @@ class Valve:
                  gear_ratio=GEAR_RATIO, delay=DELAY_TIME):
         self.id = id
         self.type = valve_type
-        self.is_acuating = False
+        self.is_acutating = False
         self.gear_ratio = gear_ratio
         self.dir = dir
         self.step = step
@@ -83,7 +83,7 @@ class Valve:
 #        print(target, self.angle, steps * direction)
 
         self.interrupt = False
-        self.is_acuating = True
+        self.is_acutating = True
         start = time.time()
         for i in range(steps):
             self._step()
@@ -92,7 +92,7 @@ class Valve:
                 print("Interrupting actuation for some reason")
                 break
         self.priority = -1
-        self.is_acuating = False
+        self.is_acutating = False
         self.interrupt = False
         print("Done actuating")
         print("Took", str(time.time() - start), "seconds to actuate")
@@ -143,11 +143,11 @@ class Valve:
         print("Actuating", self.id, target, priority)
         if self.aborted:
             return
-        if self.is_acuating:
+        if self.is_acutating:
             if priority >= self.priority:
                 print("Interrupting")
                 self.interrupt = True
-                while self.is_acuating:
+                while self.is_acutating:
                     pass
                 self.priority = priority
                 self.goto(target)
