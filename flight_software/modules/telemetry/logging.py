@@ -22,6 +22,9 @@ class Log:
         self.level = level
         self.timestamp = timestamp
         self.sender = sender
+        f = open("black_box.txt", "a+")
+        f.write(self.to_string())
+        f.close()
 
     def to_string(self):
         print(self.__dict__)
