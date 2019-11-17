@@ -8,7 +8,8 @@ try:
     import adafruit_bno055
     import busio
     import board
-except:
+except Exception as e:
+    print(e)
     print("Skipping IMU on non-pi...")
     REAL = False
 else:
@@ -48,19 +49,45 @@ class IMU(Sensor):
             self.sensor = PseudoIMU()
 
         self.datatypes = ["acceleration", "roll", "tilt"]
-        super(IMU, self).__init__("IMU", SensorType.IMU, location, self.datatypes)
+        super(IMU, self).__init__("imu", SensorType.IMU, location, self.datatypes)
 
     def get_data(self):
+        """
         data = {}
-        data["accleration"] = self.sensor.accelerometer
-        data["euler"] = self.sensor.euler
-        data["gravity"] = self.sensor.gravity
-        data["gyroscope"] = self.sensor.gyroscope
-        data["linear_acceleration"] = self.sensor.linear_acceleration
-        data["timestamp"] = time.time()
+        euler = self.sensor.euler
+        gyro = self.sensor.gyro
+        linear_acceleration = self.sensor.linear_acceleration
+        if euler[0] == None or euler[2] == None:
+            data["tilt"] = None
+        else:
+            data["tilt"] = max(abs(180 - euler[0]),
+                                        abs(180 - euler[2]))
+        if gyro[1] == None:
+            data["roll"] = None
+        else:
+            data["roll"] = abs(self.sensor.gyro[1])
+        if None in linear_acceleration:
+            data["acceleration"] = None
+        else:
+            data["acceleration"] = (linear_acceleration[0] ** 2 +
+                                        linear_acceleration[1] ** 2 +
+                                        linear_acceleration[2] ** 2) ** 0.5
+        """
+        euler = self.sensor.euler
+        gyro = self.sensor.gyro
+        linear_acceleration = self.sensor.linear_acceleration
+        if euler[0] != None and euler[2] != None:
+            self.data["tilt"] = max(abs(180 - euler[0]),
+                                        abs(180 - euler[2]))
+        if gyro[1] != None:
+            self.data["roll"] = abs(self.sensor.gyro[1])
+        if None not in linear_acceleration:
+            self.data["acceleration"] = (linear_acceleration[0] ** 2 +
+                                            linear_acceleration[1] ** 2 +
+                                            linear_acceleration[2] ** 2) ** 0.5
+        self.data["timestamp"] = time.time()
         self.timestamp = time.time()
-        self.data = data
-        return data
+        return self.data
 
     def check(self):
         """
@@ -70,19 +97,15 @@ class IMU(Sensor):
         """
         while True:
             data = self.get_data()
-            check_data = {}
-            check_data["tilt"] = max(abs(180 - data["euler"][0]),
-                                     abs(180 - data["euler"][2]))
-            check_data["roll"] = abs(data["gyroscope"][1])
-            check_data["acceleration"] = (data["linear_acceleration"][0] ** 2 +
-                                          data["linear_acceleration"][1] ** 2 +
-                                          data["linear_acceleration"][2] ** 2) ** 0.5
             stat = SensorStatus.Safe
-            for key in check_data:
-                if check_data[key] >= self.boundaries[key][SensorStatus.Safe][
-                        0] and check_data[key] <= self.boundaries[key][SensorStatus.Safe][1]:
+            for key in data:
+                if data[key] == None:
+                    stat = SensorStatus.Crit
+                    break
+                if data[key] >= self.boundaries[key][SensorStatus.Safe][
+                        0] and data[key] <= self.boundaries[key][SensorStatus.Safe][1]:
                     stat = min(SensorStatus.Safe, stat)
-                elif check_data[key] >= self.boundaries[key][SensorStatus.Warn][0] and check_data[key] <= self.boundaries[key][SensorStatus.Warn][1]:
+                elif data[key] >= self.boundaries[key][SensorStatus.Warn][0] and data[key] <= self.boundaries[key][SensorStatus.Warn][1]:
                     stat = min(SensorStatus.Warn, stat)
                 else:
                     stat = min(SensorStatus.Crit, stat)

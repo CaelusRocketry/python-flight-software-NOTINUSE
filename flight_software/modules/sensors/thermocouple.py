@@ -1,13 +1,16 @@
+import os
 import yaml
 import time
 import Adafruit_GPIO
+import sys
 # Local Imports
 from . import Sensor, SensorStatus, SensorType
 
 try:
 # if REAL:
     from Adafruit_MAX31856 import MAX31856 as MAX31856
-except:
+except Exception as e:
+    print(e)
     print("Skipping thermocouple on non-pi...")
     REAL = False
 else:
@@ -22,8 +25,6 @@ class PsuedoThermocouple():
     def read_temp_c(self):
         return 2
 
-
-import os
 print(os.listdir("."))
 
 class Thermocouple(Sensor):
@@ -37,11 +38,11 @@ class Thermocouple(Sensor):
         """
         self.spi_port = port
         self.spi_device = device
-        self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(SPI_PORT, SPI_DEVICE), tc_type=MAX31856.MAX31856_K_TYPE) \
+        self.sensor = MAX31856(hardware_spi=Adafruit_GPIO.SPI.SpiDev(port, device), tc_type=MAX31856.MAX31856_K_TYPE) \
             if REAL else PsuedoThermocouple()
 
         self.datatypes = ["temperature"]
-        super(Thermocopule, self).__init__("Thermocouple", SensorType.Thermocouple, location, self.datatypes)
+        super(Thermocouple, self).__init__("thermocouple", SensorType.Thermocouple, location, self.datatypes)
 
     def internal(self):
         return self.sensor.read_internal_temp_c()
@@ -53,7 +54,7 @@ class Thermocouple(Sensor):
         """ :return: Set of internal temperature, external temperature, and timestamp"""
         data = {}
         data["internal"] = self.internal()
-        data["temp"] = self.temp()
+        data["temperature"] = self.temp()
         data["timestamp"] = time.time()
         self.timestamp = time.time()
         self.data = data

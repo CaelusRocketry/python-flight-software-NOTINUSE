@@ -9,7 +9,6 @@ def ingest(log, sense, valv):
     sensors = sense
     valves = valv
     print("Incoming:", log.message)
-    print("Normalized: ", log.predict)
 
     # A dictionary to hep cast all data appropriately
     types = {"int": int,

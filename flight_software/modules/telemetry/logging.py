@@ -14,11 +14,10 @@ class Level(IntEnum):
 class Log:
     """ Packet class stores messages to be sent to and from ground and flight station """
 
-    def __init__(self, header='heartbeat', message="alive", predict=*args, level: Level = Level.INFO,
+    def __init__(self, header='heartbeat', message="alive", level: Level = Level.INFO,
                  timestamp: float = time.time(), sender="Flight Pi"):
         self.header = header
         self.message = message
-        self.predict = predict
         self.level = level
         self.timestamp = timestamp
         self.sender = sender

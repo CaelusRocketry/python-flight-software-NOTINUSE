@@ -22,7 +22,7 @@ class Load(Sensor):
         self.dat = dat
 
         self.datatypes = ["weight"]
-        super(Load, self).__init__("Load", SensorType.Force, location, self.datatypes)
+        super(Load, self).__init__("load", SensorType.Force, location, self.datatypes)
         self.setup()
 
     def setup(self):

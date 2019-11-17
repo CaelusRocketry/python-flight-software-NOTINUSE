@@ -1,16 +1,19 @@
 thermocouple:
   chamber:
-    safe: [0,0]
-    warn: [0,0]
-    crit: [0,0]
+    temperature:
+      safe: [0,0]
+      warn: [0,0]
+      crit: [0,0]
   tank:
-    safe: [0,0]
-    warn: [0,0]
-    crit: [0,0]
+    temperature:
+      safe: [0,0]
+      warn: [0,0]
+      crit: [0,0]
   nose:
-    safe: [0,0]
-    warn: [0,0]
-    crit: [0,0]
+    temperature:
+      safe: [0,0]
+      warn: [0,0]
+      crit: [0,0]
 
 pressure:
   chamber:
@@ -43,11 +46,13 @@ imu:
     
 load:
   fuel:
-    safe: [0,0]
-    warn: [0,0]
-    crit: [0,0]
+    weight:
+      safe: [0,0]
+      warn: [0,0]
+      crit: [0,0]
   oxidizer:
-    safe: [0,0]
-    warn: [0,0]
-    crit: [0,0]
+    weight:
+      safe: [0,0]
+      warn: [0,0]
+      crit: [0,0]
   

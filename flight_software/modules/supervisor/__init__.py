@@ -12,7 +12,7 @@ from ..sensors.force import Load
 from ..valve import ValveType, Valve
 from . import ingest
 
-GS_IP = '192.168.1.198' 
+GS_IP = '192.168.1.75' 
 GS_PORT = 5005
 SENSOR_DELAY = 1.5
 
@@ -84,9 +84,9 @@ def start():
             status = sensor.status()
 
             # Log is the current sensor's data
+            sensor_data = {"raw":sensor.data, "normalized":sensor.normalized}
             log = Log(
-                message=sensor.data,
-                predict=sensor.normalized,
+                message=sensor_data,
                 level=status,
                 timestamp=sensor.timestamp,
                 sender=sensor.name())

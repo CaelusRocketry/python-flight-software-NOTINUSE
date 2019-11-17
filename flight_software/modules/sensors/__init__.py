@@ -8,8 +8,6 @@ import numpy as np
 import time
 import yaml
 
-# from . import force, imu, thermocouple
-
 class SensorStatus(IntEnum):
     Safe = 3
     Warn = 2
@@ -21,7 +19,6 @@ class SensorType(IntEnum):
     Pressure = 2
     IMU = 3
     Force = 4
-
 
 class Sensor(ABC):
 
@@ -37,7 +34,8 @@ class Sensor(ABC):
 
         with open("boundaries.yaml", "r") as ymlfile:
             cfg = yaml.load(ymlfile)
-        assert location in cfg[self.sensor_type]
+
+        assert location in cfg[name]
         self.boundaries = {}
         self.datatypes = datatypes
         for datatype in datatypes:
@@ -46,7 +44,7 @@ class Sensor(ABC):
             self.boundaries[datatype][SensorStatus.Warn] = cfg[name][location][datatype]["warn"]
             self.boundaries[datatype][SensorStatus.Crit] = cfg[name][location][datatype]["crit"]
         
-        self.initKalmans()
+#        self.initKalmans()
 
     def initKalmans(self):
         """
@@ -62,17 +60,21 @@ class Sensor(ABC):
         print("Gathering training data")
 
         # Gets data from each datatype of the sensor (i.e. for imu it would be [acceleration, tilt, roll])
-        training = {datatype: np.array([]) for datatype in self.datatypes}
+        training = {datatype: [] for datatype in self.datatypes}
         for i in range(10):
             current_data = self.get_data()
-
             for datatype in self.datatypes:
-                training[datatype].append(current_data[datatype])
+#                if current_data[datatype] != None:
+                if datatype in current_data:
+                    training[datatype].append(current_data[datatype])
+                else:
+                    print("Rip", datatype, "is None")
             time.sleep(.5)
+        training = {i:np.array(training[i]) for i in training}
 
         # Trains each of the kalman filters with its respective training data
         for datatype in self.datatypes:
-            kalman, x_now, p_now = self.createKalman(training, 150)
+            kalman, x_now, p_now = self.createKalman(training[datatype], 150)
             self.kalmans[datatype] = kalman
             self.normalized[datatype] = (x_now, p_now)
             print(datatype, "kalman initialized")
@@ -86,9 +88,14 @@ class Sensor(ABC):
             current_data = self.get_data()
             print("datatype:", datatype)
             for datatype in self.datatypes:
-                reading = current_data[datatype]
-                self.normalized[datatype] = self.updateKalman(datatype, reading)
-                print(reading + "\t\t" + self.normalized[datatype][0])
+#                if current_data[datatype] != None:
+                if datatype in current_data:
+                    reading = current_data[datatype]
+                    self.normalized[datatype] = self.updateKalman(datatype, reading)
+                    print(datatype, "\t\t", reading, "\t\t" , self.normalized[datatype][0])
+                else:
+                    print("Rip", datatype, "is None")
+            time.sleep(.5)
             
         return self.kalmans
 
@@ -102,6 +109,7 @@ class Sensor(ABC):
 
         # Basic setup for kalman filter variables.
         training = np.asarray(training)
+        print("Training", training, type(training))
         initial_state_mean = [training[0], 0] 
         transition_matrix = [[1, 1], [0, 1]]
         observation_matrix = [[1, 0]]
@@ -145,7 +153,7 @@ class Sensor(ABC):
                                             observation = reading)
 
         self.normalized[datatype] = (x_now, P_now)
-        print("New normalized value", self.normalized[datatype])
+        print("New normalized value", self.normalized[datatype][0][0])
 
         return (x_now, P_now)
 
