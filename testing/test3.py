@@ -34,7 +34,7 @@ try:
         val = measures
         print(str(mea) + "\t" + str(val) +
               "\t\t\t" + str(datetime.datetime.now()))
-        print("█" * (int(mea / 5)))
+        print(" " * (int(mea / 5)))
 finally:
     GPIO.cleanup()  # always do a GPIO cleanup in your scripts!
     print("cleaning up")

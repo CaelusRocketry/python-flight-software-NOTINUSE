@@ -32,6 +32,8 @@ def readCount():
     gpio.output(SCK, 1)
     Count = Count ^ 0x800000  # clear 24th bit
     gpio.output(SCK, 0)
+    # Calibration
+    Count = (9584000 - Count) / 845165
     return Count
 
 

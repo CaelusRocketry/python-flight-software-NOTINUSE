@@ -58,6 +58,7 @@ class Valve:
             self.actuate(0, ABORT_PRIORITY)  # emptying
         else:
             self.actuate(90, ABORT_PRIORITY)  # ep
+        self.aborted = True
 
     def _step(self):
         GPIO.output(self.step, HIGH)
@@ -159,13 +160,16 @@ class Valve:
 
 
 def indefinite(direction):
+    import time
     valve = Valve(0, ValveType.Ball, 4, 17)
     if direction:
-        GPIO.output(valve.dir, HIGH)
+        GPIO.output(valve.dir, LOW)
     else:
         GPIO.output(valve.dir, HIGH)
     while True:
+        print("HI")
         valve._step()
+        time.sleep(0.04)
 
 
 if __name__ == '__main__':
