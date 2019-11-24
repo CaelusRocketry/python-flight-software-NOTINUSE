@@ -44,9 +44,9 @@ class Sensor(ABC):
             self.boundaries[datatype][SensorStatus.Warn] = cfg[name][location][datatype]["warn"]
             self.boundaries[datatype][SensorStatus.Crit] = cfg[name][location][datatype]["crit"]
         
-#        self.initKalmans()
+#        self.init_kalmans()
 
-    def initKalmans(self):
+    def init_kalmans(self):
         """
         Creates a kalman filter for each datatype of the sensor (i.e. for imu it would be [acceleration, tilt, roll]).
         - self.kalmans is a dictionary with the datatype as the key and the kalman filter object as the value.
@@ -74,7 +74,7 @@ class Sensor(ABC):
 
         # Trains each of the kalman filters with its respective training data
         for datatype in self.datatypes:
-            kalman, x_now, p_now = self.createKalman(training[datatype], 150)
+            kalman, x_now, p_now = self.create_kalman(training[datatype], 150)
             self.kalmans[datatype] = kalman
             self.normalized[datatype] = (x_now, p_now)
             print(datatype, "kalman initialized")
@@ -91,7 +91,7 @@ class Sensor(ABC):
 #                if current_data[datatype] != None:
                 if datatype in current_data:
                     reading = current_data[datatype]
-                    self.normalized[datatype] = self.updateKalman(datatype, reading)
+                    self.normalized[datatype] = self.update_kalman(datatype, reading)
                     print(datatype, "\t\t", reading, "\t\t" , self.normalized[datatype][0])
                 else:
                     print("Rip", datatype, "is None")
@@ -100,7 +100,7 @@ class Sensor(ABC):
         return self.kalmans
 
     @staticmethod
-    def createKalman(training, normalizingFactor): 
+    def create_kalman(training, normalizingFactor): 
         """
         Initializes the kalman filter for the sensor class and trains it using the given training data.
         - @param training: the training data -> list
@@ -134,7 +134,7 @@ class Sensor(ABC):
         (filtered_state_means, filtered_state_covariances) = kf.filter(training)
         return (kf, filtered_state_means[-1], filtered_state_covariances[-1])
 
-    def updateKalman(self, datatype, reading):
+    def update_alman(self, datatype, reading):
         """
         - Updates the kalman filter based the on the current observation,
           and calculates a normalized value for the observation.
