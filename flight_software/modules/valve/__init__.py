@@ -40,7 +40,6 @@ class Valve:
         self.dir = dir
         self.step = step
         self.active = False
-        self.aborted = False
         self.delay = delay
         self.angle = 0
         self.full = 200
@@ -58,7 +57,6 @@ class Valve:
             self.actuate(0, ABORT_PRIORITY)  # emptying
         else:
             self.actuate(90, ABORT_PRIORITY)  # ep
-        self.aborted = True
 
     def _step(self):
         GPIO.output(self.step, HIGH)
@@ -142,8 +140,6 @@ class Valve:
 
     def _actuate(self, target, priority):
         print("Actuating", self.id, target, priority)
-        if self.aborted:
-            return
         if self.is_actuating:
             if priority >= self.priority:
                 print("Interrupting")

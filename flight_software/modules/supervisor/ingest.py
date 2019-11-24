@@ -1,6 +1,7 @@
 from ..telemetry.logging import Log
 import subprocess
 import sys
+import time
 
 TOK_DEL, TYPE_DEL = " ", ":"  # Token and type delimiters
 
@@ -19,7 +20,8 @@ def ingest(log, sense, valv):
     # Dictionary to convert fuction strings into fuction objects
     funcs = {
         "ABORT": {
-            "ABORT": abort,
+            "hard": hard_abort,
+            "soft": soft_abort
         },
         "HEARTBEAT": {
             "At": heartbeat
@@ -27,7 +29,9 @@ def ingest(log, sense, valv):
         "core": {
             "ip": get_ip,
             "temp": get_core_temp,
-            "speed": get_core_speed
+            "speed": get_core_speed,
+            "time": get_time,
+            "cpu": get_cpu
         },
         "sensor": {
             "data": sensor_data
@@ -50,8 +54,8 @@ def ingest(log, sense, valv):
     if header in funcs:
         if cmd in funcs[header]:
             return funcs[header][cmd](*args)
-        return "Error", "Unknown command!"
-    return "Error", "Unknown header!"
+        return Log(header="ERROR", message="Unknown command while ingesting packet: Header was {} and cmd was {}".format(header, cmd))
+    return Log(header="ERROR", message="Unknown header while ingesting packet: Header was {}".format(header))
 
 
 # TODO: Return only the information from these three methods, and have the caller package into a Log
@@ -59,19 +63,29 @@ def ingest(log, sense, valv):
 
 def get_ip():
     """ Core method - Returns a Log containing the ip of the pi. """
-    return "Enqueue", Log(header="RESPONSE", message="192.168.1.35")
+    return Log(header="RESPONSE", message="192.168.1.35")
     # return "Enqueue", Log(header="RESPONSE", message=(subprocess.getoutput("hostname -I").split()[1]))
 
 def get_core_temp():
     """ Core method - Returns a Log containing the internal temperature of the pi. """
     msg = subprocess.getoutput("/opt/vc/bin/vcgencmd measure_temp")[5:]
     print("Message:", msg)
-    return "Enqueue", Log(header="RESPONSE", message=msg)
+    return Log(header="RESPONSE", message=msg)
 
 def get_core_speed():
     """ Core method - Returns a Log containing the clock speed of the pi """
     msg = subprocess.getoutput("lscpu | grep MHz").split()[3] + " MHz"
-    return "Enqueue", Log(header="RESPONSE", message=msg)
+    return Log(header="RESPONSE", message=msg)
+
+def get_time():
+    """ Core method - Returns a log containing the system time of the pi """
+    msg = time.strftime("%a %d-%m-%Y @ %H:%M:%S")
+    return Log(header="RESPONSE", message=msg)
+
+def get_cpu():
+    """ Core method - Returns a log containing the cpu usage of the pi """
+    msg = subprocess.getoutput("top -n1 | awk '/Cpu\(s\):/ {print $2}'")
+    return Log(header="RESPONSE", message=msg)
 
 def find_sensor(type, location):
     """
@@ -91,7 +105,7 @@ def sensor_data(type, location):
     """
     sensor = find_sensor(type, location, sensors)
     assert sensor is not None
-    return "Enqueue", Log(
+    return Log(
         header="RESPONSE", message=sensor.data, timestamp=timestamp, sender=sensor.name())
 
 def find_valve(id):
@@ -109,19 +123,28 @@ def actuate_valve(id, target, priority):
     """
     Valve method - Actuates the valve at a given proprity, return a Log to be enqueued
     """
+    if ABORT:
+        return Log(header="INFO", message="Could not actuate valve since hard abort has been called", sender="supervisor")
     valve = find_valve(id)
     valve.actuate(target, priority)
-    return "Enqueue", Log(
+    return Log(
         header="INFO", message="Actuated valve", sender="supervisor")
 
 def heartbeat():
     """ Returns a heartbeat Log to show that the connection is alive """
-    return "Enqueue", Log(header="HEARTBEAT", message="Ok")
+    return Log(header="HEARTBEAT", message="Ok")
 
-def abort():
+def hard_abort():
     """ Runs the abort methods of all valves """
     ABORT = True
     for valve in valves:
         valve.abort()
-    return "Enqueue", Log(
+    return Log(
+        haeder="INFO", message="Aborting now", sender="supervisor")
+
+def soft_abort():
+    """ Runs the abort methods of all valves """
+    for valve in valves:
+        valve.abort()
+    return Log(
         haeder="INFO", message="Aborting now", sender="supervisor")
