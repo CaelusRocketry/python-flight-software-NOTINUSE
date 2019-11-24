@@ -137,14 +137,26 @@ def heartbeat():
 def hard_abort():
     """ Runs the abort methods of all valves """
     ABORT = True
+    SOFT_ABORT = False
     for valve in valves:
         valve.abort()
     return Log(
-        haeder="INFO", message="Aborting now", sender="supervisor")
+        haeder="INFO", message="Hard aborting now", sender="supervisor")
 
 def soft_abort():
-    """ Runs the abort methods of all valves """
-    for valve in valves:
-        valve.abort()
-    return Log(
-        haeder="INFO", message="Aborting now", sender="supervisor")
+    """ Runs the soft abort procedure """
+    # This basically means that a hard abort was previously called, so ground shouldn't be able to take back control
+    if ABORT and not SOFT_ABORT:
+        return Log(header="INFO", message="Hard abort was already called, so soft abort can't be called", sender="supervisor")
+    # This basically means that a soft abort was previously called, so control is given back to ground
+    if ABORT and SOFT_ABORT:
+        ABORT = False
+        SOFT_ABORT = False
+        return Log(header="INFO", message="Soft abort is being retracted, ground station should have normal control now", sender="supervisor")
+    else:
+        # Calls the same abort procedure as hard_abort, but sets the SOFT_ABORT variable to true, allowing it to be undone if ground station wants to.
+        ABORT = True
+        SOFT_ABORT = True
+        for valve in valves:
+            valve.abort()
+        return Log(header="INFO", message="Soft abort is going into action, call soft_abort again to retract it", sender="supervisor")
