@@ -76,6 +76,9 @@ class IMU(Sensor):
         euler = self.sensor.euler
         gyro = self.sensor.gyro
         linear_acceleration = self.sensor.linear_acceleration
+        self.euler = euler
+        self.gyro = gyro
+        self.linear_acceleration = linear_acceleration
         if euler[0] != None and euler[2] != None:
             self.data["tilt"] = max(abs(180 - euler[0]),
                                         abs(180 - euler[2]))
