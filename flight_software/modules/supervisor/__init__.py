@@ -45,14 +45,10 @@ def interpret(telem, data):
     pack = Packet(header='RESPONSE')
     for log in pck.logs:
         response = ingest(log, sensors, valves)  # Performs the action requested and returns a response
-        # TODO: Change "Enqueue" and "Error" into enums
-        if response[0] == "Enqueue":  # if the response if a packet, enqueue it
-            print("Enqueuing", len(telem.queue_send), response[1])
-            pack.add(response[1])
+        if response.header == "Error":
+            print("Error", response.message)
+        pack.add(response)
 
-        elif response[0] == "Error":  # Otherwise, print the error to the flight consol
-            # TODO: Return the error back to ground station
-            print("Error occured while ingesting packet:", response[1])
     telem.enqueue(pack)
     return
 
