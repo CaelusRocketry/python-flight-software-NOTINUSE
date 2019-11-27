@@ -1,3 +1,8 @@
+"""
+DEPRICATED: DON'T USE THIS FILE ANYMORE
+"""
+
+
 from ..telemetry.logging import Log
 import subprocess
 import sys
@@ -5,7 +10,7 @@ import time
 
 TOK_DEL, TYPE_DEL = " ", ":"  # Token and type delimiters
 
-def ingest(log, sense, valv):
+def ingest(log, sense, valv, ABORT, SOFT_ABORT):
     global sensors, valves
     sensors = sense
     valves = valv
@@ -20,24 +25,24 @@ def ingest(log, sense, valv):
     # Dictionary to convert fuction strings into fuction objects
     funcs = {
         "ABORT": {
-            "hard": hard_abort,
-            "soft": soft_abort
+            "hard": (hard_abort, valves),
+            "soft": (soft_abort, valves)
         },
         "HEARTBEAT": {
-            "At": heartbeat
+            "At": (heartbeat,)
         },
         "core": {
-            "ip": get_ip,
-            "temp": get_core_temp,
-            "speed": get_core_speed,
-            "time": get_time,
-            "cpu": get_cpu
+            "ip": (get_ip,),
+            "temp": (get_core_temp,),
+            "speed": (get_core_speed,),
+            "time": (get_time,),
+            "cpu": (get_cpu,)
         },
         "sensor": {
-            "data": sensor_data
+            "data": (sensor_data,sensors)
         },
         "valve": {
-            "actuate": actuate_valve
+            "actuate": (actuate_valve,)
         }
     }
 
@@ -53,6 +58,9 @@ def ingest(log, sense, valv):
     print(log)
     if header in funcs:
         if cmd in funcs[header]:
+            func = funcs[header][cmd][0]
+            params = funcs[header][cmd][1:]
+            return func(*params, *args)
             return funcs[header][cmd](*args)
         return Log(header="ERROR", message="Unknown command while ingesting packet: Header was {} and cmd was {}".format(header, cmd))
     return Log(header="ERROR", message="Unknown header while ingesting packet: Header was {}".format(header))
@@ -87,45 +95,43 @@ def get_cpu():
     msg = subprocess.getoutput("top -n1 | awk '/Cpu\(s\):/ {print $2}'")
     return Log(header="RESPONSE", message=msg)
 
-def find_sensor(type, location):
+def find_sensor(sensors, type, location):
     """
     Sensor method - Given a sensor location, returns the sensor object from the array
     TODO: Convert sensors into a dictionary
     """
-    global sensors
     for sensor in sensors:
         if type == sensor.sensor_type() and location == sensor.location():
             return sensor
     return None
 
-def sensor_data(type, location):
+def sensor_data(sensors, type, location):
     """
     Sensor method - Returns the data of the sensor given a location
     TODO: Remove assert
     """
-    sensor = find_sensor(type, location, sensors)
+    sensor = find_sensor(sensors, type, location)
     assert sensor is not None
     return Log(
         header="RESPONSE", message=sensor.data, timestamp=timestamp, sender=sensor.name())
 
-def find_valve(id):
+def find_valve(valves, id):
     """
     Valve method - Given a valve id, returns the value object from the array
     TODO: turn valves into dictionary
     """
-    global valves
     for valve in valves:
         if id == valve.id:
             return valve
     return None
 
-def actuate_valve(id, target, priority):
+def actuate_valve(valves, id, target, priority):
     """
     Valve method - Actuates the valve at a given proprity, return a Log to be enqueued
     """
     if ABORT:
         return Log(header="INFO", message="Could not actuate valve since hard abort has been called", sender="supervisor")
-    valve = find_valve(id)
+    valve = find_valve(valves, id)
     valve.actuate(target, priority)
     return Log(
         header="INFO", message="Actuated valve", sender="supervisor")
@@ -134,17 +140,21 @@ def heartbeat():
     """ Returns a heartbeat Log to show that the connection is alive """
     return Log(header="HEARTBEAT", message="Ok")
 
-def hard_abort():
+def hard_abort(valves):
     """ Runs the abort methods of all valves """
+    global ABORT, SOFT_ABORT
+    if ABORT == True and SOFT_ABORT == False:
+        return Log(header="INFO", message="Calling hard abort even though the system has already hard aborted, ignoring command")
     ABORT = True
     SOFT_ABORT = False
     for valve in valves:
         valve.abort()
     return Log(
-        haeder="INFO", message="Hard aborting now", sender="supervisor")
+        header="INFO", message="Hard aborting now", sender="supervisor")
 
-def soft_abort():
+def soft_abort(valves):
     """ Runs the soft abort procedure """
+    global ABORT, SOFT_ABORT
     # This basically means that a hard abort was previously called, so ground shouldn't be able to take back control
     if ABORT and not SOFT_ABORT:
         return Log(header="INFO", message="Hard abort was already called, so soft abort can't be called", sender="supervisor")
