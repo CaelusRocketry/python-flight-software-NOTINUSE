@@ -3,6 +3,7 @@ import threading
 import time
 import json
 import heapq
+from queue import PriorityQueue
 from . import logging, encryption
 from .logging import Packet, Log
 from collections import deque
@@ -22,8 +23,10 @@ class Telemetry:
 
     def __init__(self, IP, PORT):
         """ Based on given IP and port, create and connect a socket """
-        self.queue_send = []
-        self.queue_ingest = deque([])
+        # self.queue_send = []
+        self.queue_send = PriorityQueue()
+        # self.queue_ingest = deque([])
+        self.queue_ingest = PriorityQueue()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.connect((IP, PORT))
@@ -51,7 +54,8 @@ class Telemetry:
         """ Constantly sends next packet from queue to ground station """
         while True:
             if self.queue_send and SEND_ALLOWED:
-                encoded = heapq.heappop(self.queue_send)[1]
+                # encoded = heapq.heappop(self.queue_send)[1]
+                encoded = self.queue_send.get()[1]
                 self.sock.send(encoded)
             time.sleep(DELAY_SEND)
 
@@ -60,7 +64,8 @@ class Telemetry:
         """ Constantly listens for any from ground station """
         while True:
             data = self.sock.recv(BYTE_SIZE)
-            self.queue_ingest.append(data)
+            # self.queue_ingest.append(data)
+            self.queue_ingest.put((data.level, data))
             time.sleep(DELAY_LISTEN)
 
 
@@ -69,4 +74,5 @@ class Telemetry:
         packet_string = packet.to_string()  # Converts packet to string form
         print("Enqueueing", packet_string)
         encoded = encryption.encrypt(packet_string)
-        heapq.heappush(self.queue_send, (packet.level, encoded))
+        # heapq.heappush(self.queue_send, (packet.level, encoded))
+        self.queue_send.put((packet.level, encoded))

@@ -84,10 +84,8 @@ def start():
         for sensor in sensors:
             # TODO: Handle sensor status by doing something
             status = sensor.status()
-
-            # Log is the current sensor's data
             sensor_data = {"raw":sensor.data, "normalized":sensor.normalized}
-            log = Log(
+            log = Log(  
                 message=sensor_data,
                 level=status,
                 timestamp=sensor.timestamp,
@@ -95,7 +93,9 @@ def start():
 
             packet.add(log)
             if status == SensorStatus.Crit:
-                log = Log(header="ABORT", message="Aborting because " + sensor.name() + " has a critical value")
+                # sensor_thread = Thread(target=confirm_level, args=(sensor,))
+                # have confirm_level actually call abort methods
+                log = Log(header="POTENTIAL ABORT", level=SensorStatus.Crit, message="Aborting because " + sensor.name() + " has a critical value")
                 packet.add(log)
                 hard_abort(valves)
 

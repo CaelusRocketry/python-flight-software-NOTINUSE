@@ -73,4 +73,7 @@ class Thermocouple(Sensor):
             elif data["temperature"] >= self.boundaries["temperature"][SensorStatus.Warn][0] and data["temperature"] <= self.boundaries["temperature"][SensorStatus.Warn][1]:
                 self._status = SensorStatus.Warn
             else:
-                self._status = SensorStatus.Crit
+                stat = SensorStatus.Crit
+
+            self._status = stat
+            

@@ -105,12 +105,13 @@ class IMU(Sensor):
                 if data[key] == None:
                     stat = SensorStatus.Crit
                     break
-                if data[key] >= self.boundaries[key][SensorStatus.Safe][
-                        0] and data[key] <= self.boundaries[key][SensorStatus.Safe][1]:
+                
+                if data[key] >= self.boundaries[key][SensorStatus.Safe][0] and data[key] <= self.boundaries[key][SensorStatus.Safe][1]:
                     stat = min(SensorStatus.Safe, stat)
                 elif data[key] >= self.boundaries[key][SensorStatus.Warn][0] and data[key] <= self.boundaries[key][SensorStatus.Warn][1]:
                     stat = min(SensorStatus.Warn, stat)
                 else:
                     stat = min(SensorStatus.Crit, stat)
+            
             self._status = stat
 
