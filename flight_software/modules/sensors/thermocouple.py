@@ -25,8 +25,6 @@ class PsuedoThermocouple():
     def read_temp_c(self):
         return 2
 
-print(os.listdir("."))
-
 class Thermocouple(Sensor):
 
     def __init__(self, port, device, location):
@@ -70,9 +68,9 @@ class Thermocouple(Sensor):
         """
         while True:
             data = self.get_data()
-            if data["temp"] >= self.boundaries[SensorStatus.Safe][0] and data["temp"] <= self.boundaries[SensorStatus.Safe][1]:
+            if data["temperature"] >= self.boundaries["temperature"][SensorStatus.Safe][0] and data["temperature"] <= self.boundaries["temperature"][SensorStatus.Safe][1]:
                 self._status = SensorStatus.Safe
-            elif data["temp"] >= self.boundaries[SensorStatus.Warn][0] and data["temp"] <= self.boundaries[SensorStatus.Warn][1]:
+            elif data["temperature"] >= self.boundaries["temperature"][SensorStatus.Warn][0] and data["temperature"] <= self.boundaries["temperature"][SensorStatus.Warn][1]:
                 self._status = SensorStatus.Warn
             else:
                 self._status = SensorStatus.Crit

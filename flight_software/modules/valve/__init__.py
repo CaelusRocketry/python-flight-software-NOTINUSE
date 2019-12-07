@@ -53,7 +53,7 @@ class Valve:
              GPIO.setup(self.step, GPIO.OUT)
 
     def abort(self):
-        if self.type == Valve.Ball:
+        if self.type == ValveType.Ball:
             self.actuate(0, ABORT_PRIORITY)  # emptying
         else:
             self.actuate(90, ABORT_PRIORITY)  # ep
@@ -98,7 +98,7 @@ class Valve:
 
     def start_vent(self):
         self.is_venting = True
-        if self.type == Valve.Ball:
+        if self.type == ValveType.Ball:
             self.actuate(0, VENT_PRIORITY)
         else:
             self.actuate(90, VENT_PRIORITY)
@@ -106,13 +106,13 @@ class Valve:
     def stop_vent(self):
         if self.is_venting == True:
             self.is_venting = False
-            if self.type == Valve.Ball:
+            if self.type == ValveType.Ball:
                 self.actuate(90, VENT_PRIORITY)
             else:
                 self.actuate(0, VENT_PRIORITY)
 
     def pulse(self):
-        if self.type == Valve.Ball:
+        if self.type == ValveType.Ball:
             for x in range(5):
                 self.actuate(90, PULSE_PRIORITY)
                 time.sleep(0.5)
@@ -126,7 +126,7 @@ class Valve:
                 time.sleep(0.5)
 
     def purge(self, priority):
-        if self.type == Valve.Ball:
+        if self.type == ValveType.Ball:
             self.actuate(90, PURGE_PRIORITY)
         else:
             self.actuate(0, PURGE_PRIORITY)

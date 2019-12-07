@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum
 from queue import PriorityQueue
-from pykalman import KalmanFilter
+#from pykalman import KalmanFilter
 import numpy as np
 import time
 import yaml
@@ -134,7 +134,7 @@ class Sensor(ABC):
         (filtered_state_means, filtered_state_covariances) = kf.filter(training)
         return (kf, filtered_state_means[-1], filtered_state_covariances[-1])
 
-    def update_alman(self, datatype, reading):
+    def update_kalman(self, datatype, reading):
         """
         - Updates the kalman filter based the on the current observation,
           and calculates a normalized value for the observation.

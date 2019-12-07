@@ -30,6 +30,10 @@ valves = [
     Valve(0, ValveType.Ball, 4, 17)
 ]
 
+global ABORT, SOFT_ABORT
+ABORT = False
+SOFT_ABORT = False
+
 # Initializes anything in the telemetry object and ingests it
 def handle_telem(telem):
     telem.begin()  # Starts a sending and recieving thread, with associated queue_ingest and queue_send methods

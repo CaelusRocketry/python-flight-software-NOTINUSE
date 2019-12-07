@@ -1,19 +1,19 @@
 thermocouple:
   chamber:
     temperature:
-      safe: [0,0]
-      warn: [0,0]
-      crit: [0,0]
+      safe: [19,23]
+      warn: [17,25]
+      crit: [16,27]
   tank:
     temperature:
-      safe: [0,0]
-      warn: [0,0]
-      crit: [0,0]
+      safe: [19,23]
+      warn: [17,25]
+      crit: [16,27]
   nose:
     temperature:
-      safe: [0,0]
-      warn: [0,0]
-      crit: [0,0]
+      safe: [19,23]
+      warn: [17,25]
+      crit: [16,27]
 
 pressure:
   chamber:
