@@ -134,14 +134,15 @@ class Sensor(ABC):
         (filtered_state_means, filtered_state_covariances) = kf.filter(training)
         return (kf, filtered_state_means[-1], filtered_state_covariances[-1])
 
-    def update_alman(self, datatype, reading):
+    def update_kalman(self, datatype, reading):
         """
         - Updates the kalman filter based the on the current observation,
           and calculates a normalized value for the observation.
         - @param datatype: the kalman filter to use
         ####  - @param prev_res: a tuple containing the previously calculated mean and covariance valuees.
         - @param reading (number): the reading generated from the sensor.
-        - returns (mean, covariance) where the mean is the normalized value and the covariance is the measure of spread
+        - x_now, P_now is the mean, covariance - where the mean is the normalized value and the covariance is the measure of spread
+        - returns the normalized value
         """
         print("Updating", datatype, "kalman with reading = ", reading)
         filter = self.kalmans[datatype]
@@ -155,7 +156,7 @@ class Sensor(ABC):
         self.normalized[datatype] = (x_now, P_now)
         print("New normalized value", self.normalized[datatype][0][0])
 
-        return (x_now, P_now)
+        return x_now
 
     @abstractmethod
     def get_data(self) -> dict:

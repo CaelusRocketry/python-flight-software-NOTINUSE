@@ -78,9 +78,17 @@ class Load(Sensor):
         """
         while True:
             data = self.get_data()
+            stat = SensorStatus.Safe
+            if data["weight"] == None:
+                stat = SensorStatus.Crit
+                break
+
             if data["weight"] >= self.boundaries[SensorStatus.Safe][0] and data["weight"] <= self.boundaries[SensorStatus.Safe][1]:
-                self._status = SensorStatus.Safe
+                stat = SensorStatus.Safe
             elif data["weight"] >= self.boundaries[SensorStatus.Warn][0] and data["weight"] <= self.boundaries[SensorStatus.Warn][1]:
-                self._status = SensorStatus.Warn
+                stat = SensorStatus.Warn
             else:
-                self._status = SensorStatus.Crit
+                stat = SensorStatus.Crit
+
+            self._status = stat
+            
