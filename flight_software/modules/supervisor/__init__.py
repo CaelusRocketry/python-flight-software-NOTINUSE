@@ -38,7 +38,7 @@ SOFT_ABORT = False
 def handle_telem(telem):
     telem.begin()  # Starts a sending and recieving thread, with associated queue_ingest and queue_send methods
     while True: 
-        if len(telem.queue_ingest) > 0:  # if there is a message, begin a thread to interperate the message
+        if not telem.queue_ingest.empty():  # if there is a message, begin a thread to interperate the message
             data = telem.queue_ingest.popleft()
             ingest_thread = Thread(target=interpret, args=(telem, data))
             ingest_thread.daemon = True
@@ -85,6 +85,10 @@ def start():
             # TODO: Handle sensor status by doing something
             status = sensor.status()
             sensor_data = {"raw":sensor.data, "normalized":sensor.normalized}
+            if status != SensorStatus.Safe:
+                t = threading.Thread(target = confirm_level, args=(sensor,))
+                t.daemon = True
+                t.start()
             log = Log(  
                 message=sensor_data,
                 level=status,
@@ -101,6 +105,55 @@ def start():
 
         telem.enqueue(packet)
         time.sleep(SENSOR_DELAY)
+
+def confirm_level(sensor):
+    packet = Packet(
+        header='ABORT MESSAGES',
+        logs=[],
+        timestamp=time.time()
+    )
+
+    highest_stat = SensorStatus.Crit
+
+    for i in range(5):
+        print(i)
+            
+        data = sensor.get_data()
+        stat = SensorStatus.Safe
+        for key in sensor.datatypes:
+            
+            if data[key] == None:
+                stat = SensorStatus.Crit
+                break
+            
+            if data[key] >= sensor.boundaries[key][SensorStatus.Safe][0] and data[key] <= sensor.boundaries[key][SensorStatus.Safe][1]:
+                stat = min(SensorStatus.Safe, stat)
+            elif data[key] >= sensor.boundaries[key][SensorStatus.Warn][0] and data[key] <= sensor.boundaries[key][SensorStatus.Warn][1]:
+                stat = min(SensorStatus.Warn, stat)
+            else:
+                stat = min(SensorStatus.Crit, stat)
+            print("stat:", stat)
+        
+        highest_stat = max(stat, highest_stat)
+        print("highest stat:", highest_stat)
+        time.sleep(1)
+
+    if(highest_stat == SensorStatus.Crit):
+        print("SENSOR STATUS - CRIT: CALL ALL ABORTS")
+        # log = Log(header="NO ABORT", level=SensorStatus.Crit, message="Not aorting because " + sensor.name() + " no longer has critical values")
+        # packet.add(log)
+        # hard_abort(valves)
+    elif(highest_stat == SensorStatus.Warn):
+        print("SENSOR STATUS - WARNING: CONSIDER ABORTING")
+        # log = Log(header="NO ABORT", level=SensorStatus.Crit, message="Not aorting because " + sensor.name() + " no longer has critical values")
+        # packet.add(log)
+        # hard_abort(valves)
+    else:
+        print("SENSOR STATUS - SAFE: WE ALL GUCCI")
+        # log = Log(header="ABORT", level=SensorStatus.Crit, message="Aborting because " + sensor.name() + " has a critical value")
+        # packet.add(log)
+        # hard_abort(valves)
+
 
 def ingest(log):
     global sensors, valves
