@@ -16,6 +16,7 @@ from ..valve import ValveType, Valve
 GS_IP = '192.168.1.29' 
 GS_PORT = 5005
 SENSOR_DELAY = 1.5
+ABORT_PRIORITY = 0
 
 # Initialize all sensors
 sensors = [
@@ -30,22 +31,27 @@ valves = [
     Valve(0, ValveType.Ball, 4, 17)
 ]
 
+global telem
+telem = Telemetry(GS_IP, GS_PORT)
+
 global ABORT, SOFT_ABORT
 ABORT = False
 SOFT_ABORT = False
 
 # Initializes anything in the telemetry object and ingests it
-def handle_telem(telem):
+def handle_telem():
+    global telem
     telem.begin()  # Starts a sending and recieving thread, with associated queue_ingest and queue_send methods
     while True: 
         if not telem.queue_ingest.empty():  # if there is a message, begin a thread to interperate the message
             data = telem.queue_ingest.popleft()
-            ingest_thread = Thread(target=interpret, args=(telem, data))
+            ingest_thread = Thread(target=interpret, args=(data, ))
             ingest_thread.daemon = True
             ingest_thread.start()
 
 # Handles the information returned by ingest
-def interpret(telem, data):
+def interpret(data):
+    global telem
     pck_str = decrypt(data)
     pck = Packet.from_string(pck_str)  # Deserialize the packet
     pack = Packet(header='RESPONSE')
@@ -61,8 +67,7 @@ def interpret(telem, data):
 #  The main supervisor loop. An infinite loop that collects data from all sensors and sends it to ground station.
 def start():
     # Initalize telemetry object
-    telem = Telemetry(GS_IP, GS_PORT)
-    telem_thread = Thread(target=handle_telem, args=(telem,))
+    telem_thread = Thread(target=handle_telem)
     telem_thread.daemon = True
     telem_thread.start()
 
@@ -86,7 +91,7 @@ def start():
             status = sensor.status()
             sensor_data = {"raw":sensor.data, "normalized":sensor.normalized}
             if status != SensorStatus.Safe:
-                t = threading.Thread(target = confirm_level, args=(sensor,))
+                t = Thread(target = confirm_level, args=(sensor,))
                 t.daemon = True
                 t.start()
             log = Log(  
@@ -107,6 +112,7 @@ def start():
         time.sleep(SENSOR_DELAY)
 
 def confirm_level(sensor):
+    global telem
     packet = Packet(
         header='ABORT MESSAGES',
         logs=[],
@@ -140,19 +146,20 @@ def confirm_level(sensor):
 
     if(highest_stat == SensorStatus.Crit):
         print("SENSOR STATUS - CRIT: CALL ALL ABORTS")
-        # log = Log(header="NO ABORT", level=SensorStatus.Crit, message="Not aorting because " + sensor.name() + " no longer has critical values")
-        # packet.add(log)
-        # hard_abort(valves)
+        log = Log(header="Sensor Status", level=ABORT_PRIORITY, message="Aborting because " + sensor.name() + " has critical values even after pseudo kalman")
+        packet.add(log)
+        hard_abort(valves)
     elif(highest_stat == SensorStatus.Warn):
         print("SENSOR STATUS - WARNING: CONSIDER ABORTING")
-        # log = Log(header="NO ABORT", level=SensorStatus.Crit, message="Not aorting because " + sensor.name() + " no longer has critical values")
-        # packet.add(log)
-        # hard_abort(valves)
+        log = Log(header="Sensor Status", level=ABORT_PRIORITY, message="Not aborting because " + sensor.name() + " has changed to a warning status, consider aborting")
+        packet.add(log)
+
     else:
         print("SENSOR STATUS - SAFE: WE ALL GUCCI")
-        # log = Log(header="ABORT", level=SensorStatus.Crit, message="Aborting because " + sensor.name() + " has a critical value")
-        # packet.add(log)
-        # hard_abort(valves)
+        log = Log(header="Sensor Status", level=ABORT_PRIORITY, message="Not aborting because " + sensor.name() + " no longer has a critical value")
+        packet.add(log)
+
+    telem.enqueue(packet)
 
 
 def ingest(log):
@@ -284,6 +291,7 @@ def heartbeat():
 
 def hard_abort(valves):
     """ Runs the abort methods of all valves """
+    print("Aborting")
     global ABORT, SOFT_ABORT
     if ABORT == True and SOFT_ABORT == False:
         return Log(header="INFO", message="Calling hard abort even though the system has already hard aborted, ignoring command")

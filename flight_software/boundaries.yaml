@@ -2,8 +2,8 @@ thermocouple:
   chamber:
     temperature:
       safe: [19,23]
-      warn: [17,25]
-      crit: [16,27]
+      warn: [17,24]
+      crit: [16,25]
   tank:
     temperature:
       safe: [19,23]
