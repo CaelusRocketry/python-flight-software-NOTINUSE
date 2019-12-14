@@ -1,9 +1,12 @@
-# /modules/valve
+# /modules/ballvalve
 
 import time
 from aenum import Enum, auto
 from time import sleep
 from multiprocessing import Process
+
+# Local Imports
+from . import Valve, ValveType
 
 try:
     import RPi.GPIO as GPIO
@@ -16,7 +19,6 @@ else:
     REAL = True
 
 GEAR_RATIO = 50
-
 DELAY_TIME = .001
 
 # change later
@@ -25,43 +27,26 @@ PURGE_PRIORITY = 9
 PULSE_PRIORITY = 8
 VENT_PRIORITY = 7
 
-class ValveType(Enum):
-    Ball = auto()
-    Vent = auto()
-    Drain = auto() 
-
-class Valve:
-    def __init__(self, id, valve_type, dir, step,
-                 gear_ratio=GEAR_RATIO, delay=DELAY_TIME):
-        self.id = id
-        self.type = valve_type
-        self.is_actuating = False
-        self.gear_ratio = gear_ratio
+class BallValve(Valve):
+    def __init__(self, id, dir, pin, gear_ratio=GEAR_RATIO, delay=DELAY_TIME):
         self.dir = dir
-        self.step = step
-        self.active = False
         self.delay = delay
         self.angle = 0
-        self.full = 200
-        self.priority = -1
-        self.setup()
+        super(id, ValveType.Ball, pin, gear_ratio) # id, valve_type, pin, gear_ratio
 
     def setup(self):
         if REAL:
              GPIO.setmode(GPIO.BCM)
              GPIO.setup(self.dir, GPIO.OUT)
-             GPIO.setup(self.step, GPIO.OUT)
-
+             GPIO.setup(self.pin, GPIO.OUT)
+    
     def abort(self):
-        if self.type == ValveType.Ball:
-            self.actuate(0, ABORT_PRIORITY)  # emptying
-        else:
-            self.actuate(90, ABORT_PRIORITY)  # ep
+        self.actuate(0, ABORT_PRIORITY)  # emptying
 
     def _step(self):
-        GPIO.output(self.step, HIGH)
+        GPIO.output(self.pin, HIGH)
         sleep(self.delay)
-        GPIO.output(self.step, LOW)
+        GPIO.output(self.pin, LOW)
         sleep(self.delay)
 
     def goto(self, target):
@@ -72,14 +57,13 @@ class Valve:
         if angle > 180:
             angle = angle - 360
         steps = int(self.full * self.gear_ratio * angle / 360)
-        direction = 1
+
         GPIO.output(self.dir, HIGH)
         if steps < 0:
-            direction = -1
             GPIO.output(self.dir, LOW)
             steps *= -1
 
-#        print(target, self.angle, steps * direction)
+        #print(target, self.angle, steps * direction)
 
         self.interrupt = False
         self.is_actuating = True
@@ -98,38 +82,22 @@ class Valve:
 
     def start_vent(self):
         self.is_venting = True
-        if self.type == ValveType.Ball:
-            self.actuate(0, VENT_PRIORITY)
-        else:
-            self.actuate(90, VENT_PRIORITY)
+        self.actuate(0, VENT_PRIORITY)
 
     def stop_vent(self):
         if self.is_venting == True:
             self.is_venting = False
-            if self.type == ValveType.Ball:
-                self.actuate(90, VENT_PRIORITY)
-            else:
-                self.actuate(0, VENT_PRIORITY)
+            self.actuate(90, VENT_PRIORITY)
 
     def pulse(self):
-        if self.type == ValveType.Ball:
-            for x in range(5):
-                self.actuate(90, PULSE_PRIORITY)
-                time.sleep(0.5)
-                self.actuate(0, PULSE_PRIORITY)
-                time.sleep(0.5)
-        else:
-            for x in range(5):
-                self.actuate(0, PULSE_PRIORITY)
-                time.sleep(0.5)
-                self.actuate(90, PULSE_PRIORITY)
-                time.sleep(0.5)
-
+        for x in range(5):
+            self.actuate(90, PULSE_PRIORITY)
+            time.sleep(0.5)
+            self.actuate(0, PULSE_PRIORITY)
+            time.sleep(0.5)
+    
     def purge(self, priority):
-        if self.type == ValveType.Ball:
-            self.actuate(90, PURGE_PRIORITY)
-        else:
-            self.actuate(0, PURGE_PRIORITY)
+        self.actuate(90, PURGE_PRIORITY)
 
     def actuate(self, target, priority):
         print("Started actuation thread")
@@ -153,34 +121,3 @@ class Valve:
         else:
             self.priority = priority
             self.goto(target)
-
-
-def indefinite(direction):
-    import time
-    valve = Valve(0, ValveType.Ball, 4, 17)
-    if direction:
-        GPIO.output(valve.dir, LOW)
-    else:
-        GPIO.output(valve.dir, HIGH)
-    while True:
-        print("HI")
-        valve._step()
-        time.sleep(0.04)
-
-
-if __name__ == '__main__':
-    indefinite(True)
-
-""" if __name__ == '__main__':
-    valve = Valve(0, ValveType.Ball, 4, 17)
-    while 1:
-        x = input()
-        if x == "x":
-            break
-        degree, priority = [int(i) for i in x.split(" ")]
-        actuate_thread = threading.Thread(
-            target=valve.actuate, args=(degree, priority))
-        actuate_thread.daemon = True
-        actuate_thread.start()
-    valve.abort() """
-

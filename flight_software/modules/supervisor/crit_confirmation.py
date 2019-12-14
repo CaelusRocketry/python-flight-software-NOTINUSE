@@ -1,3 +1,7 @@
+'''
+file to check the confrm_level folder; now incorporated into __init__.py : delete?
+'''
+
 from threading import Thread
 import time
 import heapq

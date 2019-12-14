@@ -1,9 +1,9 @@
 # /modules/sensors
-
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum
 from queue import PriorityQueue
-#from pykalman import KalmanFilter
+#
+# from pykalman import KalmanFilter
 import numpy as np
 import time
 import yaml
@@ -35,7 +35,7 @@ class Sensor(ABC):
         with open("boundaries.yaml", "r") as ymlfile:
             cfg = yaml.load(ymlfile)
 
-        assert location in cfg[name]
+        assert location in cfg[name] # TODO: Change from assert to error log
         self.boundaries = {}
         self.datatypes = datatypes
         for datatype in datatypes:

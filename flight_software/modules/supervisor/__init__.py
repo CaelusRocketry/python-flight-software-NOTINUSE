@@ -38,34 +38,39 @@ global ABORT, SOFT_ABORT
 ABORT = False
 SOFT_ABORT = False
 
-# Initializes anything in the telemetry object and ingests it
+# 
 def handle_telem():
+    '''
+    Initializes anything in the telemetry object and ingests it. Starts a sending and recieving thread, with associated queue_ingest and 
+    queue_send methods, and if there is a message, begin a thread to interperate the message.
+    '''
     global telem
-    telem.begin()  # Starts a sending and recieving thread, with associated queue_ingest and queue_send methods
+    telem.begin()  
     while True: 
-        if not telem.queue_ingest.empty():  # if there is a message, begin a thread to interperate the message
+        if not telem.queue_ingest.empty():  
             data = telem.queue_ingest.popleft()
             ingest_thread = Thread(target=interpret, args=(data, ))
             ingest_thread.daemon = True
             ingest_thread.start()
 
-# Handles the information returned by ingest
+# 
 def interpret(data):
+    ''' Handles the information returned by ingest, deserialize the packet, pPerforms the action requested and returns a response. '''
     global telem
     pck_str = decrypt(data)
-    pck = Packet.from_string(pck_str)  # Deserialize the packet
+    pck = Packet.from_string(pck_str)  
     pack = Packet(header='RESPONSE')
     for log in pck.logs:
-        response = ingest(log, sensors, valves)  # Performs the action requested and returns a response
+        response = ingest(log, sensors, valves) 
         if response.header == "Error":
             print("Error", response.message)
         pack.add(response)
 
     telem.enqueue(pack)
     return
-
-#  The main supervisor loop. An infinite loop that collects data from all sensors and sends it to ground station.
+ 
 def start():
+    ''' The main supervisor loop. An infinite loop that collects data from all sensors and sends it to ground station. '''
     # Initalize telemetry object
     telem_thread = Thread(target=handle_telem)
     telem_thread.daemon = True
@@ -112,6 +117,12 @@ def start():
         time.sleep(SENSOR_DELAY)
 
 def confirm_level(sensor):
+    '''
+    If a level is read as priority, check to see if it remains at priority level for 5 seconds.
+    If it drops back to warning or safe, cancel the abort and take the appropriate measures. 
+    If not, proceed with the abort. Imform ground station of the final status.
+
+    '''
     global telem
     packet = Packet(
         header='ABORT MESSAGES',
@@ -149,6 +160,7 @@ def confirm_level(sensor):
         log = Log(header="Sensor Status", level=ABORT_PRIORITY, message="Aborting because " + sensor.name() + " has critical values even after pseudo kalman")
         packet.add(log)
         hard_abort(valves)
+    
     elif(highest_stat == SensorStatus.Warn):
         print("SENSOR STATUS - WARNING: CONSIDER ABORTING")
         log = Log(header="Sensor Status", level=ABORT_PRIORITY, message="Not aborting because " + sensor.name() + " has changed to a warning status, consider aborting")
