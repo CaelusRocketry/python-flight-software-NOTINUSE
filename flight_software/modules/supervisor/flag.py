@@ -2,7 +2,6 @@ from mode import Mode
 
 class Flag:
     self.state_flags = {
-        "mode": None,
         "state_put_error": None,
         "state_get_error": None,
         "flag_put_error": None,
@@ -14,7 +13,6 @@ class Flag:
     }
 
     self.state_types = {
-        "mode": Mode,
         "state_put_error": bool,
         "state_get_error": bool,
         "flag_put_error": bool,
