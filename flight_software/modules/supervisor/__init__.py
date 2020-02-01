@@ -4,13 +4,16 @@ from helpers import *
 from mode import Mode
 from ../telemetry import Telemetry
 from status import Status
-import threading
+from mdoules.tasks import TelemetryTask, ImuTask, SensorArduinoTask, ValveArduinoTask
 
 ### Intialize everything
 flag = Flag()
 registry = Registry()
-telemetry = Telemetry()
-telemetry.begin()
+
+telemetry = TelemetryTask()
+imu = ImuTask()
+sensor_arduino = SensorArduinoTask()
+valve_arduino = ValveArduinoTask()
 
 ### Read
 ### TODO: [priority] Create Status class
@@ -21,6 +24,13 @@ telemetry.begin()
 ### TODO: Make the values in control stuff that actually works
 ### TODO: Do actuate()
 
+def read():
+    registry = telemetry.read(registry)
+    registry = imu.read(registry)
+    registry = sensor_arduino.read(registry)
+    registry = valve_arduino.read(registry)
+
+"""
 def read():
     thermocouple_data = get_thermocouple_data()
     registry.put("thermocouple_gas", thermocouple_data.get("thermocouple_gas"))
@@ -47,11 +57,12 @@ def read():
 
     telemetry_queue_data = telemetry.queue_ingest.queue
     registry.put("telemetry_queue", telemetry_queue_data)
-
+"""
 
 ### Control
 
 def control():
+    pass
 
     ### Check the values in the registry and make sure they are acceptable
 
@@ -119,11 +130,13 @@ def control():
 
     telemetry.enqueue(pack)
 
+
 ### Actuate
 
 def actuate():
     pass
 
+### Main control loop
 
 while True:
     read()
