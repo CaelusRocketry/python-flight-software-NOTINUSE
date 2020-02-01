@@ -19,5 +19,5 @@ class Task:
     Actuate if necessary, and return whether or not the actuation was successful
     """
     @abstractmethod
-    def actuate(self, message: Message) -> bool:
+    def actuate(self, command: Command) -> bool:
         pass
