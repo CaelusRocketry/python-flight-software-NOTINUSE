@@ -4,7 +4,7 @@ from helpers import *
 from mode import Mode
 from ../telemetry import Telemetry
 from status import Status
-from mdoules.tasks import TelemetryTask, ImuTask, SensorArduinoTask, ValveArduinoTask
+from modules.tasks import TelemetryTask, ImuTask, SensorArduinoTask, ValveArduinoTask
 
 ### Intialize everything
 flag = Flag()

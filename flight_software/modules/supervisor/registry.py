@@ -85,6 +85,7 @@ class Registry:
         "mode": Mode
     }
 
+    @staticmethod
     def put(key, value, flag):
         if key not in self.values:
             flag.state_flags["state_put_error"] = True
@@ -93,7 +94,7 @@ class Registry:
         self.times[key] = time.time()
         return True
         
-
+    @staticmethod
     def get(key, flag):
         if key not in self.values:
             flag.state_flags["state_get_error"] = True
