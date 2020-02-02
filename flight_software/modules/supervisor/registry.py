@@ -1,9 +1,37 @@
 from mode import Mode
 from status import Status
+import time
 
 class Registry:
 
     self.values = {
+        "thermocouple_gas": None,
+        "thermocouple_liquid": None,
+        "pressure_gas": None,
+        "pressure_pre_main": None,
+        "pressure_post_main": None,
+        "pressure_post_cv": None,
+        "load_cell_h20": None,
+        "ball_valve_pres": None,
+        "ball_valve_main": None,
+        "solenoid_valve_drain": None,
+        "solenoid_valve_depres": None,
+        "thermocouple_gas_status": None,
+        "thermocouple_liquid_status": None,
+        "pressure_gas_status": None,
+        "pressure_pre_main_status": None,
+        "pressure_post_main_status": None,
+        "pressure_post_cv_status": None,
+        "load_cell_h20_status": None,
+        "ball_valve_pres_status": None,
+        "ball_valve_main_status": None,
+        "solenoid_valve_drain_status": None,
+        "solenoid_valve_depres_status": None,
+        "telemetry_queue": [],
+        "mode": None
+    }
+
+    self.times = {
         "thermocouple_gas": None,
         "thermocouple_liquid": None,
         "pressure_gas": None,
@@ -57,17 +85,17 @@ class Registry:
         "mode": Mode
     }
 
-    @staticmethod
     def put(key, value, flag):
         if key not in self.values:
             flag.state_flags["state_put_error"] = True
             return False
         self.values[key] = value
+        self.times[key] = time.time()
         return True
         
-    @staticmethod
     def get(key, flag):
         if key not in self.values:
             flag.state_flags["state_get_error"] = True
             return False
         return self.values[key]
+
