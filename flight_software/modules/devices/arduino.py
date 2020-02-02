@@ -8,10 +8,24 @@ class Arduino(Device):
         self.addr = addr
         self.address = address
         self.bus = smbus.SMBus(1)
-
+    
+    """
+    Return whether or not the i2c connection is alive
+    """
     def status(self) -> bool:
+        # ping = "hey u alive"
+        # ping_bytes = [ord(b) for b in ping]
+        # self.write(ping_bytes)
+
+        # time.sleep(.3)
+
+        # response = self.read()
+        # return struct.unpack('f', response)[0] == "yeah i'm good"
         pass
 
+    """
+    Powercycle the arduino
+    """
     def reset(self) -> bool:
         pass
 
