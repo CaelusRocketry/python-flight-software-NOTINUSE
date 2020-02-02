@@ -2,8 +2,9 @@ from abc import ABC, abstractmethod
 
 class Device(ABC):
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, location: str):
         self.name = name
+        self.location = location
     
     """
     Return true if the device is fully functional and calibrated, else return false

@@ -2,6 +2,7 @@ from modules.devices.device import Device
 from enum import Enum
 import socket
 import threading
+import heapq
 
 BYTE_SIZE = 8192
 
@@ -17,7 +18,7 @@ class Telemetry(Device):
     Initialize the ingest queue, the send queue, the socket connection, and all other necessary variables.
     Also start all necessary threads
     """
-    def __init__():
+    def __init__(self):
         self.ingest_queue = []
         self.send_queue = []
 
