@@ -9,12 +9,14 @@ BLOCK_SIZE = 32
 Encrypts the string version of Packet 
 """
 def encrypt(packet):
-    cipher = AES.new(key, AES.MODE_ECB)
-    return cipher.encrypt(pad(packet.encode(), BLOCK_SIZE))
+    return packet.to_string().encode()
+#    cipher = AES.new(key, AES.MODE_ECB)
+#    return cipher.encrypt(pad(packet.encode(), BLOCK_SIZE))
 
 """
 Decrypts the string version of Packet 
 """
-def decrypt(message):
-    cipher = AES.new(key, AES.MODE_ECB)
-    return unpad(cipher.decrypt(message), BLOCK_SIZE).decode()
+def decrypt(encoded_packet):
+    return Packet.from_string(encoded_packet.decode())
+#    cipher = AES.new(key, AES.MODE_ECB)
+#    return unpad(cipher.decrypt(message), BLOCK_SIZE).decode()

@@ -1,4 +1,4 @@
-### Enumeration of Modes
+# Enumeration of Modes
 from enum import Enum
 
 class Mode(Enum):

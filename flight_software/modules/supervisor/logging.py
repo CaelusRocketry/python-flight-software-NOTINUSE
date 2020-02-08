@@ -58,11 +58,13 @@ class Packet:
         output_dict["logs"] = [log.to_string() for log in output_dict["logs"]]
         return json.dumps(self.__dict__)
 
+    @staticmethod
     def from_string(input_string):
         ''' Turn all logs into dictionaries from strings '''
         input_dict = json.loads(input_string)
         print(input_dict)
-        input_dict["logs"] = [Log.from_string(log_str) for log_str in input_dict["logs"]]
+        input_dict["logs"] = [Log.from_string(
+            log_str) for log_str in input_dict["logs"]]
         packet = Packet()
         packet.__dict__ = input_dict
         return packet
