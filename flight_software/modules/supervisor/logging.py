@@ -30,6 +30,7 @@ class Log:
         print(self.__dict__)
         return json.dumps(self.__dict__)
 
+    @classmethod
     def from_string(input_string):
         ''' Convert input_string to dictionary for Logging '''
         input_dict = json.loads(input_string)
@@ -58,6 +59,7 @@ class Packet:
         output_dict["logs"] = [log.to_string() for log in output_dict["logs"]]
         return json.dumps(self.__dict__)
 
+    @classmethod
     def from_string(input_string):
         ''' Turn all logs into dictionaries from strings '''
         input_dict = json.loads(input_string)

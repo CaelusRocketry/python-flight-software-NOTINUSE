@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class Device(ABC):
+class Driver(ABC):
 
     def __init__(self, name: str, location: str):
         self.name = name

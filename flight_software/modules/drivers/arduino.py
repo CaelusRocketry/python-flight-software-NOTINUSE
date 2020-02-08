@@ -1,7 +1,8 @@
+from .driver import Driver
 import smbus
 import struct
 
-class Arduino(Device):
+class Arduino(Driver):
 
     def __init__(self, name: str, addr: hex, address):
         super(name)

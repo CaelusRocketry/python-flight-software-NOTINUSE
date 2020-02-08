@@ -1,4 +1,4 @@
-from modules.devices.device import Device
+from .driver import Driver
 from enum import Enum
 import socket
 import threading
@@ -6,7 +6,7 @@ import heapq
 
 BUFFER = 8192
 
-class Telemetry(Device):
+class Telemetry(Driver):
     
     # Set the socket's hardcoded values (ip address and port)
     self.GS_IP = '127.0.0.1'
@@ -56,8 +56,7 @@ class Telemetry(Device):
     """
     def enqueue(self, packet: Packet):
         packet_string = packet.to_string()  
-        encoded = encryption.encrypt(packet_string)
-        heapq.heappush(self.send_queue, (packet.level, encoded))
+        heapq.heappush(self.send_queue, (packet.level, packet_string))
 
     def status(self) -> bool:
         return self.connection
