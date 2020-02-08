@@ -15,8 +15,8 @@ class TelemetryTask(Task):
     def read(self, state_field_registry: Registry) -> Registry:
         telemetry_packets = telemetry.read()
         for i in telemetry_packets:
-            Registry.put("telemetry_queue", i, flag)
-        return Registry
+            state_field_registry.put("telemetry_queue", i, flag)
+        return state_field_registry
     
     def actuate(self, command: Command) -> bool:
         return True

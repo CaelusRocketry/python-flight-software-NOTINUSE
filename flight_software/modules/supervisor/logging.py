@@ -33,9 +33,9 @@ class Log:
     def from_string(input_string):
         ''' Convert input_string to dictionary for Logging '''
         input_dict = json.loads(input_string)
-        packet = Log()
-        packet.__dict__ = input_dict
-        return packet
+        log = Log()
+        log.__dict__ = input_dict
+        return log
 
 
 class Packet:

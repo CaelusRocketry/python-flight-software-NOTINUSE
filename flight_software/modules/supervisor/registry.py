@@ -4,6 +4,8 @@ import time
 
 class Registry:
 
+    # TODO: Add IMU data to SFR
+
     self.values = {
         "thermocouple_gas": None,
         "thermocouple_liquid": None,
@@ -54,7 +56,7 @@ class Registry:
         "ball_valve_main_status": None,
         "solenoid_valve_drain_status": None,
         "solenoid_valve_depres_status": None,
-        "telemetry_queue": [],
+        "telemetry_queue": None,
         "mode": None
     }
 
@@ -70,7 +72,6 @@ class Registry:
         "ball_valve_main": int,
         "solenoid_valve_drain": bool,
         "solenoid_valve_depres": bool,
-        "telemetry_queue": list,
         "thermocouple_gas_status": Status,
         "thermocouple_liquid_status": Status,
         "pressure_gas_status": Status,
@@ -82,6 +83,7 @@ class Registry:
         "ball_valve_main_status": Status,
         "solenoid_valve_drain_status": Status,
         "solenoid_valve_depres_status": Status,
+        "telemetry_queue": list,
         "mode": Mode
     }
 

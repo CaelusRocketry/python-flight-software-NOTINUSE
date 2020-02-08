@@ -7,15 +7,15 @@ from modules.supervisor.flags import Flag
 from modules.drivers.imu_driver import IMU
 
 class ImuTask(Task):
-    def __init__(self):
+    def __init__(self, flag: Flag):
         self.imu = IMU()
-        self.flag = Flag()
+        self.flag = flag
 
     def read(self, state_field_registry: Registry) -> Registry:
         updatedDict = imu.read()
         for key in updatedDict:
-            Registry.put(key, key.values(), flag)
-        return Registry
+            state_field_registry.put(key, key.values(), self.flag)
+        return state_field_registry
     
     def actuate(self, command: Command) -> bool:
         return True

@@ -62,6 +62,8 @@ def read():
 ### Control
 
 def control():
+    if registry.get("tank_pressure") > 250:
+        flag.put("relief_valve", True)
     pass
 
     ### Check the values in the registry and make sure they are acceptable
@@ -134,6 +136,9 @@ def control():
 ### Actuate
 
 def actuate():
+    for flag in flag.state_flags:
+        if flag.value == True and flag.type == Valve:
+            open_valve()
     pass
 
 ### Main control loop

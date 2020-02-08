@@ -4,7 +4,7 @@ import socket
 import threading
 import heapq
 
-BYTE_SIZE = 8192
+BUFFER = 8192
 
 class Telemetry(Device):
     
@@ -19,18 +19,7 @@ class Telemetry(Device):
     Also start all necessary threads
     """
     def __init__(self):
-        self.ingest_queue = []
-        self.send_queue = []
-
-        try:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.sock.connect((self.GS_IP, self.port))
-            self.connection = True
-        except socket.error as error:
-            print("Socket creation failed with error %s" %(err))               #what to do if it fails?
-            self.connection = False
-        
+        self.reset()
         self.recv_thread = threading.Threading(target=recv_loop, daemon=True)
         self.recv_thread.start()
 
@@ -39,14 +28,18 @@ class Telemetry(Device):
     It should return everything in the ingest_queue.
     """
     def read(self) -> bytes:
-        return (*(self.ingest_queue), sep = ",")                                #?
-
+        ret = [i for i in self.ingest_queue]
+        self.ingest_queue = []
+        return ret
+        
     """
     The write method that is called during the Telemetry WriteTask.
     It should send everything in the send_queue over the socket connection.
     """
     def write(self, byte: bytes):
-        self.socket.send(self.send_queue)                                       #?
+        for level, message in self.send_queue:
+            self.socket.send(message)
+        self.send_queue = []
         
     """
     This should be run in a thread, and should be constantly listening for data and appending to the ingest_queue.
@@ -54,14 +47,14 @@ class Telemetry(Device):
     """
     def recv_loop(self):
         while True:
-            data = self.sock.recv(BYTE_SIZE)
+            data = self.sock.recv(BUFFER)
             heapq.heappush(self.ingest_queue, (data.level, data))
             time.sleep(self.DELAY_LISTEN)
 
     """
     This should add a given packet to the send_queue
     """
-    def enqueue(self, packet):
+    def enqueue(self, packet: Packet):
         packet_string = packet.to_string()  
         encoded = encryption.encrypt(packet_string)
         heapq.heappush(self.send_queue, (packet.level, encoded))
