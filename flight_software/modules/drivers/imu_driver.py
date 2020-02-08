@@ -1,4 +1,4 @@
-from modules.devices.device import Device
+from .driver import Driver
 from enum import Enum
 import adafruit_bno055
 import busio
@@ -11,7 +11,7 @@ class IMUMode(Enum):
     SUSPEND = 5
 
 
-class IMU(Device):
+class IMU(Driver):
 
     # Set the IMU's hardcoded interface values (ports)
     self.port = 0

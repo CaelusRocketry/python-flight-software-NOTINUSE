@@ -30,6 +30,7 @@ class Log:
         print(self.__dict__)
         return json.dumps(self.__dict__)
 
+    @classmethod
     def from_string(input_string):
         ''' Convert input_string to dictionary for Logging '''
         input_dict = json.loads(input_string)
