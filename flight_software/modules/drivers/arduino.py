@@ -4,9 +4,8 @@ import struct
 
 class Arduino(Driver):
 
-    def __init__(self, name: str, addr: hex, address):
+    def __init__(self, name: str, address: hex):
         super(name)
-        self.addr = addr
         self.address = address
         self.bus = smbus.SMBus(1)
     

@@ -14,8 +14,10 @@ class ImuTask(Task):
     def read(self, state_field_registry: Registry) -> Registry:
         updatedDict = imu.read()
         for key in updatedDict:
-            state_field_registry.put(key, key.values(), self.flag)
+            state_field_registry.put(key, updatedDict[key])
         return state_field_registry
     
-    def actuate(self, command: Command) -> bool:
-        return True
+    def actuate(self) -> bool:
+        if self.flag["imu_calibration"]:
+            self.imu.calibrate()
+    
