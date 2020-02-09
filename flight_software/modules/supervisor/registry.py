@@ -12,12 +12,16 @@ class Registry:
         self.values = {
             "thermocouple": None,
             "thermocouple_status": Status.WORKING,
+            "pressure_gas": None,
+            "load_cell_h20": None,
             "telemetry_queue": [],
             "mode": None
         }
         self.types = {
             "thermocouple": None,
             "thermocouple_status": Status,
+            "pressure_gas": float,
+            "load_cell_h20": float,
             "telemetry_queue": list,
             "mode": Mode
         }
