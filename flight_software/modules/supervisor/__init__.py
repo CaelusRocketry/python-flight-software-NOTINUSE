@@ -30,35 +30,6 @@ def read():
     registry = sensor_arduino.read(registry)
     registry = valve_arduino.read(registry)
 
-"""
-def read():
-    thermocouple_data = get_thermocouple_data()
-    registry.put("thermocouple_gas", thermocouple_data.get("thermocouple_gas"))
-    registry.put("thermocouple_liquid", thermocouple_data.get("thermocouple_liquid"))
-
-    pressure_data = get_pressure_data()
-    registry.put("pressure_gas", pressure_data.get("pressure_gas"))
-    registry.put("pressure_pre_main", pressure_data.get("pressure_pre_main"))
-    registry.put("pressure_post_main", pressure_data.get("pressure_post_main"))
-    registry.put("pressure_post_cv", pressure_data.get("pressure_post_cv"))
-
-    load_cell_data = get_load_cell_data()
-    registry.put("load_cell_h20", load_cell_data.get("load_cell_h20"))
-
-    ball_valve_data = get_ball_valve_data()
-    registry.put("ball_valve_pres", ball_valve_data.get("ball_valve_pres"))
-    registry.put("ball_valve_main", ball_valve_data.get("ball_valve_main"))
-
-    solenoid_data = get_solenoid_data()
-    registry.put("solenoid_valve_drain", solenoid_data.get("solenoid_valve_drain"))
-    registry.put("solenoid_valve_depres", solenoid_data.get("solenoid_valve_depres"))
-
-    ### Get data from telemetry queue
-
-    telemetry_queue_data = telemetry.queue_ingest.queue
-    registry.put("telemetry_queue", telemetry_queue_data)
-"""
-
 ### Control
 
 def control():

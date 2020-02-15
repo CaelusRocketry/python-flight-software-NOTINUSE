@@ -10,6 +10,20 @@ class Driver(ABC):
     Return true if the device is fully functional and calibrated, else return false
     """
     @abstractmethod
+    def read(self) -> bool:
+        pass
+
+    """
+    Reset the device. Return true if the device was successfully reset else false.
+    """
+    @abstractmethod
+    def write(self) -> bool:
+        pass
+
+    """
+    Return true if the device is fully functional and calibrated, else return false
+    """
+    @abstractmethod
     def status(self) -> bool:
         pass
 

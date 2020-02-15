@@ -32,8 +32,8 @@ class Arduino(Driver):
     """
     Read data from the Arduino and return it
     """
-    def read(self) -> bytes:
-        data = self.bus.read_i2c_block_data(self.address, 0, 4)
+    def read(self, num_bytes: int) -> bytes:
+        data = self.bus.read_i2c_block_data(self.address, 0, num_bytes)
         byte_array = bytes(data)
         # return struct.unpack('f', byte_array)[0]
         return byte_array
