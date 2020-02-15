@@ -1,14 +1,13 @@
-from mode import Mode
-from status import Status
-from errors import SFRError
+from modules.mcl.mode import Mode
+from modules.mcl.status import Status
+from modules.mcl.errors import SetError
 import time
 
 class Registry:
 
 
     # TODO: Add IMU data, Pressure data, Load cell data, and Valve data to SFR
-    def __init__(self, flag: Flag):
-        self.flag = flag
+    def __init__(self):
         self.values = {
             "thermocouple": None,
             "thermocouple_status": Status.WORKING,
@@ -29,7 +28,6 @@ class Registry:
 
     def put(key, value) -> SetError:
         if key not in self.values:
-            self.flag.state_flags["state_put_error"] = True
             return SetError.PUT_ERROR
         if not isinstance(value, self.types[key]):
             return SetError.PUT_ERROR
@@ -39,7 +37,6 @@ class Registry:
 
     def get(key):
         if key not in self.values:
-            self.flag.state_flags["state_get_error"] = True
             return Error.ERROR
         return self.values[key]
 

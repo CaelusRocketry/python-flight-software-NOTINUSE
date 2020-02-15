@@ -1,5 +1,5 @@
-from mode import Mode
-from errors import FlagError
+from modules.mcl.mode import Mode
+from modules.mcl.errors import SetError
 
 class Flag:
 
@@ -28,7 +28,6 @@ class Flag:
 
     def put(key, value) -> SetError:
         if key not in self.state_flags:
-            self.state_flags["flag_put_error"] = True
             return False
         self.state_flags[key] = value
         return True
@@ -36,6 +35,5 @@ class Flag:
 
     def get(key):
         if key not in self.state_flags:
-            self.state_flags["flag_get_error"] = True
             return False
         return self.state_flags[key]

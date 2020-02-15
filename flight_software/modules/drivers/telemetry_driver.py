@@ -1,26 +1,31 @@
-from .driver import Driver
+from modules.drivers.driver import Driver
+from modules.mcl.logging import Packet
 from enum import Enum
 import socket
 import threading
 import heapq
+import time
 
 BUFFER = 8192
 
 class Telemetry(Driver):
     
-    # Set the socket's hardcoded values (ip address and port)
-    self.GS_IP = '127.0.0.1'
-    self.port = 5005
-    self.DELAY_LISTEN = .05
-
     """
     Initialize the Telemetry driver.
     Initialize the ingest queue, the send queue, the socket connection, and all other necessary variables.
     Also start all necessary threads
     """
     def __init__(self):
+        # Set the socket's hardcoded values (ip address and port)
+        self.GS_IP = '127.0.0.1'
+        self.port = 5005
+        self.DELAY_LISTEN = .05
+        self.sock = None
+        self.connection = False
+
+        # Initialize the socket
         self.reset()
-        self.recv_thread = threading.Threading(target=recv_loop, daemon=True)
+        self.recv_thread = threading.Thread(target=self.recv_loop, daemon=True)
         self.recv_thread.start()
 
     """
@@ -60,27 +65,28 @@ class Telemetry(Driver):
 
     def status(self) -> bool:
         return self.connection
-        
-   """
-   Kills the connection and attempts to reconnect
-   """   
+
+    """
+    Kills the connection and attempts to reconnect
+    """
     def reset(self) -> bool:
-        self.end()
+        if self.sock is not None:
+            self.end()
         self.connection = False
         
         self.ingest_queue = []
         self.send_queue = []
 
         try:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.sock.connect((self.GS_IP, self.port))
             self.connection = True
         except socket.error as error:
-            print("Socket creation failed with error %s" %(err))               #what to do if it fails?
+            print("Socket creation failed with error %s" %(error))               #what to do if it fails?
             self.connection = False
 
-    """ 
+    """
     Kills socket connection 
     """
     def end(self):
