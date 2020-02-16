@@ -11,7 +11,7 @@ class Supervisor:
     
     def read(self):
         for task in self.tasks:
-            self.registry = task.read(self.registry)
+            self.registry = task.read(self.registry, self.flag)
 
     def control(self):
         for task in self.tasks:

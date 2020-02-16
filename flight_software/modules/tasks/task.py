@@ -3,9 +3,10 @@ from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from abc import ABC, abstractmethod
 
-class Task:
+class Task(ABC):
 
     def __init__(self, name: str, driver: Driver):
+        print(name, "Task")
         self.name = name
         self.driver = driver
     

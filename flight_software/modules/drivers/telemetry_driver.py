@@ -17,7 +17,7 @@ class Telemetry(Driver):
     """
     def __init__(self):
         # Set the socket's hardcoded values (ip address and port)
-        self.GS_IP = '127.0.0.1'
+        self.GS_IP = '192.168.1.75'
         self.port = 5005
         self.DELAY_LISTEN = .05
         self.sock = None
@@ -79,8 +79,11 @@ class Telemetry(Driver):
 
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print("checkpoint #1")
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            print("checkpoint #2")
             self.sock.connect((self.GS_IP, self.port))
+            print("checkpoint #3")
             self.connection = True
         except socket.error as error:
             print("Socket creation failed with error %s" %(error))               #what to do if it fails?

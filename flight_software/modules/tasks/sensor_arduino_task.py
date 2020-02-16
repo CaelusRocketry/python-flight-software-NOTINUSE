@@ -7,21 +7,25 @@ import struct
 class SensorArduinoTask(Task):
     def __init__(self):
         self.address = 0x04
-        self.arduino = Arduino("Sensor Arduino", self.address)
+        self.name = "Arduino"
+        super().__init__("Arduino", Arduino("Arduino Sensor", self.address))       # access arduino through self.driver
 
     def get_float(self, data, index):
-            byte_array = bytes(data)
-            return struct.unpack('f', byte_array)[0]
+        data = data[index:index+4]
+        byte_array = bytes(data)
+        return struct.unpack('f', byte_array)[0]
 
     def read(self, state_field_registry: Registry, flag: Flag) -> Registry:
-        data = self.arduino.read()
-        thermo_data = data[0:4]
-        pressure_data = data[4:8]
-        load_data = data[8:12]
+        data = self.driver.read(12)
 
-        thermo_val = self.get_float(thermo_data)
-        pressure_val = self.get_float(pressure_data)
-        load_val = self.get_float(load_data)
+        thermo_val = self.get_float(data, 0)
+        pressure_val = self.get_float(data, 4)
+        load_val = self.get_float(data, 8)
+
+        print(thermo_val)
+        print(pressure_val)
+        print(load_val)
+        print()
 
         state_field_registry.put("thermocouple", thermo_val)
         state_field_registry.put("pressure_gas", pressure_val)

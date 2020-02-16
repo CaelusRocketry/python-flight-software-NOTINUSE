@@ -17,7 +17,7 @@ class Registry:
             "mode": None
         }
         self.types = {
-            "thermocouple": None,
+            "thermocouple": float,
             "thermocouple_status": Status,
             "pressure_gas": float,
             "load_cell_h20": float,
@@ -26,16 +26,17 @@ class Registry:
         }
         self.times = {i: None for i in self.values}
 
-    def put(key, value) -> SetError:
+    def put(self, key, value) -> SetError:
         if key not in self.values:
             return SetError.PUT_ERROR
+#        print(type(value))
         if not isinstance(value, self.types[key]):
             return SetError.PUT_ERROR
         self.values[key] = value
         self.times[key] = time.time()
-        return SFRError.NONE
+        return SetError.NONE
 
-    def get(key):
+    def get(self, key):
         if key not in self.values:
             return Error.ERROR
         return self.values[key]

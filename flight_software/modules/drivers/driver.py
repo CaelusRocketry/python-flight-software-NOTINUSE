@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 
 class Driver(ABC):
 
-    def __init__(self, name: str, location: str):
+    def __init__(self, name: str):
+        print(name, "Driver")
         self.name = name
-        self.location = location
     
     """
     Return true if the device is fully functional and calibrated, else return false

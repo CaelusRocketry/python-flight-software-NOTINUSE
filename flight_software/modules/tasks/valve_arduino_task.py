@@ -3,7 +3,7 @@ from modules.drivers.arduino import Arduino
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 import struct
-from enum import Enum
+from enum import Enum, auto
 
 class Valve(Enum):
     BALL_VALVE_PRES: auto()
@@ -21,7 +21,7 @@ class ValveArduinoTask(Task):
         return struct.unpack('f', byte_array)[0]
 
     def read(self, state_field_registry: Registry, flag: Flag) -> Registry:
-        data = self.arduino.read()
+        data = self.arduino.read(4)
 
         ball_valve_pres_val = self.get_float(data[0])
         ball_valve_main_val = self.get_float(data[1])
