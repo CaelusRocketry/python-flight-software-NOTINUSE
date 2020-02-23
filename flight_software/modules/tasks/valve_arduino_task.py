@@ -34,7 +34,7 @@ class ValveArduinoTask(Task):
         state_field_registry.put("solenoid_valve_depres", solenoid_valve_depres_val)
 
 
-    def actuate(self, state_field_registry: Registry, flag: Flag):
+    def actuate(self, state_field_registry: Registry, flag: Flag) -> (bool, Flag):
         for key in flag.state_flags:
             if key == "ball_valve_pres":
                 pass #actuate ball_valve_pres to flag["ball_valve_pres"]
@@ -44,3 +44,5 @@ class ValveArduinoTask(Task):
                 pass #actuate solenoid_valve_drain to flag["solenoid_valve_drain"]
             elif key == "solenoid_valve_depres":
                 pass #actuate solenoid_valve_depres to flag["solenoid_valve_depres"]
+
+        return True, flag

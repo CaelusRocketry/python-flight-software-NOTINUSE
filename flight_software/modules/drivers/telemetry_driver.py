@@ -17,24 +17,24 @@ class Telemetry(Driver):
     """
     def __init__(self):
         # Set the socket's hardcoded values (ip address and port)
-        self.GS_IP = '192.168.1.75'
-        self.port = 5005
-        self.DELAY_LISTEN = .05
+        self.GS_IP = None
+        self.GS_PORT = None
+        self.DELAY_LISTEN = None
         self.sock = None
         self.connection = False
-
-        # Initialize the socket
-        self.reset()
-        self.recv_thread = threading.Thread(target=self.recv_loop, daemon=True)
-        self.recv_thread.start()
 
     """
     The read method that is called during the Telmetry ReadTask.
     It should return everything in the ingest_queue.
     """
-    def read(self) -> bytes:
-        ret = [i for i in self.ingest_queue]
-        self.ingest_queue = []
+    def read(self, num_messages) -> list:
+        all = False
+        if num_messages > len(self.ingest_queue) or num_messages == -1:
+            num_messages = len(self.ingest_queue)
+            all = True
+        ret = [heapq.heappop(self.ingest_queue)[1] for i in range(num_messages)]
+        if all:
+            assert(len(self.ingest_queue) == 0)
         return ret
         
     """
@@ -52,9 +52,14 @@ class Telemetry(Driver):
     """
     def recv_loop(self):
         while True:
-            data = self.sock.recv(BUFFER)
-            heapq.heappush(self.ingest_queue, (data.level, data))
-            time.sleep(self.DELAY_LISTEN)
+            if self.connection:
+                data = self.sock.recv(BUFFER)
+                packet_str = data.decode()
+                packet = Packet.from_string(packet_str)
+                heapq.heappush(self.ingest_queue, (packet.level, packet))
+                time.sleep(self.DELAY_LISTEN)
+            else:
+                return
 
     """
     This should add a given packet to the send_queue
@@ -69,10 +74,12 @@ class Telemetry(Driver):
     """
     Kills the connection and attempts to reconnect
     """
-    def reset(self) -> bool:
+    def reset(self, gs_ip, gs_port, delay_listen) -> bool:
+        self.GS_IP = gs_ip
+        self.GS_PORT = gs_port
+        self.DELAY_LISTEN = delay_listen
         if self.sock is not None:
             self.end()
-        self.connection = False
         
         self.ingest_queue = []
         self.send_queue = []
@@ -82,17 +89,24 @@ class Telemetry(Driver):
             print("checkpoint #1")
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             print("checkpoint #2")
-            self.sock.connect((self.GS_IP, self.port))
+            self.sock.connect((self.GS_IP, self.GS_PORT))
             print("checkpoint #3")
             self.connection = True
+            self.recv_thread = threading.Thread(target=self.recv_loop)
+            self.recv_thread.start()
         except socket.error as error:
             print("Socket creation failed with error %s" %(error))               #what to do if it fails?
             self.connection = False
+            if self.sock is not None:
+                self.end()
 
     """
     Kills socket connection 
     """
     def end(self):
-        self.sock.shutdown()
-        self.sock.close()
         self.connection = False
+        if self.sock is not None:
+            self.sock.shutdown()
+            self.sock.close()
+        if self.recv_thread is not None:
+            self.recv_thread.join()

@@ -1,6 +1,7 @@
 from modules.mcl.mode import Mode
 from modules.mcl.status import Status
 from modules.mcl.errors import SetError
+from modules.mcl.logging import Packet
 import time
 
 class Registry:
@@ -29,7 +30,8 @@ class Registry:
     def put(self, key, value) -> SetError:
         if key not in self.values:
             return SetError.PUT_ERROR
-#        print(type(value))
+        print(value)
+        print(type(value))
         if not isinstance(value, self.types[key]):
             return SetError.PUT_ERROR
         self.values[key] = value

@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 class Task(ABC):
 
-    def __init__(self, name: str, driver: Driver):
+    def __init__(self, name: 'str', driver: Driver):
         print(name, "Task")
         self.name = name
         self.driver = driver
@@ -21,5 +21,5 @@ class Task(ABC):
     Actuate if necessary, and return whether or not the actuation was successful
     """
     @abstractmethod
-    def actuate(self, state_field_registry: Registry, flag: Flag) -> bool:
+    def actuate(self, state_field_registry: Registry, flag: Flag) -> (bool, Flag):
         pass

@@ -21,22 +21,23 @@ class Log:
         self.level = level
         self.timestamp = timestamp
         self.sender = sender
+        self.save()
+    
+    def save(self, filename = "blackbox.txt"):
         f = open("black_box.txt", "a+")
-        f.write("\n" + self.to_string())
+        f.write(self.to_string() + "\n")
         f.close()
 
     def to_string(self):
-        ''' Convert Log dict to string for printing '''
-        print(self.__dict__)
+#        print(self.__dict__)
         return json.dumps(self.__dict__)
 
-    @classmethod
+    @staticmethod
     def from_string(input_string):
-        ''' Convert input_string to dictionary for Logging '''
         input_dict = json.loads(input_string)
-        log = Log()
-        log.__dict__ = input_dict
-        return log
+        packet = Log()
+        packet.__dict__ = input_dict
+        return packet
 
 
 class Packet:
@@ -49,23 +50,18 @@ class Packet:
         self.level = level
 
     def add(self, log: Log):
-        ''' Add log to list of logs '''
         self.logs.append(log)
         self.level = min(self.level, log.level)
 
     def to_string(self):
-        ''' Turn all logs into strings from dictionary format '''
         output_dict = self.__dict__
         output_dict["logs"] = [log.to_string() for log in output_dict["logs"]]
         return json.dumps(self.__dict__)
 
     @staticmethod
     def from_string(input_string):
-        ''' Turn all logs into dictionaries from strings '''
         input_dict = json.loads(input_string)
-        print(input_dict)
-        input_dict["logs"] = [Log.from_string(
-            log_str) for log_str in input_dict["logs"]]
+        input_dict["logs"] = [Log.from_string(log_str) for log_str in input_dict["logs"]]
         packet = Packet()
         packet.__dict__ = input_dict
         return packet
