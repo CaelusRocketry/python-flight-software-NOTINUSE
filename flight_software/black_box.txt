@@ -10,3 +10,7 @@
 {"header": "heartbeat", "message": "alive", "level": 4, "timestamp": 1582416756.5098426, "sender": "Flight Pi"}
 {"header": "heartbeat", "message": "alive", "level": 4, "timestamp": 1582416820.991338, "sender": "Flight Pi"}
 {"header": "heartbeat", "message": "alive", "level": 4, "timestamp": 1582416864.9662113, "sender": "Flight Pi"}
+{"header": "heartbeat", "message": "alive", "level": 4, "timestamp": 1582471302.5224924, "sender": "Flight Pi"}
+{"header": "heartbeat", "message": "alive", "level": 4, "timestamp": 1582471410.891248, "sender": "Flight Pi"}
+{"header": "heartbeat", "message": "alive", "level": 4, "timestamp": 1582471418.6851566, "sender": "Flight Pi"}
+{"header": "heartbeat", "message": "alive", "level": 4, "timestamp": 1582471418.6851566, "sender": "Flight Pi"}

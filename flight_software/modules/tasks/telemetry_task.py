@@ -17,12 +17,12 @@ class TelemetryTask(Task):
 
     def read(self, state_field_registry: Registry, flag: Flag) -> Registry:
         telemetry_packets = self.telemetry.read(-1)
-        telemetry_queue
-#        print("Packets", telemetry_packets)
+        telemetry_queue = state_field_registry.get("telemetry_queue")
         for pack in telemetry_packets:
-            err = state_field_registry.put("telemetry_queue", pack)
-            if err is not None:
-                print("REE GOT AN ERROR :(")
+            telemetry_queue.append(pack)
+
+        err = state_field_registry.put("telemetry_queue", telemetry_queue)
+        assert(err is not None)
         return state_field_registry
     
     def actuate(self, state_field_registry, flag: Flag) -> (bool, Flag):
