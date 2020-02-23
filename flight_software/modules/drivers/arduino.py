@@ -1,5 +1,5 @@
 from .driver import Driver
-import smbus
+import smbus2 as smbus
 import struct
 
 class Arduino(Driver):
