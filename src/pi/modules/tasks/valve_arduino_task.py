@@ -28,12 +28,13 @@ class ValveArduinoTask(Task):
         solenoid_valve_drain_val = self.get_float(data[2])
         solenoid_valve_depres_val = self.get_float(data[3])
 
-        state_field_registry.put("ball_valve_pres", ball_valve_pres_val)
-        state_field_registry.put("ball_valve_main", ball_valve_main_val)
-        state_field_registry.put("solenoid_valve_drain", solenoid_valve_drain_val)
-        state_field_registry.put("solenoid_valve_depres", solenoid_valve_depres_val)
+        state_field_registry.put(("valve", "ball_valve_pres"), ball_valve_pres_val)
+        state_field_registry.put(("valve", "ball_valve_main"), ball_valve_main_val)
+        state_field_registry.put(("valve", "solenoid_valve_drain"), solenoid_valve_drain_val)
+        state_field_registry.put(("valve", "solenoid_valve_depres"), solenoid_valve_depres_val)
 
 
+    #TODO: Fix the structure of this method, it's completely different from other classes and won't work properly
     def actuate(self, state_field_registry: Registry, flag: Flag) -> Flag:
         for key in flag.state_flags:
             if key == "ball_valve_pres":

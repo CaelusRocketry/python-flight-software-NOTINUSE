@@ -12,12 +12,12 @@ class ImuTask(Task):
     def read(self, state_field_registry: Registry, flag: Flag) -> Registry:
         updatedDict = imu.read()
         for key in updatedDict:
-            state_field_registry.put(key, updatedDict[key])
+            state_field_registry.put(("sensor", key), updatedDict[key])
         return state_field_registry
     
     def actuate(self, state_field_registry: Registry, flag: Flag) -> Flag:
-        if flag.get("imu_calibration"):
+        if flag.get(("sensor", "imu_calibration")):
             self.imu.calibrate()
-        flag.put("imu_calibration", False)
+        flag.put(("sensor", "imu_calibration"), False)
         return flag
     

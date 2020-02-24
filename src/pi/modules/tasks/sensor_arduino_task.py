@@ -27,9 +27,9 @@ class SensorArduinoTask(Task):
         print(load_val)
         print()
 
-        state_field_registry.put("thermocouple", thermo_val)
-        state_field_registry.put("pressure_gas", pressure_val)
-        state_field_registry.put("load_cell_h20", load_val)
+        state_field_registry.put(("sensor", "thermocouple"), thermo_val)
+        state_field_registry.put(("sensor", "pressure_gas"), pressure_val)
+        state_field_registry.put(("sensor", "load_cell_h20"), load_val)
     
     def actuate(self, state_field_registry: Registry, flag: Flag) -> Flag:
         return flag

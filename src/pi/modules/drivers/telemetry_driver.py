@@ -30,6 +30,7 @@ class Telemetry(Driver):
     It should return everything in the ingest_queue.
     """
     def read(self, num_messages: 'int') -> list:
+        self.INGEST_LOCK = True
         all = False
         if num_messages > len(self.ingest_queue) or num_messages == -1:
             num_messages = len(self.ingest_queue)
@@ -37,6 +38,7 @@ class Telemetry(Driver):
         ret = [heapq.heappop(self.ingest_queue)[1] for i in range(num_messages)]
         if all:
             assert(len(self.ingest_queue) == 0)
+        self.INGEST_LOCK = False
         return ret
         
     """
@@ -56,7 +58,12 @@ class Telemetry(Driver):
     def recv_loop(self):
         while True:
             if self.connection:
-                data = self.sock.recv(BUFFER)
+                try:
+                    data = self.sock.recv(BUFFER)
+                except Exception as e:
+                    print(str(e))
+                    self.connection = False
+                    return
                 packet_str = data.decode()
                 packet = Packet.from_string(packet_str)
                 while self.INGEST_LOCK:
@@ -106,7 +113,13 @@ class Telemetry(Driver):
     def end(self):
         self.connection = False
         if self.sock is not None:
-            self.sock.shutdown(socket.SHUT_RDWR)
-            self.sock.close()
+            try:
+                self.sock.shutdown(socket.SHUT_RDWR)
+                self.sock.close()
+            except Exception as e:
+                print(str(e))
+                print("Socket isn't connected, so shutdown failed")
         if self.recv_thread is not None:
             self.recv_thread.join()
+        self.sock = None
+        print("Successfully ended")
