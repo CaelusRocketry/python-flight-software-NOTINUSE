@@ -1,7 +1,7 @@
-from modules.mcl.mode import Mode
-from modules.mcl.status import Status
-from modules.mcl.errors import AccessError
-from modules.mcl.logging import Packet
+from modules.lib.mode import Mode
+from modules.lib.status import Status
+from modules.lib.errors import AccessError
+from modules.lib.logging import Packet
 import time
 
 class Registry:
@@ -14,7 +14,7 @@ class Registry:
             "thermocouple_status": Status.WORKING,
             "pressure_gas": None,
             "load_cell_h20": None,
-            "telemetry_queue": [],
+            "ingest_queue": [],
             "mode": None
         }
         self.types = {
@@ -22,7 +22,7 @@ class Registry:
             "thermocouple_status": Status,
             "pressure_gas": float,
             "load_cell_h20": float,
-            "telemetry_queue": list,
+            "ingest_queue": list,
             "mode": Mode
         }
         self.times = {i: None for i in self.values}

@@ -15,7 +15,9 @@ class ImuTask(Task):
             state_field_registry.put(key, updatedDict[key])
         return state_field_registry
     
-    def actuate(self, state_field_registry: Registry, flag: Flag) -> bool:
-        if self.flag["imu_calibration"]:
+    def actuate(self, state_field_registry: Registry, flag: Flag) -> Flag:
+        if flag.get("imu_calibration"):
             self.imu.calibrate()
+        flag.put("imu_calibration", False)
+        return flag
     

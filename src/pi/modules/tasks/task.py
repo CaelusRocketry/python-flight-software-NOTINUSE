@@ -21,5 +21,5 @@ class Task(ABC):
     Actuate if necessary, and return whether or not the actuation was successful
     """
     @abstractmethod
-    def actuate(self, state_field_registry: Registry, flag: Flag) -> (bool, Flag):
+    def actuate(self, state_field_registry: Registry, flag: Flag) -> Flag:
         pass

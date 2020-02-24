@@ -1,5 +1,5 @@
 from modules.drivers.driver import Driver
-from modules.mcl.logging import Packet
+from modules.lib.logging import Packet
 from enum import Enum
 import socket
 import threading
@@ -20,14 +20,16 @@ class Telemetry(Driver):
         self.GS_IP = None
         self.GS_PORT = None
         self.DELAY_LISTEN = None
+        self.DELAY_SEND = None
         self.sock = None
         self.connection = False
+        self.INGEST_LOCK = False
 
     """
     The read method that is called during the Telmetry ReadTask.
     It should return everything in the ingest_queue.
     """
-    def read(self, num_messages) -> list:
+    def read(self, num_messages: 'int') -> list:
         all = False
         if num_messages > len(self.ingest_queue) or num_messages == -1:
             num_messages = len(self.ingest_queue)
@@ -41,10 +43,11 @@ class Telemetry(Driver):
     The write method that is called during the Telemetry WriteTask.
     It should send everything in the send_queue over the socket connection.
     """
-    def write(self, byte: bytes):
-        for level, message in self.send_queue:
-            self.socket.send(message)
-        self.send_queue = []
+    def write(self, pack: Packet):
+        pack_str = pack.to_string()
+        pack_bytes = pack_str.encode()
+        self.sock.send(pack_bytes)
+        time.sleep(self.DELAY_SEND)
         
     """
     This should be run in a thread, and should be constantly listening for data and appending to the ingest_queue.
@@ -56,28 +59,27 @@ class Telemetry(Driver):
                 data = self.sock.recv(BUFFER)
                 packet_str = data.decode()
                 packet = Packet.from_string(packet_str)
+                while self.INGEST_LOCK:
+                    pass
                 heapq.heappush(self.ingest_queue, (packet.level, packet))
                 time.sleep(self.DELAY_LISTEN)
             else:
                 return
 
     """
-    This should add a given packet to the send_queue
+    Returns the status of the connection (True -> Connection alive, False -> Connection dead)
     """
-    def enqueue(self, packet: Packet):
-        packet_string = packet.to_string()  
-        heapq.heappush(self.send_queue, (packet.level, packet_string))
-
     def status(self) -> bool:
         return self.connection
 
     """
     Kills the connection and attempts to reconnect
     """
-    def reset(self, gs_ip, gs_port, delay_listen) -> bool:
+    def reset(self, gs_ip, gs_port, delay) -> bool:
         self.GS_IP = gs_ip
         self.GS_PORT = gs_port
-        self.DELAY_LISTEN = delay_listen
+        self.DELAY_LISTEN = delay
+        self.DELAY_SEND = delay
         if self.sock is not None:
             self.end()
         
@@ -89,6 +91,7 @@ class Telemetry(Driver):
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.sock.connect((self.GS_IP, self.GS_PORT))
             self.connection = True
+            self.INGEST_LOCK = False
             self.recv_thread = threading.Thread(target=self.recv_loop)
             self.recv_thread.start()
         except socket.error as error:

@@ -31,5 +31,5 @@ class SensorArduinoTask(Task):
         state_field_registry.put("pressure_gas", pressure_val)
         state_field_registry.put("load_cell_h20", load_val)
     
-    def actuate(self, state_field_registry: Registry, flag: Flag) -> (bool, Flag):
-        return True, flag
+    def actuate(self, state_field_registry: Registry, flag: Flag) -> Flag:
+        return flag
