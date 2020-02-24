@@ -1,5 +1,5 @@
 from modules.mcl.mode import Mode
-from modules.mcl.errors import SetError
+from modules.mcl.errors import AccessError
 
 class Flag:
 
@@ -26,14 +26,14 @@ class Flag:
             "solenoid_valve_depres": bool,
         }
 
-    def put(key, value) -> SetError:
+    def put(key, value) -> AccessError:
         if key not in self.state_flags:
-            return False
+            return AccessError.KEY_ERROR
         self.state_flags[key] = value
-        return True
+        return AccessError.NONE
         
 
     def get(key):
         if key not in self.state_flags:
-            return False
+            return AccessError.KEY_ERROR
         return self.state_flags[key]

@@ -1,6 +1,6 @@
 from modules.mcl.mode import Mode
 from modules.mcl.status import Status
-from modules.mcl.errors import SetError
+from modules.mcl.errors import AccessError
 from modules.mcl.logging import Packet
 import time
 
@@ -27,19 +27,17 @@ class Registry:
         }
         self.times = {i: None for i in self.values}
 
-    def put(self, key, value) -> SetError:
+    def put(self, key, value) -> AccessError:
         if key not in self.values:
-            return SetError.PUT_ERROR
-        print(value)
-        print(type(value))
+            return AccessError.PUT_ERROR
         if not isinstance(value, self.types[key]):
-            return SetError.PUT_ERROR
+            return AccessError.KEY_ERROR
         self.values[key] = value
         self.times[key] = time.time()
-        return SetError.NONE
+        return AccessError.NONE
 
     def get(self, key):
         if key not in self.values:
-            return Error.ERROR
+            return AccessError.KEY_ERROR
         return self.values[key]
 

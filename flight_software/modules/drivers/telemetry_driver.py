@@ -86,11 +86,8 @@ class Telemetry(Driver):
 
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            print("checkpoint #1")
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            print("checkpoint #2")
             self.sock.connect((self.GS_IP, self.GS_PORT))
-            print("checkpoint #3")
             self.connection = True
             self.recv_thread = threading.Thread(target=self.recv_loop)
             self.recv_thread.start()
@@ -106,7 +103,7 @@ class Telemetry(Driver):
     def end(self):
         self.connection = False
         if self.sock is not None:
-            self.sock.shutdown()
+            self.sock.shutdown(socket.SHUT_RDWR)
             self.sock.close()
         if self.recv_thread is not None:
             self.recv_thread.join()

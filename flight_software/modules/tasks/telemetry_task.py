@@ -2,6 +2,7 @@ from modules.tasks.task import Task
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.drivers.telemetry_driver import Telemetry
+from modules.mcl.errors import AccessError
 from abc import ABC, abstractmethod
 
 class TelemetryTask(Task):
@@ -22,7 +23,7 @@ class TelemetryTask(Task):
             telemetry_queue.append(pack)
 
         err = state_field_registry.put("telemetry_queue", telemetry_queue)
-        assert(err is not None)
+        assert(err is AccessError.NONE)
         return state_field_registry
     
     def actuate(self, state_field_registry, flag: Flag) -> (bool, Flag):

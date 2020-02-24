@@ -1,7 +1,7 @@
 # Enumeration of statuses
 from enum import Enum, auto
 
-class SetError(Enum):
+class AccessError(Enum):
     KEY_ERROR = auto()
     TYPE_ERROR = auto()
-    NONE = auto()
+    NONE = None
