@@ -13,8 +13,11 @@ class Valve(Enum):
 
 class ValveArduinoTask(Task):
     def __init__(self):
-        self.address = 0x08 ## Arduino address is 0x08
-        self.arduino = Arduino("Valve Arduino", self.address)
+        self.name = "Sensor Arduino"
+
+    def begin(self, config):
+        self.address = 0x04
+        self.arduino = Arduino("Arduino Sensor", self.address)
 
     def get_float(self, data, index):
         byte_array = bytes(data)
@@ -32,6 +35,8 @@ class ValveArduinoTask(Task):
         state_field_registry.put(("valve", "ball_valve_main"), ball_valve_main_val)
         state_field_registry.put(("valve", "solenoid_valve_drain"), solenoid_valve_drain_val)
         state_field_registry.put(("valve", "solenoid_valve_depres"), solenoid_valve_depres_val)
+
+        return state_field_registry
 
 
     #TODO: Fix the structure of this method, it's completely different from other classes and won't work properly

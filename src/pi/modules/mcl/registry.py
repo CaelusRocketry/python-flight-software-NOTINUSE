@@ -3,6 +3,7 @@ from modules.lib.status import Status
 from modules.lib.errors import AccessError
 from modules.lib.logging import Packet
 import time
+import json
 
 class Registry:
 
@@ -62,3 +63,5 @@ class Registry:
             return AccessError.PUT_ERROR
         return self.values[outer][inner]
 
+    def to_string(self):
+        return json.dumps(self.values)

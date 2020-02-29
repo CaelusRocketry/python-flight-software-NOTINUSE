@@ -6,15 +6,15 @@ from modules.lib.errors import AccessError
 from abc import ABC, abstractmethod
 
 class TelemetryTask(Task):
-    def __init__(self):
-        self.telemetry = Telemetry()
-        super().__init__("Telemetry", self.telemetry)
+    def __init__(self, config):
+        pass
 
     def begin(self, config: dict):
         self.GS_IP = config['GS_IP']
         self.GS_PORT = config['GS_PORT']
         self.DELAY = config['DELAY']
-        self.telemetry.reset(self.GS_IP, self.GS_PORT, self.DELAY)
+        self.telemetry = Telemetry(config)
+        self.telemetry.connect()
 
     def read(self, state_field_registry: Registry, flag: Flag) -> Registry:
         telemetry_status = self.telemetry.status()
