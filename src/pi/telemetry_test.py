@@ -7,7 +7,7 @@ config = json.loads(open("config.json").read())
 config["telemetry_control"] = True
 config["sensor_control"] = False
 config["valve_control"] = False
-telemetry = TelemetryTask(config)
+telemetry = TelemetryTask()
 control = ControlTask()
 supervisor = Supervisor(tasks=[telemetry], control_task=control, config=config)
 supervisor.run()
