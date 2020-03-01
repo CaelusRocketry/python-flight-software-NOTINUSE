@@ -6,7 +6,7 @@ from modules.lib.errors import AccessError
 from abc import ABC, abstractmethod
 
 class TelemetryTask(Task):
-    def __init__(self, config):
+    def __init__(self):
         pass
 
     def begin(self, config: dict):

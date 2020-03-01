@@ -1,7 +1,8 @@
 from modules.lib.mode import Mode
+from modules.lib.logging import Packet
 from modules.lib.status import Status
 from modules.lib.errors import AccessError
-from modules.lib.logging import Packet
+from modules.lib.encoding import EnumEncoder
 import time
 import json
 
@@ -64,4 +65,5 @@ class Registry:
         return self.values[outer][inner]
 
     def to_string(self):
-        return json.dumps(self.values)
+        return json.dumps(self.values, cls=EnumEncoder)
+    
