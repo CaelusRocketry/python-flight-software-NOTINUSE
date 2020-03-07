@@ -33,7 +33,7 @@ class TelemetryTask(Task):
     
     def actuate(self, state_field_registry, flag: Flag) -> Flag:
         if flag.get(("telemetry", "reset")) == True:
-            self.telemetry.reset(self.GS_IP, self.GS_PORT, self.DELAY)
+            self.telemetry.reset()
 
         send_queue = flag.get(("telemetry", "send_queue"))
         for pack in send_queue:

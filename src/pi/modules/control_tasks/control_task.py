@@ -1,6 +1,6 @@
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
-from modules.lib.logging import Log, Packet, Level
+from modules.lib.packet import Log, Packet, Level
 from abc import ABC, abstractmethod
 import time
 

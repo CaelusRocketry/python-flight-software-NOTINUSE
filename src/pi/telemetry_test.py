@@ -9,5 +9,6 @@ config["sensor_control"] = False
 config["valve_control"] = False
 telemetry = TelemetryTask()
 control = ControlTask()
+control.begin(config)
 supervisor = Supervisor(tasks=[telemetry], control_task=control, config=config)
 supervisor.run()

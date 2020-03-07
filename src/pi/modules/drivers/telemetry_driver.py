@@ -1,5 +1,5 @@
 from modules.drivers.driver import Driver
-from modules.lib.logging import Packet
+from modules.lib.packet import Log, Packet
 from enum import Enum
 import socket
 import threading
@@ -116,6 +116,11 @@ class Telemetry(Driver):
         self.connection = True
 
 
+        self.send_msg_to_gs = threading.Thread(target=self.messages_to_ground)
+        self.send_msg_to_gs.daemon = True
+        self.send_msg_to_gs.start()
+
+
     """
     Kills socket connection 
     """
@@ -132,3 +137,13 @@ class Telemetry(Driver):
             self.recv_thread.join()
         self.sock = None
         print("Successfully ended")
+
+    
+    def messages_to_ground(self):
+        while True:
+            msg = input("")
+            log = Log(header="FOR_FRONTEND", message=msg)
+            pack = Packet(header="HEARTBEAT", logs=[log])
+            print("sending:", msg)
+            print(len(pack.logs))
+            self.write(pack)
