@@ -1,102 +1,199 @@
-from enum import Enum
+from modules.mcl.flag import Flag
+from modules.lib.enums import *
+from modules.lib.errors import *
+
+class Ingest():
+    def __init__(self):
+        pass
+
+    def ingest(self, telem_queue, flags: Flag) -> PacketError: 
+        funcs = {
+            "hard_abort": (self.hard_abort, valves, flags),
+            "soft_abort": (self.soft_abort, valves, flags),
+            "valve_actuate_override": (self.valve_actuate_override, valve, location, actuation_type, value, flags),
+            "solenoid_actuate": (self.solenoid_actuate, location, actuation_type, value, flags),
+            "ball_actuate": (self.ball_actuate, location, value, flags),
+            "sensor_request": (self.sensor_request, sensor, location, flags),
+            "valve_request": (self.valve_request, valve, location, flags),
+            "progress": (self.progress, stage, flags)
+        }
+        
+
+        for packet in telem_queue:
+            header = packet.header
+            if header in funcs:
+                func = funcs[header]
+                args = packet.data.values()
+                func(*args)
+            else:
+                return PacketError.INVALID_HEADER_ERROR
 
 
-def ingest(self, telem_queue):
-    funcs = {
-        "hard_abort": (hard_abort, valves),
-        "soft_abort": (soft_abort, valves),
-        "valve_actuate_override": (valve_actuate_override, valve, location, actuation_type, value),
-        "solenoid_actuate": (solenoid_actuate, location, actuation_type, value),
-        "ball_actuate": (ball_actuate, location, value),
-        "sensor_request": (sensor_request, sensor, location),
-        "valve_request": (valve_request, valve, location),
-        "progress": (progress, stage)
-    }
-
-    for i in telem_queue:
-        header = i.header
-        if header in funcs:
-            func = funcs[header]
-            args = i.data.values()
-            func(*args)
+    def hard_abort(self, valves: list, flags: Flag):
+        flags.put(("abort", "hard_abort"), valves)
 
 
-def hard_abort(valves):
-    pass
+    def soft_abort(self, valves: list, flags: Flag):
+        flags.put(("abort", "soft_abort"), valves)
+
+    def valve_actuate_override(self, valve: ValveType, location: ValveLocation, actuation_type: ActuationType, value, flags: Flag) -> ValveActuationError:
+        actuations = {
+            ValveType.BALL: {
+                ValveLocation.PRESSURE_RELIEF: {
+                    ActuationType.PULSE: "ball_valve_pressure_relief_pulse",
+                    ActuationType.OPEN_VENT: "ball_valve_pressure_relief_open_vent",
+                    ActuationType.CLOSE_VENT: "ball_valve_pressure_relief_close_vent"
+                },
+                ValveLocation.PROPELLANT_VENT: {
+                    ActuationType.PULSE: "ball_valve_propellant_vent_pulse",
+                    ActuationType.OPEN_VENT: "ball_valve_propellant_vent_open_vent",
+                    ActuationType.CLOSE_VENT: "ball_valve_propellant_vent_close_vent"
+                },
+                ValveLocation.MAIN_PROPELLANT_VALVE: {
+                    ActuationType.PULSE: "ball_valve_main_propellant_valve_pulse",
+                    ActuationType.OPEN_VENT: "ball_valve_main_propellant_valve_open_vent",
+                    ActuationType.CLOSE_VENT: "ball_valve_main_propellant_valve_close_vent"
+                }
+            },
+            ValveType.SOLENOID: {
+                ValveLocation.PRESSURE_RELIEF: {
+                    ActuationType.PULSE: "solenoid_valve_pressure_relief_pulse",
+                    ActuationType.OPEN_VENT: "solenoid_valve_pressure_relief_open_vent",
+                    ActuationType.CLOSE_VENT: "solenoid_valve_pressure_relief_close_vent"
+                },
+                ValveLocation.PROPELLANT_VENT: {
+                    ActuationType.PULSE: "solenoid_valve_propellant_vent_pulse",
+                    ActuationType.OPEN_VENT: "solenoid_valve_propellant_vent_open_vent",
+                    ActuationType.CLOSE_VENT: "solenoid_valve_propellant_vent_close_vent"
+                },
+                ValveLocation.MAIN_PROPELLANT_VALVE: {
+                    ActuationType.PULSE: "solenoid_valve_main_propellant_valve_pulse",
+                    ActuationType.OPEN_VENT: "solenoid_valve_main_propellant_valve_open_vent",
+                    ActuationType.CLOSE_VENT: "solenoid_valve_main_propellant_valve_close_vent"
+                }
+            }
+        }
+
+        if valve not in actuations:
+            return ValveActuationError.VALVE_TYPE_ERROR
+        elif location not in actuations[valve]:
+            return ValveActuationError.LOCATION_ERROR
+        elif actuation_type not in actuations[valve][location]:
+            return ValveActuationError.ACTUATION_TYPE_ERROR
+            
+        if valve == ValveType.BALL:
+            if not isinstance(value, int):
+                return ValveActuationError.ACTUATION_VALUE_ERROR
+            flags.put(("ball_valve_actuate", actuations[valve][location][actuation_type]), value)
+        else:
+            if not isinstance(value, bool):
+                return ValveActuationError.ACTUATION_VALUE_ERROR
+            flags.put(("solenoid_valve_actuate", actuations[valve][location][actuation_type]), value)
 
 
-def soft_abort(valves):
-    pass
+    def solenoid_actuate(self, location: ValveLocation, actuation_type: ActuationType, value: bool, flags: Flag) -> ValveActuationError:
+        actuations = {
+            ValveLocation.PRESSURE_RELIEF: {
+                ActuationType.PULSE: "solenoid_valve_pressure_relief_pulse",
+                ActuationType.OPEN_VENT: "solenoid_valve_pressure_relief_open_vent",
+                ActuationType.CLOSE_VENT: "solenoid_valve_pressure_relief_close_vent"
+            },
+            ValveLocation.PROPELLANT_VENT: {
+                ActuationType.PULSE: "solenoid_valve_propellant_vent_pulse",
+                ActuationType.OPEN_VENT: "solenoid_valve_propellant_vent_open_vent",
+                ActuationType.CLOSE_VENT: "solenoid_valve_propellant_vent_close_vent"
+            },
+            ValveLocation.MAIN_PROPELLANT_VALVE: {
+                ActuationType.PULSE: "solenoid_valve_main_propellant_valve_pulse",
+                ActuationType.OPEN_VENT: "solenoid_valve_main_propellant_valve_open_vent",
+                ActuationType.CLOSE_VENT: "solenoid_valve_main_propellant_valve_close_vent"
+            }
+        }
+
+        if location not in actuations:
+            return ValveActuationError.LOCATION_ERROR
+        elif actuation_type not in actuations[location]:
+            return ValveActuationError.ACTUATION_TYPE_ERROR
+
+        flags.put(("solenoid_valve_actuate", actuations[location][actuation_type]), value)
 
 
-def valve_actuate_override(valve, location, actuation_type, value):
-    pass
+    def ball_actuate(self, location: ValveLocation, value: int, flags: Flag) -> ValveActuationError:
+        actuations = {
+            ValveLocation.PRESSURE_RELIEF: {
+                ActuationType.PULSE: "ball_valve_pressure_relief_pulse",
+                ActuationType.OPEN_VENT: "ball_valve_pressure_relief_open_vent",
+                ActuationType.CLOSE_VENT: "ball_valve_pressure_relief_close_vent"
+            },
+            ValveLocation.PROPELLANT_VENT: {
+                ActuationType.PULSE: "ball_valve_propellant_vent_pulse",
+                ActuationType.OPEN_VENT: "ball_valve_propellant_vent_open_vent",
+                ActuationType.CLOSE_VENT: "ball_valve_propellant_vent_close_vent"
+            },
+            ValveLocation.MAIN_PROPELLANT_VALVE: {
+                ActuationType.PULSE: "ball_valve_main_propellant_valve_pulse",
+                ActuationType.OPEN_VENT: "ball_valve_main_propellant_valve_open_vent",
+                ActuationType.CLOSE_VENT: "ball_valve_main_propellant_valve_close_vent"
+            }
+        }
+
+        if location not in actuations:
+            return ValveActuationError.LOCATION_ERROR
+        elif actuation_type not in actuations[location]:
+            return ValveActuationError.ACTUATION_TYPE_ERROR
+
+        flags.put(("ball_valve_actuate", actuations[location][actuation_type]), value)
 
 
-def solenoid_actuate(location, actuation_type, value):
-    pass
+    def sensor_request(self, sensor: SensorType, location: SensorLocation, flags: Flag) -> SensorRequestError:
+        sensors = {
+            SensorType.THERMOCOUPLE: {
+                SensorLocation.CHAMBER: "thermocouple_chamber",
+                SensorLocation.TANK: "thermocouple_tank",
+                SensorLocation.INJECTOR: "thermocouple_injector"
+            },
+            SensorType.PRESSURE: {
+                SensorLocation.CHAMBER: "pressure_chamber",
+                SensorLocation.TANK: "pressure_tank",
+                SensorLocation.INJECTOR: "pressure_injector"
+            },
+            SensorType.LOAD: {
+                SensorLocation.CHAMBER: "load_chamber",
+                SensorLocation.TANK: "load_tank",
+                SensorLocation.INJECTOR: "load_injector"     
+            }   
+        }
+
+        if sensor not in sensors:
+            return SensorRequestError.SENSOR_TYPE_ERROR
+        elif location not in sensors[sensor]:
+            return SensorRequestError.SENSOR_LOCATION_ERROR
+
+        flags.put(("sensor_request", sensors[sensor][location]), True)
 
 
-def ball_actuate(location, value):
-    pass
+    def valve_request(self, valve: ValveType, location: ValveLocation, flags: Flag) -> ValveRequestError: 
+        valves = {
+            ValveType.SOLENOID: {
+                ValveLocation.PRESSURE_RELIEF: "solenoid_valve_pressure_relief",
+                ValveLocation.PROPELLANT_VENT: "solenoid_valve_propellant_vent",
+                ValveLocation.MAIN_PROPELLANT_VALVE: "solenoid_valve_main_propellant_valve"
+            },
+            ValveType.BALL: {
+                ValveLocation.PRESSURE_RELIEF: "ball_valve_pressure_relief",
+                ValveLocation.PROPELLANT_VENT: "ball_valve_propellant_vent",
+                ValveLocation.MAIN_PROPELLANT_VALVE: "ball_valve_main_propellant_valve"
+            }
+        }
+
+        if valve not in valves:
+            return ValveRequestError.VALVE_TYPE_ERROR
+        elif location not in valves[valve]:
+            return ValveRequestError.VALVE_LOCATION_ERROR
+
+        flags.put(("valve_request", valves[valve][location]), True)
 
 
-def sensor_request(sensor, location):
-    pass
+    def progress(self, stage: Stage, flags: Flag):
+        flags.put(("progress", "stage"), stage)
 
-
-def valve_request(valve, location):
-    pass
-
-
-def progress(stage):
-    pass
-
-
-class SensorType(Enum):
-    Thermocouple = 1
-    Pressure = 2
-    Load = 3
-
-
-class SensorLocation(Enum):
-    Chamber = 1
-    Tank = 2
-    Injector = 3
-
-
-class SolenoidState(Enum):
-    Open = 1
-    Close = 2
-
-
-class SensorStatus(Enum):
-    Safe = 1
-    Warning = 2
-    Critical = 3
-
-
-class ValveType(Enum):
-    Solenoid = 1
-    Ball = 2
-
-
-class ValveLocation(Enum):
-    PressureRelief = 1
-    PropellantVent = 2
-    MainPropellantValve = 3
-
-
-class ActuationType(Enum):
-    Pulse = 1
-    OpenVent = 2
-    CloseVent = 3
-
-
-class Stage(Enum):
-    PropellantLoading = 1
-    LeakTesting1 = 2
-    PressurantLoading = 3
-    LeakTesting2 = 4
-    PreIgnition = 5
-    Disconnection = 6
