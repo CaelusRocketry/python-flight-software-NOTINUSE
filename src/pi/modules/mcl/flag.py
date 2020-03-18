@@ -16,13 +16,10 @@ class Flag:
             "sensor_request": {
                 "thermocouple_chamber": None,
                 "thermocouple_tank": None,
-                "thermocouple_injector": None,
                 "pressure_chamber": None,
                 "pressure_tank": None,
                 "pressure_injector": None,
-                "load_chamber": None,
-                "load_tank": None,
-                "load_injector": None
+                "load_tank": None
             },
             "valve_request": {
                 "ball_valve_pressure_relief": None,
@@ -83,13 +80,10 @@ class Flag:
             "sensor_request": {
                 "thermocouple_chamber": bool,
                 "thermocouple_tank": bool,
-                "thermocouple_injector": bool,
                 "pressure_chamber": bool,
                 "pressure_tank": bool,
                 "pressure_injector": bool,
-                "load_chamber": bool,
-                "load_tank": bool,
-                "load_injector": bool
+                "load_tank": bool
             },
             "valve_request": {
                 "ball_valve_pressure_relief": bool,

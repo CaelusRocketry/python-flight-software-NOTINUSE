@@ -1,12 +1,15 @@
 from modules.mcl.flag import Flag
+from modules.mcl.registry import Registry
 from modules.lib.enums import *
 from modules.lib.errors import *
+import json
 
-class Ingest():
+class Telemetry_Control(): 
     def __init__(self):
         pass
 
-    def ingest(self, telem_queue, flags: Flag) -> PacketError: 
+    def ingest(self, state_field_registry: Registry, flags: Flag) -> PacketError: 
+        telem_queue = state_field_registry.get(("telemetry", "ingest_queue"))
         funcs = {
             "hard_abort": (self.hard_abort, valves, flags),
             "soft_abort": (self.soft_abort, valves, flags),
@@ -17,16 +20,19 @@ class Ingest():
             "valve_request": (self.valve_request, valve, location, flags),
             "progress": (self.progress, stage, flags)
         }
-        
 
         for packet in telem_queue:
             header = packet.header
             if header in funcs:
                 func = funcs[header]
-                args = packet.data.values()
+                packet_dict = json.loads(packet.to_string())
+                packet_dict.pop("logs")
+                args = packet_dict.values()
                 func(*args)
             else:
                 return PacketError.INVALID_HEADER_ERROR
+
+        state_field_registry.put(("telemetry", "ingest_queue"), [])
 
 
     def hard_abort(self, valves: list, flags: Flag):
@@ -150,7 +156,6 @@ class Ingest():
             SensorType.THERMOCOUPLE: {
                 SensorLocation.CHAMBER: "thermocouple_chamber",
                 SensorLocation.TANK: "thermocouple_tank",
-                SensorLocation.INJECTOR: "thermocouple_injector"
             },
             SensorType.PRESSURE: {
                 SensorLocation.CHAMBER: "pressure_chamber",
@@ -158,9 +163,7 @@ class Ingest():
                 SensorLocation.INJECTOR: "pressure_injector"
             },
             SensorType.LOAD: {
-                SensorLocation.CHAMBER: "load_chamber",
                 SensorLocation.TANK: "load_tank",
-                SensorLocation.INJECTOR: "load_injector"     
             }   
         }
 
