@@ -1,6 +1,6 @@
 from modules.lib.mode import Mode
 from modules.lib.errors import AccessError
-from modules.lib.enums import *
+from modules.lib.enums import ValveLocation, ActuationType
 
 class Flag:
 
@@ -13,22 +13,6 @@ class Flag:
             "progress": {
                 "stage": None
             },
-            "sensor_request": {
-                "thermocouple_chamber": None,
-                "thermocouple_tank": None,
-                "pressure_chamber": None,
-                "pressure_tank": None,
-                "pressure_injector": None,
-                "load_tank": None
-            },
-            "valve_request": {
-                "ball_valve_pressure_relief": None,
-                "ball_valve_propellant_vent": None,
-                "ball_valve_main_propellant_valve": None,
-                "solenoid_valve_pressure_relief": None,
-                "solenoid_valve_propellant_vent": None,
-                "solenoid_valve_main_propellant_valve": None
-            },
             "telemetry": {
                 "send_queue": [],
                 "reset": True
@@ -39,34 +23,18 @@ class Flag:
                 "flag_put_error": None,
                 "flag_get_error": None,
             },
-            "valve": {
-                "ball_valve_pres": None,
-                "ball_valve_main": None,
-                "solenoid_valve_drain": None,
-                "solenoid_valve_depres": None,
+            "solenoid": {
+                "actuation_type": {
+                    ValveLocation.PRESSURE_RELIEF: ActuationType.NONE,
+                    ValveLocation.PROPELLANT_VENT: ActuationType.NONE,
+                    ValveLocation.MAIN_PROPELLANT_VALVE: ActuationType.NONE
+                },
+                "actuation_priority": {
+                    ValveLocation.PRESSURE_RELIEF: 0,
+                    ValveLocation.PROPELLANT_VENT: 0,
+                    ValveLocation.MAIN_PROPELLANT_VALVE: 0
+                }
             },
-            "ball_valve_actuate": {
-                "ball_valve_pressure_relief_pulse": None,
-                "ball_valve_propellant_vent_pulse": None,
-                "ball_valve_main_propellant_valve_pulse": None,
-                "ball_valve_pressure_relief_open_vent": None,
-                "ball_valve_propellant_vent_open_vent": None,
-                "ball_valve_main_propellant_valve_open_vent": None,
-                "ball_valve_pressure_relief_close_vent": None,
-                "ball_valve_propellant_vent_close_vent": None,
-                "ball_valve_main_propellant_valve_close_vent": None
-            },
-            "solenoid_valve_actuate": {
-                "solenoid_valve_pressure_relief_pulse": None,
-                "solenoid_valve_propellant_vent_pulse": None,
-                "solenoid_valve_main_propellant_valve_pulse": None,
-                "solenoid_valve_pressure_relief_open_vent": None,
-                "solenoid_valve_propellant_vent_open_vent": None,
-                "solenoid_valve_main_propellant_valve_open_vent": None,
-                "solenoid_valve_pressure_relief_close_vent": None,
-                "solenoid_valve_propellant_vent_close_vent": None,
-                "solenoid_valve_main_propellant_valve_close_vent": None
-            }
         }
 
         self.state_types = {
@@ -76,22 +44,6 @@ class Flag:
             },
             "progress": {
                 "stage": Stage
-            },
-            "sensor_request": {
-                "thermocouple_chamber": bool,
-                "thermocouple_tank": bool,
-                "pressure_chamber": bool,
-                "pressure_tank": bool,
-                "pressure_injector": bool,
-                "load_tank": bool
-            },
-            "valve_request": {
-                "ball_valve_pressure_relief": bool,
-                "ball_valve_propellant_vent": bool,
-                "ball_valve_main_propellant_valve": bool,
-                "solenoid_valve_pressure_relief": bool,
-                "solenoid_valve_propellant_vent": bool,
-                "solenoid_valve_main_propellant_valve": bool
             },
             "telemetry": {
                 "send_queue": list,
@@ -103,34 +55,18 @@ class Flag:
                 "flag_put_error": bool,
                 "flag_get_error": bool,
             },
-            "valve": {
-                "ball_valve_pres": int,
-                "ball_valve_main": int,
-                "solenoid_valve_drain": bool,
-                "solenoid_valve_depres": bool,
+            "solenoid": {
+                "actuation_type": {
+                    ValveLocation.PRESSURE_RELIEF: ActuationType,
+                    ValveLocation.PROPELLANT_VENT: ActuationType,
+                    ValveLocation.MAIN_PROPELLANT_VALVE: ActuationType
+                },
+                "actuation_priority": {
+                    ValveLocation.PRESSURE_RELIEF: int,
+                    ValveLocation.PROPELLANT_VENT: int,
+                    ValveLocation.MAIN_PROPELLANT_VALVE: int
+                }
             },
-            "ball_valve_actuate": {
-                "ball_valve_pressure_relief_pulse": int,
-                "ball_valve_propellant_vent_pulse": int,
-                "ball_valve_main_propellant_valve_pulse": int,
-                "ball_valve_pressure_relief_open_vent": int,
-                "ball_valve_propellant_vent_open_vent": int,
-                "ball_valve_main_propellant_valve_open_vent": int,
-                "ball_valve_pressure_relief_close_vent": int,
-                "ball_valve_propellant_vent_close_vent": int,
-                "ball_valve_main_propellant_valve_close_vent": int
-            },
-            "solenoid_valve_actuate": {
-                "solenoid_valve_pressure_relief_pulse": bool,
-                "solenoid_valve_propellant_vent_pulse": bool,
-                "solenoid_valve_main_propellant_valve_pulse": bool,
-                "solenoid_valve_pressure_relief_open_vent": bool,
-                "solenoid_valve_propellant_vent_open_vent": bool,
-                "solenoid_valve_main_propellant_valve_open_vent": bool,
-                "solenoid_valve_pressure_relief_close_vent": bool,
-                "solenoid_valve_propellant_vent_close_vent": bool,
-                "solenoid_valve_main_propellant_valve_close_vent": bool
-            }
         }
 
     def put(self, key: 'tuple', value) -> AccessError:
