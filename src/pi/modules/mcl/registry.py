@@ -94,11 +94,11 @@ class Registry:
                 },
                 SensorType.PRESSURE: {
                     SensorLocation.CHAMBER: SensorStatus,
+                    SensorLocation.TANK: SensorStatus,
                     SensorLocation.INJECTOR: SensorStatus
                 },
                 SensorType.LOAD: {
                     SensorLocation.TANK: SensorStatus,
-                    SensorLocation.INJECTOR: SensorStatus
                 }
             },
             "valve": {

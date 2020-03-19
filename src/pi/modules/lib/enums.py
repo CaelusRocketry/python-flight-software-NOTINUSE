@@ -24,20 +24,21 @@ class SensorStatus(Enum):
 
 
 class ValveType(Enum):
-    SOLENOID = auto()
-    BALL = auto()
+    SOLENOID = "solenoid"
+    BALL = "ball"
 
 
 class ValveLocation(Enum):
-    PRESSURE_RELIEF = auto()
-    PROPELLANT_VENT = auto()
-    MAIN_PROPELLANT_VALVE = auto()
+    PRESSURE_RELIEF = "pressure_relief"
+    PROPELLANT_VENT = "propellant_vent"
+    MAIN_PROPELLANT_VALVE = "main_propellant_valve"
 
 
 class ActuationType(Enum):
     PULSE = auto()
     OPEN_VENT = auto()
     CLOSE_VENT = auto()
+    NONE = auto()
 
 
 class Stage(Enum):

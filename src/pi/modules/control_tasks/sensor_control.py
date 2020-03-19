@@ -2,11 +2,11 @@ from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.lib.packet import *
 
-class Sensor_Control():
+class SensorControl():
     def __init__(self):
         pass
 
-    def control(self, state_field_registry: Registry, flags: Flag):
+    def execute(self, state_field_registry: Registry, flags: Flag):
         input_str = (
         "{" + 
             "thermocouple: {" + 
