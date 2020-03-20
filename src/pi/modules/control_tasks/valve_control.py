@@ -38,3 +38,5 @@ class ValveControl():
         if self.last_send_time is None or time.time() - self.last_send_time > self.send_interval:
             self.send_valve_data()
             self.last_send_time = time.time()
+        
+        #TODO: Valves can't be open for too long
