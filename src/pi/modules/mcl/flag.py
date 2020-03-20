@@ -1,11 +1,11 @@
 from modules.lib.mode import Mode
-from modules.lib.errors import AccessError
+from modules.lib.errors import Error
 from modules.lib.enums import ValveLocation, ActuationType
 
 class Flag:
 
     def __init__(self):
-        self.state_flags = {
+        self.flags = {
             "abort": {
                 "hard_abort": [],
                 "soft_abort": []
@@ -37,7 +37,7 @@ class Flag:
             },
         }
 
-        self.state_types = {
+        self.types = {
             "abort": {
                 "hard_abort": list,
                 "soft_abort": list
@@ -69,22 +69,29 @@ class Flag:
             },
         }
 
-    def put(self, key: 'tuple', value) -> AccessError:
-        outer, inner = key
-        if outer not in self.state_flags:
-            print("OUTER ERROR")
-            return AccessError.KEY_ERROR
-        if inner not in self.state_flags[outer]:
-            print("INNER ERROR", key)
-            return AccessError.KEY_ERROR
-        self.state_flags[outer][inner] = value
-        return AccessError.NONE
+    def put(self, path: 'tuple', value) -> Error:
+        flags, types = self.flags, self.types
+        key = path[-1]
+        path = path[:-1]
+        for p in path:
+            if p not in flags:
+                return Error.KEY_ERROR
+            flags = flags[p]
+            types = types[p]
+        if key not in flags:
+            return Error.KEY_ERROR
+        if not isinstance(value, types[key]):
+            return Error.KEY_ERROR
+        flags[key] = value
+        return Error.NONE
 
 
-    def get(self, key: 'tuple'):
-        outer, inner = key
-        if outer not in self.state_flags:
-            return AccessError.KEY_ERROR
-        if inner not in self.state_flags[outer]:
-            return AccessError.KEY_ERROR
-        return self.state_flags[outer][inner]
+    def get(self, path: 'tuple') -> 'tuple':
+        flag, types = self.flag, self.types
+        for p in path:
+            if p not in flag:
+                return Error.KEY_ERROR, None
+            flag = flag[p]
+        if isinstance(flag, dict):
+            return Error.KEY_ERROR, None
+        return Error.NONE, flag

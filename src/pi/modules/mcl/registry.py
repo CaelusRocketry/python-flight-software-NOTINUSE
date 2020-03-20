@@ -1,7 +1,7 @@
 from modules.lib.mode import Mode
 from modules.lib.packet import Packet
 from modules.lib.enums import SensorStatus
-from modules.lib.errors import AccessError
+from modules.lib.errors import Error
 from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation
 # from modules.lib.encoding import EnumEncoder
 import time
@@ -135,30 +135,36 @@ class Registry:
         }
         self.times = {i: {j: None for j in i} for i in self.values}
 
-    def put(self, path: 'tuple', value) -> AccessError:
+    def put(self, path: 'tuple', value) -> Error:
         values, types, times = self.values, self.types, self.times
         key = path[-1]
         path = path[:-1]
         for p in path:
             if p not in values:
-                return AccessError.KEY_ERROR
+                return Error.KEY_ERROR
             values = values[p]
             types = types[p]
             times = times[p]
-        if not isinstance(values[key], types[key]):
-            return AccessError.KEY_ERROR
+        if key not in values:
+            return Error.KEY_ERROR
+        if not isinstance(value, types[key]):
+            return Error.KEY_ERROR
         values[key] = value
         times[key] = time.time()
-        return AccessError.NONE
+        return Error.NONE
 
-    def get(self, path) -> tuple:
+    def get(self, path: 'tuple') -> 'tuple':
         values, times = self.values, self.times
         for p in path:
             if p not in values:
-                return AccessError.KEY_ERROR, None, None
+                return Error.KEY_ERROR, None, None
             values = values[p]
             times = times[p]
-        return AccessError.NONE, values, times
+        #Don't allow the user to get part of the registry, they can only get endpoints
+        #TODO: Decide if this is somethign to keep or nah
+        if isinstance(values, dict):
+            return Error.KEY_ERROR, None
+        return Error.NONE, values, times
 
     def to_string(self):
         return json.dumps(self.values, cls=EnumEncoder)

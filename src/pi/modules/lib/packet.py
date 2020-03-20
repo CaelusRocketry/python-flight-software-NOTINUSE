@@ -29,8 +29,7 @@ class Log:
 
 
     def to_string(self):
-#        print(self.__dict__)
-        return json.dumps(self.__dict__)
+         return json.dumps(self.__dict__)
 
 
     @staticmethod

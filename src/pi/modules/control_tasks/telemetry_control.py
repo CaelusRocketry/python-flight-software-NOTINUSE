@@ -1,7 +1,7 @@
 from modules.mcl.flag import Flag
 from modules.mcl.registry import Registry
-from modules.lib.enums import SensorType, SensorLocation, ValveLocation, ActuationType, ValveType
-from modules.lib.errors import AccessError, Error
+from modules.lib.enums import SensorType, SensorLocation, ValveLocation, ActuationType, ValveType, Stage
+from modules.lib.errors import Error
 from modules.lib.packet import Packet, Log, LogPriority
 import json
 
@@ -35,7 +35,7 @@ class TelemetryControl():
 
         self.flags.put(("telemetry", "reset"), False)
         err, telem_queue, _ = registry.get(("telemetry", "ingest_queue"))
-        assert(err == AccessError.NONE)
+        assert(err == Error.NONE)
         if telem_queue:
             for packet in telem_queue:
                 #TODO: Figure out if the command from a log is outdated
@@ -97,7 +97,7 @@ class TelemetryControl():
 
     def solenoid_actuate(self, valve_location: ValveLocation, actuation_type: ActuationType, priority: int) -> Error:
         err, currnet_priority, timestamp = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, location))
-        if err != AccessError.NONE:
+        if err != Error.NONE:
             #TODO: Send message back to gs saying it was an invalid message
             return Error.REQUEST_ERROR
 
@@ -111,13 +111,13 @@ class TelemetryControl():
 
     def sensor_request(self, sensor_type: SensorType, sensor_location: SensorLocation) -> Error:
         err, value, timestamp = self.registry.get(("sensor", sensor_type, sensor_location))
-        if err != AccessError.NONE:
+        if err != Error.NONE:
             #TODO: Send message back to gs saying it was an invalid message
-            return Error.SENSOR_REQUEST_ERROR
+            return Error.REQUEST_ERROR
         err, status, _ = self.registry.get(("sensor_status", sensor_type, sensor_location))
-        if err != AccessError.NONE:
+        if err != Error.NONE:
             #TODO: Send message back to gs saying it was an invalid message
-            return Error.SENSOR_REQUEST_ERROR
+            return Error.REQUEST_ERROR
 
         log = Log(header="sensor_data", message={"type": sensor_type, "location": sensor_location, "value": value, "status": status, "timestamp": timestamp})
         self.enqueue(log, LogPriority.INFO)
@@ -125,13 +125,13 @@ class TelemetryControl():
 
     def valve_request(self, valve_type: ValveType, valve_location: ValveLocation) -> Error: 
         err, value, _ = self.registry.get(("valve", valve_type, valve_location))
-        if err != AccessError.NONE:
+        if err != Error.NONE:
             return Error.REQUEST_ERROR
         err, value, _ = self.registry.get(("valve_actuation", "actuation_type", valve_type, valve_location))
-        if err != AccessError.NONE:
+        if err != Error.NONE:
             return Error.REQUEST_ERROR
         err, value, timestamp = self.registry.get(("valve", "actuation_priority", valve_type, valve_location))
-        if err != AccessError.NONE:
+        if err != Error.NONE:
             return Error.REQUEST_ERROR
 
         log = Log(header="valve_data", message={"type": valve_type, "location": valve_location, "state": value, "actuation_type": valve_actuation, "actuation_priority": valve_actuation_priority, "actuation_timestamp": timestamp})

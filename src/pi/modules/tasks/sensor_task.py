@@ -4,7 +4,7 @@ from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 import struct
 
-class SensorArduinoTask(Task):
+class SensorTask(Task):
     def __init__(self):
         self.name = "Sensor Arduino"
 

@@ -1,15 +1,32 @@
 ### Import the necessary classes
+from modules.tasks.telemetry_task import TelemetryTask
+from modules.tasks.sensor_task import SensorTask
+from modules.tasks.valve_task import ValveTask
+from modules.tasks.control_task import ControlTask
 from modules.mcl.flag import Flag
 from modules.mcl.registry import Registry
 
 class Supervisor:
 
-    def __init__(self, tasks, control_task, config):
+    def __init__(self, task_config: 'dict', config: 'dict'):
         self.flag = Flag()
         self.registry = Registry()
-        self.tasks = tasks
-        self.control_task = control_task
+        self.task_config = task_config
         self.config = config
+        self.create_tasks()
+
+    def create_tasks(self):
+        tasks = []
+        if "telemetry" in self.task_config["tasks"]:
+            tasks.append(TelemetryTask(self.registry, self.flag))
+        if "sensor" in self.task_config["tasks"]:
+            tasks.append(SensorTask(self.registry, self.flag))
+        if "valve" in self.task_config["tasks"]:
+            tasks.append(ValveTask(self.registry, self.flag))
+
+        self.tasks = tasks
+        self.control_task = ControlTask(self.registry, self.flag)
+        self.control_task.begin(self.task_config["control_tasks"])
 
     def initialize(self):
         for task in self.tasks:

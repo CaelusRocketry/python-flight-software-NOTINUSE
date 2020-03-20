@@ -11,7 +11,7 @@ class Valve(Enum):
     SOLENOID_VALVE_DRAIN: auto()
     SOLENOID_VALVE_DEPRES: auto()
 
-class ValveArduinoTask(Task):
+class ValveTask(Task):
     def __init__(self):
         self.name = "Sensor Arduino"
 

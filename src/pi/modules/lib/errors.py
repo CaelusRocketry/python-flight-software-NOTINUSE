@@ -9,5 +9,8 @@ class Error(Enum):
     INVALID_HEADER_ERROR = auto()
     INVALID_ARGUMENT_ERROR = auto()
 
+    #Accessing stuff
+    KEY_ERROR = auto()
+
     # Valve and sensor request errors
     REQUEST_ERROR = auto()

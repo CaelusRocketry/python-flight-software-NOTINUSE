@@ -4,11 +4,8 @@ from modules.mcl.supervisor import Supervisor
 import json
 
 config = json.loads(open("config.json").read())
-config["telemetry_control"] = True
-config["sensor_control"] = False
-config["valve_control"] = False
-telemetry = TelemetryTask()
-control = ControlTask()
-control.begin(config)
-supervisor = Supervisor(tasks=[telemetry], control_task=control, config=config)
+controls = ["telemetry"]
+tasks = ["telemetry"]
+task_config = {"tasks": tasks, "control_tasks": controls}
+supervisor = Supervisor(task_config=task_config, config=config)
 supervisor.run()
