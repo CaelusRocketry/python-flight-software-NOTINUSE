@@ -3,8 +3,11 @@ from modules.mcl.flag import Flag
 from modules.lib.packet import *
 
 class ValveControl():
-    def __init__(self):
-        pass
+    def __init__(self, registry: Registry, flag: Flag, sensors: 'list', valves: 'list'):
+        self.registry = registry
+        self.flag = flag
+        self.sensors = sensors
+        self.valves = valves
 
-    def execute(self, state_field_registry: Registry, flags: Flag):
+    def execute(self):
         print("HI")

@@ -12,29 +12,28 @@ class SensorTask(Task):
         self.name = "Sensor Arduino"
         self.registry = registry
         self.flag = flag
-        #TODO: Make sure that this is the same order that the arduino returns its data in
-        self.sensors = [(SensorType.THERMOCOUPLE, SensorLocation.CHAMBER),
-                             (SensorType.THERMOCOUPLE, SensorLocation.TANK),
-                             (SensorType.PRESSURE, SensorLocation.CHAMBER),
-                             (SensorType.PRESSURE, SensorLocation.TANK),
-                             (SensorType.PRESSURE, SensorLocation.INJECTOR),
-                             (SensorType.LOAD, SensorLocation.TANK)]
-        self.num_sensors = len(self.sensors)
 
-    def begin(self, config):
-        self.address = 0x04
-        self.arduino = Arduino("Arduino Sensor", self.address)
+
+    def begin(self, config: dict):
+        self.config = config["sensors"]
+        #TODO: Make sure that this is the same order that the arduino returns its data in
+        sensors = self.config["list"]
+        self.sensor_list = [(s_type, loc) for loc in sensors[s_type] for s_type in sensors]
+        self.num_sensors = len(self.sensor_list)
+        self.arduino = Arduino("Arduino Sensor", self.config["address"])
+
 
     def get_float(self, data):
         byte_array = bytes(data)
         return struct.unpack('f', byte_array)[0]
+
 
     def read(self) -> Error:
         data = self.arduino.read(self.num_sensors * 4)
         assert(len(data) == self.num_sensors * 4)
 
         for i in range(self.num_sensors):
-            sensor_type, sensor_location = self.sensors[i]
+            sensor_type, sensor_location = self.sensor_list[i]
             byte_value = data[i*4:(i+1)*4]
             float_value = self.get_float(byte_value)
             assert(isinstance(float_value, float))

@@ -11,16 +11,9 @@ import json
 class Registry:
 
     # TODO: Add IMU data, Pressure data, Load cell data, and Valve data to SFR
-    def __init__(self):
-        self.sensors = {
-            SensorType.THERMOCOUPLE: [SensorLocation.CHAMBER, SensorLocation.TANK],
-            SensorType.PRESSURE: [SensorLocation.CHAMBER, SensorLocation.TANK, SensorLocation.INJECTOR],
-            SensorType.LOAD: [SensorLocation.TANK]
-        }
-        self.valves = {
-            ValveType.SOLENOID: [ValveLocation.PRESSURE_RELIEF,
-                                 ValveLocation.PROPELLANT_VENT, ValveLocation.MAIN_PROPELLANT_VALVE]
-        }
+    def __init__(self, config: dict):
+        self.sensors = config["sensors"]["list"]
+        self.valves = config["valves"]["list"]
         self.values = {
             "sensor": {s_type: {loc: None for loc in self.sensors[s_type]} for s_type in self.sensors},
             "sensor_status": {s_type: {loc: None for loc in self.sensors[s_type]} for s_type in self.sensors},

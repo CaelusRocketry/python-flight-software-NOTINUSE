@@ -28,6 +28,12 @@ class TelemetryControl():
             "valve_request": (("valve_type", ValveType), ("valve_location", ValveLocation)),
             "progress": (),
         }
+    
+    def begin(self, config: dict):
+        self.config = config
+        self.sensors = config["sensors"]["list"]
+        self.valves = config["valves"]["list"]
+
 
     def execute(self) -> Error:
         if self.registry.get(("telemetry", "status")) == False:

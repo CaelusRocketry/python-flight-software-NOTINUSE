@@ -15,11 +15,11 @@ class Telemetry(Driver):
     Initialize the ingest queue, the send queue, the socket connection, and all other necessary variables.
     Also start all necessary threads
     """
-    def __init__(self, config):
-        self.GS_IP = config['GS_IP']
-        self.GS_PORT = config['GS_PORT']
-        self.DELAY_LISTEN = config['DELAY']
-        self.DELAY_SEND = config['DELAY']
+    def __init__(self, gs_ip: str, gs_port: int, delay: float):
+        self.GS_IP = gs_ip
+        self.GS_PORT = gs_port
+        self.DELAY_LISTEN = delay
+        self.DELAY_SEND = delay
 
         # Set the socket's hardcoded values (ip address and port)
         self.sock = None

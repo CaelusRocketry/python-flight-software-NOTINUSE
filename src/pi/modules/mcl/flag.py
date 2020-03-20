@@ -1,12 +1,13 @@
 from modules.lib.mode import Mode
 from modules.lib.errors import Error
-from modules.lib.enums import ValveLocation, ActuationType, Stage
+from modules.lib.enums import ValveType, ValveLocation, ActuationType, Stage
 
 class Flag:
 
-    def __init__(self):
-        self.solenoids = [ValveLocation.PRESSURE_RELIEF,
-                        ValveLocation.PROPELLANT_VENT, ValveLocation.MAIN_PROPELLANT_VALVE]
+    def __init__(self, config: dict):
+        self.sensors = config["sensors"]["list"]
+        self.valves = config["valves"]["list"]
+        self.solenoids = self.valves[ValveType.SOLENOID]
         self.flags = {
             "abort": {
                 "hard_abort": [],

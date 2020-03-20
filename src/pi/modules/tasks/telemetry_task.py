@@ -11,11 +11,14 @@ class TelemetryTask(Task):
         self.registry = registry
         self.flag = flag
 
+
     def begin(self, config: dict):
-        self.GS_IP = config['GS_IP']
-        self.GS_PORT = config['GS_PORT']
-        self.DELAY = config['DELAY']
-        self.telemetry = Telemetry(config)
+        self.config = config["telemetry"]
+        print(self.config)
+        self.GS_IP = self.config['GS_IP']
+        self.GS_PORT = self.config['GS_PORT']
+        self.DELAY = self.config['DELAY']
+        self.telemetry = Telemetry(self.GS_IP, self.GS_PORT, self.DELAY)
         self.telemetry.connect()
 
 

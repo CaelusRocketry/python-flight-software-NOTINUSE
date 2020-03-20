@@ -10,26 +10,26 @@ class SensorControl():
         print("Sensor control")
         self.registry = registry
         self.flag = flag
+
+
+    def begin(self, config: dict):
+        self.config = config
+        self.sensors = config["sensors"]["list"]
+        self.valves = config["valves"]["list"]
         # Interval in s
-        self.send_interval = 0.5
+        self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
-        #TODO: Figure out how to make "self.sensors" a more centralized thing (maybe add it in config?)
-        self.sensors = [(SensorType.THERMOCOUPLE, SensorLocation.CHAMBER),
-                        (SensorType.THERMOCOUPLE, SensorLocation.TANK),
-                        (SensorType.PRESSURE, SensorLocation.CHAMBER),
-                        (SensorType.PRESSURE, SensorLocation.TANK),
-                        (SensorType.PRESSURE, SensorLocation.INJECTOR),
-                        (SensorType.LOAD, SensorLocation.TANK)]
 
 
     def send_sensor_data(self):
         message = {}
-        for sensor_type, sensor_location in self.sensors:
-            err, val, timestamp = self.registry.get(("sensor", sensor_type, sensor_location))
-            assert(err == Error.NONE)
-            if sensor_type not in message:
-                message[sensor_type] = {}
-            message[sensor_type][sensor_location] = val
+        for sensor_type in self.sensors:
+            for sensor_location in self.sensors[sensor_type]:
+                err, val, timestamp = self.registry.get(("sensor", sensor_type, sensor_location))
+                assert(err == Error.NONE)
+                if sensor_type not in message:
+                    message[sensor_type] = {}
+                message[sensor_type][sensor_location] = val
         log = Log(header="sensor_data", message=message)
         err, enqueue = self.flag.get(("telemetry", "enqueue"))
         assert(err == Error.NONE)
