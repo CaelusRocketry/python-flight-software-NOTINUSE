@@ -70,7 +70,6 @@ class Packet:
     
 
     def __cmp__(self, other):
-        return self.level - other.level
-
-    def __lt__(self, other):
-        return self.level - other.level
+        if self.level != other.level:
+            return self.level - other.level
+        return other.timestamp - self.timestamp

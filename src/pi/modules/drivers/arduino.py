@@ -1,3 +1,5 @@
+import random
+import struct
 from .driver import Driver
 """
 Pseudo arduino class to use to run code on ur own laptop!
@@ -5,12 +7,42 @@ FIXME: The real_arduino.py class should be used on the pi!
 """
 class PseudoSensor():
     def __init__(self):
-        self.values = []
+        self.sensors = {"thermo1": 0, "thermo2": 0, "pressure1": 0, "pressure2": 0, "pressure3": 0, "load": 0}
+
+
+    def set_sensor_values(self):
+        self.sensors = {i: random.random() * 50 for i in self.sensors}
+
+
+    def read(self):
+        self.set_sensor_values()
+        ret = bytes()
+        for key in self.sensors:
+            ret += struct.pack('f', self.sensors[key])
+        return ret
+    
+    def write(self, msg):
+        pass
 
 
 class PseudoValve():
     def __init__(self):
-        self.states = []
+        self.sensors = {"thermo1": 0, "thermo2": 0, "pressure1": 0, "pressure2": 0, "pressure3": 0, "load": 0}
+
+
+    def set_sensor_values(self):
+        self.sensors = {i: random.random() * 50 for i in self.sensors}
+
+
+    def read(self):
+        self.set_sensor_values()
+        ret = bytes()
+        for key in self.sensors:
+            ret += struct.pack('f', self.sensors[key])
+        return ret
+    
+    def write(self, msg):
+        pass
 
 
 class Arduino(Driver):
@@ -18,10 +50,7 @@ class Arduino(Driver):
     def __init__(self, name: "str", address: hex):
         super().__init__(name)
         self.name = name
-        if self.name == "Sensor Arduino":
-            self.arduino = PseudoSensor()
-        else:
-            self.arduino = PseudoValve()
+        self.reset()
     
     """
     Return whether or not the i2c connection is alive
@@ -41,27 +70,21 @@ class Arduino(Driver):
     Powercycle the arduino
     """
     def reset(self) -> bool:
-        pass
+        if self.name == "Sensor Arduino":
+            self.arduino = PseudoSensor()
+        else:
+            self.arduino = PseudoValve()
 
     """
     Read data from the Arduino and return it
     Ex. [10, 20, 0, 0, 15, 0, 0, 0, 14, 12, 74, 129]
     """
     def read(self, num_bytes: int) -> bytes:
-        data = self.bus.read_i2c_block_data(self.address, 0, num_bytes)
-        byte_array = bytes(data)
-        # return struct.unpack('f', byte_array)[0]
-        return byte_array
+        return self.arduino.read()
 
     """
     Write data to the Arduino and return True if the write was successful else False
     """
     def write(self, msg: bytes) -> bool:
-        # converts string to bytes : msg = [ord(b) for b in src]
-        try:
-            self.bus.write_i2c_block_data(self.address, 0x01, msg)
-            return True
-        except:
-            return False
-        pass
+        self.arduino.write(msg)
     

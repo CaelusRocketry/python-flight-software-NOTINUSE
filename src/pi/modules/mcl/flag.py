@@ -16,6 +16,7 @@ class Flag:
                 "stage": None
             },
             "telemetry": {
+                "enqueue": [],
                 "send_queue": [],
                 "reset": True
             },

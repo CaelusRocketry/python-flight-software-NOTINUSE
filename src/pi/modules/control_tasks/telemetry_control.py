@@ -1,15 +1,15 @@
-from modules.mcl.flag import Flag
-from modules.mcl.registry import Registry
-from modules.lib.enums import SensorType, SensorLocation, ValveLocation, ActuationType, ValveType, Stage
-from modules.lib.errors import Error
-from modules.lib.packet import Packet, Log, LogPriority
-from heapq import heappop
 import json
+from heapq import heappop
+from modules.mcl.flag import Flag
+from modules.lib.errors import Error
+from modules.mcl.registry import Registry
+from modules.lib.packet import Packet, Log, LogPriority
+from modules.lib.enums import SensorType, SensorLocation, ValveLocation, ActuationType, ValveType, Stage
 
 class TelemetryControl(): 
-    def __init__(self, registry: Registry, flags: Flag):
+    def __init__(self, registry: Registry, flag: Flag):
         self.registry = registry
-        self.flags = flags
+        self.flag = flag
         self.funcs = {
             "heartbeat": self.heartbeat,
             "hard_abort": self.hard_abort,
@@ -31,10 +31,10 @@ class TelemetryControl():
 
     def execute(self) -> Error:
         if self.registry.get(("telemetry", "status")) == False:
-            self.flags.put(("telemetry", "reset"), True)
+            self.flag.put(("telemetry", "reset"), True)
             return None
 
-        self.flags.put(("telemetry", "reset"), False)
+        self.flag.put(("telemetry", "reset"), False)
         err, telem_queue, _ = self.registry.get(("telemetry", "ingest_queue"))
         assert(err == Error.NONE)
         while telem_queue:
@@ -69,18 +69,11 @@ class TelemetryControl():
 
 
     def enqueue(self, log: Log, level: LogPriority):
-        added = False
-        err, send_queue = self.flags.get(("telemetry", "send_queue"))
-        assert(err == Error.NONE)
-        for pack in send_queue:
-            if pack.level == level:
-                pack.add(log)
-                added = True
-                break
-        if not added:
-            pack = Packet(logs=[log], level=LogPriority.INFO)
-            send_queue.append(pack)
-        self.flags.put(("telemetry", "send_queue"), send_queue)
+        err, queue = self.flag.get(("telemetry", "enqueue"))
+        assert(err is Error.NONE)
+        queue.append((log, level))
+        err = self.flag.put(("telemetry", "enqueue"), queue)
+        assert(err is Error.NONE)
 
 
     def heartbeat(self):
@@ -90,13 +83,13 @@ class TelemetryControl():
     def hard_abort(self):
         self.registry.put(("abort", "hard_abort"), True)
         #TODO: For each valve, figure out what it's hard abort valve state is and add the flag for that at maximum priority
-#        self.flags.put(("abort", "hard_abort"), valves)
+#        self.flag.put(("abort", "hard_abort"), valves)
 
 
     def soft_abort(self):
         self.registry.put(("abort", "soft_abort"), True)
         #TODO: For each valve, figure out what it's soft abort valve state is and add the flag for that at next to maximum priority
-#        self.flags.put(("abort", "soft_abort"), valves)
+#        self.flag.put(("abort", "soft_abort"), valves)
 
 
     def solenoid_actuate(self, valve_location: ValveLocation, actuation_type: ActuationType, priority: int) -> Error:
@@ -109,8 +102,8 @@ class TelemetryControl():
             #TODO: Send message back to gs saying it was an invalid message
             return Error.PRIORITY_ERROR
 
-        self.flags.put(("solenoid", "actuation_type", valve_location), actuation_type)
-        self.flags.put(("solenoid", "actuation_priority", valve_location), actuation_type)
+        self.flag.put(("solenoid", "actuation_type", valve_location), actuation_type)
+        self.flag.put(("solenoid", "actuation_priority", valve_location), actuation_type)
 
 
     def sensor_request(self, sensor_type: SensorType, sensor_location: SensorLocation) -> Error:
@@ -143,5 +136,5 @@ class TelemetryControl():
 
 
     def progress(self, stage: Stage):
-        self.flags.put(("progress", "stage"), stage)
+        self.flag.put(("progress", "stage"), stage)
 
