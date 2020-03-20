@@ -16,7 +16,6 @@ class SensorControl():
         self.config = config
         self.sensors = config["sensors"]["list"]
         self.valves = config["valves"]["list"]
-        # Interval in s
         self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
 

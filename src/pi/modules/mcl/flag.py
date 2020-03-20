@@ -53,18 +53,11 @@ class Flag:
                 "flag_get_error": bool,
             },
             "solenoid": {
-                "actuation_type": {
-                    ValveLocation.PRESSURE_RELIEF: ActuationType,
-                    ValveLocation.PROPELLANT_VENT: ActuationType,
-                    ValveLocation.MAIN_PROPELLANT_VALVE: ActuationType
-                },
-                "actuation_priority": {
-                    ValveLocation.PRESSURE_RELIEF: int,
-                    ValveLocation.PROPELLANT_VENT: int,
-                    ValveLocation.MAIN_PROPELLANT_VALVE: int
-                }
+                "actuation_type": {loc: ActuationType for loc in self.solenoids},
+                "actuation_priority": {loc: int for loc in self.solenoids}
             },
         }
+
 
     def put(self, path: 'tuple', value) -> Error:
         flags, types = self.flags, self.types
@@ -72,12 +65,15 @@ class Flag:
         path = path[:-1]
         for p in path:
             if p not in flags:
+                raise Exception
                 return Error.KEY_ERROR
             flags = flags[p]
             types = types[p]
         if key not in flags:
+            raise Exception
             return Error.KEY_ERROR
         if not isinstance(value, types[key]):
+            raise Exception
             return Error.KEY_ERROR
         flags[key] = value
         return Error.NONE
@@ -87,8 +83,10 @@ class Flag:
         flag, types = self.flags, self.types
         for p in path:
             if p not in flag:
+                raise Exception
                 return Error.KEY_ERROR, None
             flag = flag[p]
         if isinstance(flag, dict):
+            raise Exception
             return Error.KEY_ERROR, None
         return Error.NONE, flag

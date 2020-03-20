@@ -3,7 +3,6 @@ from modules.lib.packet import Packet
 from modules.lib.enums import SensorStatus
 from modules.lib.errors import Error
 from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType
-# from modules.lib.encoding import EnumEncoder
 import time
 import json
 
@@ -30,6 +29,7 @@ class Registry:
                 "mode": None
             }
         }
+
         self.types = {
             "sensor": {s_type: {loc: float for loc in self.sensors[s_type]} for s_type in self.sensors},
             "sensor_status": {s_type: {loc: SensorStatus for loc in self.sensors[s_type]} for s_type in self.sensors},
@@ -66,36 +66,42 @@ class Registry:
             }
         }
 
-    def put(self, path: 'tuple', value) -> Error:
+    def put(self, path: tuple, value) -> Error:
         values, types, times = self.values, self.types, self.times
         key = path[-1]
         path = path[:-1]
         for p in path:
             if p not in values:
+                raise Exception
                 return Error.KEY_ERROR
             values = values[p]
             types = types[p]
             times = times[p]
         if key not in values:
+            raise Exception
             return Error.KEY_ERROR
         if not isinstance(value, types[key]):
+            raise Exception
             return Error.KEY_ERROR
         values[key] = value
         times[key] = time.time()
         return Error.NONE
 
-    def get(self, path: 'tuple') -> 'tuple':
+    def get(self, path: tuple) -> tuple:
         values, times = self.values, self.times
         for p in path:
             if p not in values:
+                raise Exception
                 return Error.KEY_ERROR, None, None
             values = values[p]
             times = times[p]
         # Don't allow the user to get part of the registry, they can only get endpoints
         # TODO: Decide if this is somethign to keep or nah
+        # TODO: Error handling, check Jason's messenger for details
         if isinstance(values, dict):
+            raise Exception
             return Error.KEY_ERROR, None
         return Error.NONE, values, times
 
     def to_string(self):
-        return json.dumps(self.values, cls=EnumEncoder)
+        return json.dumps(self.values)

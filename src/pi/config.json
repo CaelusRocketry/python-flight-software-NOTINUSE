@@ -17,6 +17,7 @@
         "list": {
             "solenoid": ["pressure_relief", "propellant_vent", "main_propellant_valve"]
         },
-        "address": 4
+        "address": 4,
+        "send_interval": 0.5
     }
 }

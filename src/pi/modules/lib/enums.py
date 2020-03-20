@@ -14,8 +14,8 @@ class SensorLocation(str, Enum):
 
 
 class SolenoidState(str, Enum):
-    OPEN = True
-    CLOSED = False
+    OPEN = 'open'
+    CLOSED = "closed"
 
 
 class SensorStatus(IntEnum):

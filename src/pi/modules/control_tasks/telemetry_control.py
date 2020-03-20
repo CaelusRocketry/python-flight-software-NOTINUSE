@@ -1,4 +1,4 @@
-import json
+import json, enum
 from heapq import heappop
 from modules.mcl.flag import Flag
 from modules.lib.errors import Error
@@ -29,6 +29,7 @@ class TelemetryControl():
             "progress": (),
         }
     
+
     def begin(self, config: dict):
         self.config = config
         self.sensors = config["sensors"]["list"]
@@ -36,6 +37,7 @@ class TelemetryControl():
 
 
     def execute(self) -> Error:
+        #TODO: Check if resetting telemetry works
         if self.registry.get(("telemetry", "status")) == False:
             self.flag.put(("telemetry", "reset"), True)
             return None
@@ -61,12 +63,16 @@ class TelemetryControl():
             assert(header in self.arguments)
             for arg_name, arg_type in self.arguments[header]:
                 if arg_name not in log.message:
-                    print("Invalid argument")
+                    print("Invalid argument", arg_name)
                     return Error.INVALID_ARGUMENT_ERROR
+                if issubclass(arg_type, enum.Enum):
+                    if log.message[arg_name] not in [x.value for x in arg_type]:
+                        print("Invalid argument", arg_name, arg_type)
+                        return Error.INVALID_ARGUMENT_ERROR
                 elif not isinstance(log.message[arg_name], arg_type):
-                    print("Invalid argument")
+                    print("Invalid argument", arg_name, arg_type)
                     return Error.INVALID_ARGUMENT_ERROR
-                args.append(log.message[arg_name])
+                args.append(arg_type(log.message[arg_name]))
             func(*args)
             return Error.NONE
         else:
@@ -99,7 +105,7 @@ class TelemetryControl():
 
 
     def solenoid_actuate(self, valve_location: ValveLocation, actuation_type: ActuationType, priority: int) -> Error:
-        err, currnet_priority, timestamp = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, location))
+        err, currnet_priority, timestamp = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_location))
         if err != Error.NONE:
             #TODO: Send message back to gs saying it was an invalid message
             return Error.REQUEST_ERROR
@@ -108,8 +114,13 @@ class TelemetryControl():
             #TODO: Send message back to gs saying it was an invalid message
             return Error.PRIORITY_ERROR
 
-        self.flag.put(("solenoid", "actuation_type", valve_location), actuation_type)
-        self.flag.put(("solenoid", "actuation_priority", valve_location), actuation_type)
+        print("LOCATION:", valve_location)
+        print("ACTUATION:", actuation_type)
+
+        err = self.flag.put(("solenoid", "actuation_type", valve_location), actuation_type)
+        assert(err is Error.NONE)
+        err = self.flag.put(("solenoid", "actuation_priority", valve_location), priority)
+        assert(err is Error.NONE)
 
 
     def sensor_request(self, sensor_type: SensorType, sensor_location: SensorLocation) -> Error:
