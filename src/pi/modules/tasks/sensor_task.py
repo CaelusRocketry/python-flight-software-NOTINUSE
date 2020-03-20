@@ -18,7 +18,7 @@ class SensorTask(Task):
         self.config = config["sensors"]
         #TODO: Make sure that this is the same order that the arduino returns its data in
         sensors = self.config["list"]
-        self.sensor_list = [(s_type, loc) for loc in sensors[s_type] for s_type in sensors]
+        self.sensor_list = [(s_type, loc) for s_type in sensors for loc in sensors[s_type]]
         self.num_sensors = len(self.sensor_list)
         self.arduino = Arduino("Arduino Sensor", self.config["address"])
 
