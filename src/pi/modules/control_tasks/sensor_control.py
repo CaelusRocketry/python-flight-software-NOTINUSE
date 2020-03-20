@@ -3,9 +3,11 @@ from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.lib.packet import Log, LogPriority
 from modules.lib.errors import Error
+from modules.lib.enums import SensorType, SensorLocation
 
 class SensorControl():
     def __init__(self, registry: Registry, flag: Flag):
+        print("Sensor control")
         self.registry = registry
         self.flag = flag
         # Interval in s

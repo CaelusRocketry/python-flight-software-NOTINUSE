@@ -42,6 +42,7 @@ class Flag:
             },
             "telemetry": {
                 "send_queue": list,
+                "enqueue": list,
                 "reset": bool
             },
             "error": {

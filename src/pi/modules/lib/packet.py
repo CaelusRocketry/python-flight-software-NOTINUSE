@@ -1,6 +1,7 @@
 import time
 import json
 from enum import IntEnum
+from modules.lib.enums import EnumEncoder
 
 
 class LogPriority(IntEnum):
@@ -30,7 +31,7 @@ class Log:
 
 
     def to_string(self):
-         return json.dumps(self.__dict__)
+        return json.dumps(self.__dict__)
 
 
     @staticmethod
@@ -68,6 +69,12 @@ class Packet:
         packet.__dict__ = input_dict
         return packet
     
+
+    def __lt__(self, other):
+        if self.level != other.level:
+            return self.level - other.level
+        return other.timestamp - self.timestamp
+
 
     def __cmp__(self, other):
         if self.level != other.level:
