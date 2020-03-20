@@ -20,7 +20,7 @@ class SensorTask(Task):
         sensors = self.config["list"]
         self.sensor_list = [(s_type, loc) for s_type in sensors for loc in sensors[s_type]]
         self.num_sensors = len(self.sensor_list)
-        self.arduino = Arduino("Arduino Sensor", self.config["address"])
+        self.arduino = Arduino("Arduino Sensor", self.config)
 
 
     def get_float(self, data):

@@ -26,12 +26,15 @@ class PseudoSensor():
 
 
 class PseudoValve():
-    def __init__(self):
-        self.sensors = {"thermo1": 0, "thermo2": 0, "pressure1": 0, "pressure2": 0, "pressure3": 0, "load": 0}
+    def __init__(self, config: dict):
+        self.config = config
+        sensors = config["list"]
+        self.sensor_list = [(s_type, loc) for s_type in sensors for loc in sensors[s_type]]
+        self.num_sensors = len(self.sensor_list)
 
 
     def set_sensor_values(self):
-        self.sensors = {i: random.random() * 50 for i in self.sensors}
+        self.sensors = {i: random.random() * 50 for i in self.sensor_list}
 
 
     def read(self):
@@ -47,9 +50,11 @@ class PseudoValve():
 
 class Arduino(Driver):
 
-    def __init__(self, name: "str", address: hex):
+    def __init__(self, name: "str", config: dict):
         super().__init__(name)
         self.name = name
+        self.config = config
+        self.address = self.config["address"]
         self.reset()
     
     """
@@ -71,9 +76,9 @@ class Arduino(Driver):
     """
     def reset(self) -> bool:
         if self.name == "Sensor Arduino":
-            self.arduino = PseudoSensor()
+            self.arduino = PseudoSensor(self.config)
         else:
-            self.arduino = PseudoValve()
+            self.arduino = PseudoValve(self.config)
 
     """
     Read data from the Arduino and return it
