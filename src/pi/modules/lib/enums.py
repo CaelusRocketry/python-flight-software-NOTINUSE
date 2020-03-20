@@ -14,7 +14,7 @@ class SensorLocation(Enum):
 
 class SolenoidState(Enum):
     OPEN = auto()
-    CLOSE = auto()
+    CLOSED = auto()
 
 
 class SensorStatus(Enum):

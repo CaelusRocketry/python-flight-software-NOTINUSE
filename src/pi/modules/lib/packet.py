@@ -12,7 +12,7 @@ class LogPriority(IntEnum):
 
 
 class Log:
-    """ Packet class stores messages to be sent to and from ground and flight station """
+    """ Log class stores messages to be sent to and from ground and flight station """
 
     def __init__(self, header, message={},
                  timestamp: float = time.time()):
@@ -23,6 +23,7 @@ class Log:
 
 
     def save(self, filename = "blackbox.txt"):
+        print("Log: ", self.to_string())
         f = open("black_box.txt", "a+")
         f.write(self.to_string() + "\n")
         f.close()
@@ -35,13 +36,13 @@ class Log:
     @staticmethod
     def from_string(input_string):
         input_dict = json.loads(input_string)
-        log = Log()
+        log = Log(header=input_dict['header'], message=input_dict['message'], timestamp=input_dict['timestamp'])
         log.__dict__ = input_dict
         return log
 
 
 class Packet:
-    """ Packet class stores messages to be sent to and from ground and flight station """
+    """ Packet class groups together logs of similar priority """
 
     def __init__(self, logs: list = [], level: LogPriority = LogPriority.INFO, timestamp: float = time.time()):
         self.logs = logs
@@ -69,4 +70,7 @@ class Packet:
     
 
     def __cmp__(self, other):
+        return self.level - other.level
+
+    def __lt__(self, other):
         return self.level - other.level

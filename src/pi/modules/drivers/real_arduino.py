@@ -1,27 +1,13 @@
 from .driver import Driver
-"""
-Pseudo arduino class to use to run code on ur own laptop!
-FIXME: The real_arduino.py class should be used on the pi!
-"""
-class PseudoSensor():
-    def __init__(self):
-        self.values = []
-
-
-class PseudoValve():
-    def __init__(self):
-        self.states = []
-
+import smbus2 as smbus
+import struct
 
 class Arduino(Driver):
 
     def __init__(self, name: "str", address: hex):
         super().__init__(name)
-        self.name = name
-        if self.name == "Sensor Arduino":
-            self.arduino = PseudoSensor()
-        else:
-            self.arduino = PseudoValve()
+        self.address = address
+        self.bus = smbus.SMBus(1)
     
     """
     Return whether or not the i2c connection is alive

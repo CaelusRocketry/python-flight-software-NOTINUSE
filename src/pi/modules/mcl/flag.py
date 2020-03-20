@@ -1,10 +1,12 @@
 from modules.lib.mode import Mode
 from modules.lib.errors import Error
-from modules.lib.enums import ValveLocation, ActuationType
+from modules.lib.enums import ValveLocation, ActuationType, Stage
 
 class Flag:
 
     def __init__(self):
+        self.solenoids = [ValveLocation.PRESSURE_RELIEF,
+                        ValveLocation.PROPELLANT_VENT, ValveLocation.MAIN_PROPELLANT_VALVE]
         self.flags = {
             "abort": {
                 "hard_abort": [],
@@ -24,16 +26,8 @@ class Flag:
                 "flag_get_error": None,
             },
             "solenoid": {
-                "actuation_type": {
-                    ValveLocation.PRESSURE_RELIEF: ActuationType.NONE,
-                    ValveLocation.PROPELLANT_VENT: ActuationType.NONE,
-                    ValveLocation.MAIN_PROPELLANT_VALVE: ActuationType.NONE
-                },
-                "actuation_priority": {
-                    ValveLocation.PRESSURE_RELIEF: 0,
-                    ValveLocation.PROPELLANT_VENT: 0,
-                    ValveLocation.MAIN_PROPELLANT_VALVE: 0
-                }
+                "actuation_type": {loc: ActuationType.NONE for loc in self.solenoids},
+                "actuation_priority": {loc: 0 for loc in self.solenoids}
             },
         }
 
@@ -87,7 +81,7 @@ class Flag:
 
 
     def get(self, path: 'tuple') -> 'tuple':
-        flag, types = self.flag, self.types
+        flag, types = self.flags, self.types
         for p in path:
             if p not in flag:
                 return Error.KEY_ERROR, None

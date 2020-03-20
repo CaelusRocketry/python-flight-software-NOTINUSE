@@ -22,4 +22,4 @@ class ControlTask():
 
     def control(self):
         for ctrl in self.controls:
-            state_field_registry, flag = ctrl.execute()
+            ctrl.execute()

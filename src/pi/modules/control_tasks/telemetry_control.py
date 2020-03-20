@@ -3,6 +3,7 @@ from modules.mcl.registry import Registry
 from modules.lib.enums import SensorType, SensorLocation, ValveLocation, ActuationType, ValveType, Stage
 from modules.lib.errors import Error
 from modules.lib.packet import Packet, Log, LogPriority
+from heapq import heappop
 import json
 
 class TelemetryControl(): 
@@ -10,64 +11,67 @@ class TelemetryControl():
         self.registry = registry
         self.flags = flags
         self.funcs = {
-            "heartbeat": heartbeat,
-            "hard_abort": hard_abort,
-            "soft_abort": soft_abort,
-            "solenoid_actuate": solenoid_actuate,
-            "sensor_request": sensor_request,
-            "valve_request": valve_request,
-            "progress": progress
+            "heartbeat": self.heartbeat,
+            "hard_abort": self.hard_abort,
+            "soft_abort": self.soft_abort,
+            "solenoid_actuate": self.solenoid_actuate,
+            "sensor_request": self.sensor_request,
+            "valve_request": self.valve_request,
+            "progress": self.progress
         }
         self.arguments = {
             "heartbeat": (),
             "hard_abort": (),
             "soft_abort": (),
-            "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", priority)),
+            "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", int)),
             "sensor_request": (("sensor_type", SensorType), ("sensor_location", SensorLocation)),
             "valve_request": (("valve_type", ValveType), ("valve_location", ValveLocation)),
             "progress": (),
         }
 
     def execute(self) -> Error:
-        if registry.get(("telemetry", "status")) == False:
+        if self.registry.get(("telemetry", "status")) == False:
             self.flags.put(("telemetry", "reset"), True)
             return None
 
         self.flags.put(("telemetry", "reset"), False)
-        err, telem_queue, _ = registry.get(("telemetry", "ingest_queue"))
+        err, telem_queue, _ = self.registry.get(("telemetry", "ingest_queue"))
         assert(err == Error.NONE)
-        if telem_queue:
-            for packet in telem_queue:
-                #TODO: Figure out if the command from a log is outdated
-                for log in packet:
-                    err = self.ingest(log)
-                    assert(err == Error.NONE)
+        while telem_queue:
+            packet = heappop(telem_queue)
+            #TODO: Figure out if the command from a log is outdated
+            for log in packet.logs:
+                err = self.ingest(log)
+                assert(err == Error.NONE)
             # Clear the ingest queue (because we just ingested everything)
             self.registry.put(("telemetry", "ingest_queue"), [])
 
 
     def ingest(self, log: Log):
         header = log.header
-        if header in funcs:
-            func = funcs[header]
+        if header in self.funcs:
+            func = self.funcs[header]
             args = []
             assert(header in self.arguments)
             for arg_name, arg_type in self.arguments[header]:
                 if arg_name not in log.message:
+                    print("Invalid argument")
                     return Error.INVALID_ARGUMENT_ERROR
                 elif not isinstance(log.message[arg_name], arg_type):
+                    print("Invalid argument")
                     return Error.INVALID_ARGUMENT_ERROR
                 args.append(log.message[arg_name])
             func(*args)
             return Error.NONE
         else:
-            self.enqueue(Log(header="InvalidHeader", message={"received_header": log.header, "received_message": log.message}), LogPriority.WARN)
+            print("Invalid header")
             return Error.INVALID_HEADER_ERROR
 
 
     def enqueue(self, log: Log, level: LogPriority):
         added = False
-        send_queue = self.flags.get(("telemetry", "send_queue"))
+        err, send_queue = self.flags.get(("telemetry", "send_queue"))
+        assert(err == Error.NONE)
         for pack in send_queue:
             if pack.level == level:
                 pack.add(log)
@@ -80,7 +84,7 @@ class TelemetryControl():
 
 
     def heartbeat(self):
-        self.enqueue(Log(header="HEARTBEAT", message={"response": "OK"}))
+        self.enqueue(Log(header="heartbeat", message={"response": "OK"}), level=LogPriority.INFO)
 
 
     def hard_abort(self):

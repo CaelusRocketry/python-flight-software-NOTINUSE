@@ -2,7 +2,7 @@
 from modules.tasks.telemetry_task import TelemetryTask
 from modules.tasks.sensor_task import SensorTask
 from modules.tasks.valve_task import ValveTask
-from modules.tasks.control_task import ControlTask
+from modules.control_tasks.control_task import ControlTask
 from modules.mcl.flag import Flag
 from modules.mcl.registry import Registry
 
@@ -35,14 +35,14 @@ class Supervisor:
 
     def read(self):
         for task in self.tasks:
-            self.registry = task.read(self.registry, self.flag)
+            task.read()
 
     def control(self):
-        self.registry, self.flag = self.control_task.control(self.registry, self.flag)
+        self.control_task.control()
 
     def actuate(self):
         for task in self.tasks:
-            self.flag = task.actuate(self.registry, self.flag)
+            task.actuate()
     
     def run(self):
         self.initialize()

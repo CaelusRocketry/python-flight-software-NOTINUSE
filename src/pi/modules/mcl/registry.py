@@ -2,67 +2,32 @@ from modules.lib.mode import Mode
 from modules.lib.packet import Packet
 from modules.lib.enums import SensorStatus
 from modules.lib.errors import Error
-from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation
+from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType
 # from modules.lib.encoding import EnumEncoder
 import time
 import json
 
-class Registry:
 
+class Registry:
 
     # TODO: Add IMU data, Pressure data, Load cell data, and Valve data to SFR
     def __init__(self):
+        self.sensors = {
+            SensorType.THERMOCOUPLE: [SensorLocation.CHAMBER, SensorLocation.TANK],
+            SensorType.PRESSURE: [SensorLocation.CHAMBER, SensorLocation.TANK, SensorLocation.INJECTOR],
+            SensorType.LOAD: [SensorLocation.TANK]
+        }
+        self.valves = {
+            ValveType.SOLENOID: [ValveLocation.PRESSURE_RELIEF,
+                                 ValveLocation.PROPELLANT_VENT, ValveLocation.MAIN_PROPELLANT_VALVE]
+        }
         self.values = {
-            "sensor": {
-                SensorType.THERMOCOUPLE: {
-                    SensorLocation.CHAMBER: None,
-                    SensorLocation.TANK: None
-                },
-                SensorType.PRESSURE: {
-                    SensorLocation.CHAMBER: None,
-                    SensorLocation.INJECTOR: None
-                },
-                SensorType.LOAD: {
-                    SensorLocation.TANK: None,
-                    SensorLocation.INJECTOR: None
-                }
-            },
-            "sensor_status": {
-                SensorType.THERMOCOUPLE: {
-                    SensorLocation.CHAMBER: None,
-                    SensorLocation.TANK: None
-                },
-                SensorType.PRESSURE: {
-                    SensorLocation.CHAMBER: None,
-                    SensorLocation.INJECTOR: None
-                },
-                SensorType.LOAD: {
-                    SensorLocation.TANK: None,
-                    SensorLocation.INJECTOR: None
-                }
-            },
-            "valve": {
-                ValveType.SOLENOID: {
-                    ValveLocation.PRESSURE_RELIEF: SolenoidState.CLOSED,
-                    ValveLocation.PROPELLANT_VENT: SolenoidState.CLOSED,
-                    ValveLocation.MAIN_PROPELLANT_VALVE: SolenoidState.CLOSED
-                }
-            },
+            "sensor": {s_type: {loc: None for loc in self.sensors[s_type]} for s_type in self.sensors},
+            "sensor_status": {s_type: {loc: None for loc in self.sensors[s_type]} for s_type in self.sensors},
+            "valve": {v_type: {loc: SolenoidState.CLOSED for loc in self.valves[v_type]} for v_type in self.valves},
             "valve_actuation": {
-                "actuation_type": {
-                    ValveType.SOLENOID: {
-                        ValveLocation.PRESSURE_RELIEF: ActuationType.NONE,
-                        ValveLocation.PROPELLANT_VENT: ActuationType.NONE,
-                        ValveLocation.MAIN_PROPELLANT_VALVE: ActuationType.NONE
-                    }
-                },
-                "actuation_priority": {
-                    ValveType.SOLENOID: {
-                        ValveLocation.PRESSURE_RELIEF: 0,
-                        ValveLocation.PROPELLANT_VENT: 0,
-                        ValveLocation.MAIN_PROPELLANT_VALVE: 0
-                    }
-                }
+                "actuation_type": {v_type: {loc: ActuationType.NONE for loc in self.valves[v_type]} for v_type in self.valves},
+                "actuation_priority": {v_type: {loc: 0 for loc in self.valves[v_type]} for v_type in self.valves}
             },
             "telemetry": {
                 "ingest_queue": [],
@@ -73,56 +38,12 @@ class Registry:
             }
         }
         self.types = {
-            "sensor": {
-                SensorType.THERMOCOUPLE: {
-                    SensorLocation.CHAMBER: (float, SensorStatus),
-                    SensorLocation.TANK: (float, SensorStatus)
-                },
-                SensorType.PRESSURE: {
-                    SensorLocation.CHAMBER: (float, SensorStatus),
-                    SensorLocation.INJECTOR: (float, SensorStatus)
-                },
-                SensorType.LOAD: {
-                    SensorLocation.TANK: (float, SensorStatus),
-                    SensorLocation.INJECTOR: (float, SensorStatus)
-                }
-            },
-            "sensor_status": {
-                SensorType.THERMOCOUPLE: {
-                    SensorLocation.CHAMBER: SensorStatus,
-                    SensorLocation.TANK: SensorStatus
-                },
-                SensorType.PRESSURE: {
-                    SensorLocation.CHAMBER: SensorStatus,
-                    SensorLocation.TANK: SensorStatus,
-                    SensorLocation.INJECTOR: SensorStatus
-                },
-                SensorType.LOAD: {
-                    SensorLocation.TANK: SensorStatus,
-                }
-            },
-            "valve": {
-                ValveType.SOLENOID: {
-                    ValveLocation.PRESSURE_RELIEF: SolenoidState,
-                    ValveLocation.PROPELLANT_VENT: SolenoidState,
-                    ValveLocation.MAIN_PROPELLANT_VALVE: SolenoidState
-                },
-            },
+            "sensor": {s_type: {loc: float for loc in self.sensors[s_type]} for s_type in self.sensors},
+            "sensor_status": {s_type: {loc: SensorStatus for loc in self.sensors[s_type]} for s_type in self.sensors},
+            "valve": {v_type: {loc: SolenoidState for loc in self.valves[v_type]} for v_type in self.valves},
             "valve_actuation": {
-                "actuation_type": {
-                    ValveType.SOLENOID: {
-                        ValveLocation.PRESSURE_RELIEF: ActuationType,
-                        ValveLocation.PROPELLANT_VENT: ActuationType,
-                        ValveLocation.MAIN_PROPELLANT_VALVE: ActuationType
-                    }
-                },
-                "actuation_priority": {
-                    ValveType.SOLENOID: {
-                        ValveLocation.PRESSURE_RELIEF: int,
-                        ValveLocation.PROPELLANT_VENT: int,
-                        ValveLocation.MAIN_PROPELLANT_VALVE: int
-                    }
-                }
+                "actuation_type": {v_type: {loc: ActuationType for loc in self.valves[v_type]} for v_type in self.valves},
+                "actuation_priority": {v_type: {loc: int for loc in self.valves[v_type]} for v_type in self.valves}
             },
             "telemetry": {
                 "ingest_queue": list,
@@ -133,7 +54,24 @@ class Registry:
                 "mode": Mode
             }
         }
-        self.times = {i: {j: None for j in i} for i in self.values}
+
+        self.times = {
+            "sensor": {s_type: {loc: None for loc in self.sensors[s_type]} for s_type in self.sensors},
+            "sensor_status": {s_type: {loc: None for loc in self.sensors[s_type]} for s_type in self.sensors},
+            "valve": {v_type: {loc: None for loc in self.valves[v_type]} for v_type in self.valves},
+            "valve_actuation": {
+                "actuation_type": {v_type: {loc: None for loc in self.valves[v_type]} for v_type in self.valves},
+                "actuation_priority": {v_type: {loc: None for loc in self.valves[v_type]} for v_type in self.valves}
+            },
+            "telemetry": {
+                "ingest_queue": None,
+                "status": None,
+                "resetting": None
+            },
+            "general": {
+                "mode": None
+            }
+        }
 
     def put(self, path: 'tuple', value) -> Error:
         values, types, times = self.values, self.types, self.times
@@ -160,12 +98,11 @@ class Registry:
                 return Error.KEY_ERROR, None, None
             values = values[p]
             times = times[p]
-        #Don't allow the user to get part of the registry, they can only get endpoints
-        #TODO: Decide if this is somethign to keep or nah
+        # Don't allow the user to get part of the registry, they can only get endpoints
+        # TODO: Decide if this is somethign to keep or nah
         if isinstance(values, dict):
             return Error.KEY_ERROR, None
         return Error.NONE, values, times
 
     def to_string(self):
         return json.dumps(self.values, cls=EnumEncoder)
-    

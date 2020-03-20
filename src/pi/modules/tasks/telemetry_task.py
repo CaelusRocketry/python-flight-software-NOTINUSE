@@ -17,6 +17,7 @@ class TelemetryTask(Task):
         self.telemetry = Telemetry(config)
         self.telemetry.connect()
 
+
     # Read telemetry packets and update the respective fields in the state field registry
     def read(self):
         telemetry_status = self.telemetry.status()
@@ -33,18 +34,18 @@ class TelemetryTask(Task):
 
         err = self.registry.put(("telemetry", "ingest_queue"), ingest_queue)
         assert(err is Error.NONE)
-        return
-    
-    def actuate(self, state_field_registry, flag: Flag) -> Flag:
-        err, telemetry_reset = flag.get(("telemetry", "reset"))
+
+
+    def actuate(self) -> Flag:
+        err, telemetry_reset = self.flag.get(("telemetry", "reset"))
         assert(err is Error.NONE)
         if telemetry_reset:
             self.telemetry.reset()
+            return
 
-        err, send_queue = flag.get(("telemetry", "send_queue"))
+        err, send_queue = self.flag.get(("telemetry", "send_queue"))
         assert(err is Error.NONE)
         for pack in send_queue:
             self.telemetry.write(pack)
-        err = flag.put(("telemetry", "send_queue"), [])
+        err = self.flag.put(("telemetry", "send_queue"), [])
         assert(err is Error.NONE)
-        return flag
