@@ -1,6 +1,5 @@
 import time
 from modules.mcl.flag import Flag
-from modules.lib.errors import Error
 from modules.mcl.registry import Registry
 from modules.lib.packet import Log, LogPriority
 
@@ -23,15 +22,12 @@ class ValveControl():
         for valve_type in self.valves:
             message[valve_type] = {}
             for valve_loc in self.valves[valve_type]:
-                err, val, timestamp = self.registry.get(("valve", valve_type, valve_loc))
-                assert(err == Error.NONE)
+                _, val, _ = self.registry.get(("valve", valve_type, valve_loc))
                 message[valve_type][valve_loc] = val
         log = Log(header="valve_data", message=message)
-        err, enqueue = self.flag.get(("telemetry", "enqueue"))
-        assert(err == Error.NONE)
+        _, enqueue = self.flag.get(("telemetry", "enqueue"))
         enqueue.append((log, LogPriority.INFO))
-        err = self.flag.put(("telemetry", "enqueue"), enqueue)
-        assert(err == Error.NONE)
+        self.flag.put(("telemetry", "enqueue"), enqueue)
 
 
     def execute(self):
