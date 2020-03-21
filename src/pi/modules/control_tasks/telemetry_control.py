@@ -92,15 +92,11 @@ class TelemetryControl():
 
 
     def hard_abort(self):
-        self.registry.put(("abort", "hard_abort"), True)
-        #TODO: For each valve, figure out what it's hard abort valve state is and add the flag for that at maximum priority
-#        self.flag.put(("abort", "hard_abort"), valves)
+        self.flag.put(("general", "hard_abort"), True)
 
 
     def soft_abort(self):
-        self.registry.put(("abort", "soft_abort"), True)
-        #TODO: For each valve, figure out what it's soft abort valve state is and add the flag for that at next to maximum priority
-#        self.flag.put(("abort", "soft_abort"), valves)
+        self.flag.put(("general", "soft_abort"), True)
 
 
     def solenoid_actuate(self, valve_location: ValveLocation, actuation_type: ActuationType, priority: int) -> Error:

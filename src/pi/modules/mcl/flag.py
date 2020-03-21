@@ -1,6 +1,6 @@
 from modules.lib.mode import Mode
 from modules.lib.errors import Error
-from modules.lib.enums import ValveType, ValveLocation, ActuationType, Stage
+from modules.lib.enums import ValveType, ValveLocation, ActuationType, ValvePriority
 
 class Flag:
 
@@ -9,52 +9,36 @@ class Flag:
         self.valves = config["valves"]["list"]
         self.solenoids = self.valves[ValveType.SOLENOID]
         self.flags = {
-            "abort": {
-                "hard_abort": [],
-                "soft_abort": []
-            },
-            "progress": {
-                "stage": None
+            "general": {
+                "hard_abort": False,
+                "soft_abort": False,
+                "progress_stage": False
             },
             "telemetry": {
                 "enqueue": [],
                 "send_queue": [],
                 "reset": True
             },
-            "error": {
-                "state_put_error": None,
-                "state_get_error": None,
-                "flag_put_error": None,
-                "flag_get_error": None,
-            },
             "solenoid": {
                 "actuation_type": {loc: ActuationType.NONE for loc in self.solenoids},
-                "actuation_priority": {loc: 0 for loc in self.solenoids}
+                "actuation_priority": {loc: ValvePriority.NONE for loc in self.solenoids}
             },
         }
 
         self.types = {
-            "abort": {
-                "hard_abort": list,
-                "soft_abort": list
-            },
-            "progress": {
-                "stage": Stage
+            "general": {
+                "hard_abort": bool,
+                "soft_abort": bool,
+                "progress_stage": bool
             },
             "telemetry": {
                 "send_queue": list,
                 "enqueue": list,
                 "reset": bool
             },
-            "error": {
-                "state_put_error": bool,
-                "state_get_error": bool,
-                "flag_put_error": bool,
-                "flag_get_error": bool,
-            },
             "solenoid": {
                 "actuation_type": {loc: ActuationType for loc in self.solenoids},
-                "actuation_priority": {loc: int for loc in self.solenoids}
+                "actuation_priority": {loc: ValvePriority for loc in self.solenoids}
             },
         }
 

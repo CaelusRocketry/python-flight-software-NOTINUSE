@@ -1,8 +1,7 @@
-from modules.lib.mode import Mode
 from modules.lib.packet import Packet
 from modules.lib.enums import SensorStatus
 from modules.lib.errors import Error
-from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType
+from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType, Stage, ValvePriority
 import time
 import json
 
@@ -19,14 +18,16 @@ class Registry:
             "valve": {v_type: {loc: SolenoidState.CLOSED for loc in self.valves[v_type]} for v_type in self.valves},
             "valve_actuation": {
                 "actuation_type": {v_type: {loc: ActuationType.NONE for loc in self.valves[v_type]} for v_type in self.valves},
-                "actuation_priority": {v_type: {loc: 0 for loc in self.valves[v_type]} for v_type in self.valves}
+                "actuation_priority": {v_type: {loc: ValvePriority.NONE for loc in self.valves[v_type]} for v_type in self.valves}
             },
             "telemetry": {
                 "ingest_queue": [],
                 "status": None
             },
             "general": {
-                "mode": None
+                "hard_abort": False,
+                "soft_abort": False,
+                "stage": None
             }
         }
 
@@ -36,7 +37,7 @@ class Registry:
             "valve": {v_type: {loc: SolenoidState for loc in self.valves[v_type]} for v_type in self.valves},
             "valve_actuation": {
                 "actuation_type": {v_type: {loc: ActuationType for loc in self.valves[v_type]} for v_type in self.valves},
-                "actuation_priority": {v_type: {loc: int for loc in self.valves[v_type]} for v_type in self.valves}
+                "actuation_priority": {v_type: {loc: ValvePriority for loc in self.valves[v_type]} for v_type in self.valves}
             },
             "telemetry": {
                 "ingest_queue": list,
@@ -44,7 +45,9 @@ class Registry:
                 "resetting": bool
             },
             "general": {
-                "mode": Mode
+                "hard_abort": bool,
+                "soft_abort": bool,
+                "stage": Stage
             }
         }
 
@@ -62,7 +65,9 @@ class Registry:
                 "resetting": None
             },
             "general": {
-                "mode": None
+                "hard_abort": None,
+                "soft_abort": None,
+                "stage": None
             }
         }
 
