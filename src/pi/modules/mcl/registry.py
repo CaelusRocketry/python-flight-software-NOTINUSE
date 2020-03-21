@@ -1,8 +1,7 @@
-from modules.lib.mode import Mode
 from modules.lib.packet import Packet
 from modules.lib.enums import SensorStatus
 from modules.lib.errors import Error
-from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType
+from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType, Stage, ValvePriority
 import time
 import json
 
@@ -19,14 +18,16 @@ class Registry:
             "valve": {v_type: {loc: SolenoidState.CLOSED for loc in self.valves[v_type]} for v_type in self.valves},
             "valve_actuation": {
                 "actuation_type": {v_type: {loc: ActuationType.NONE for loc in self.valves[v_type]} for v_type in self.valves},
-                "actuation_priority": {v_type: {loc: 0 for loc in self.valves[v_type]} for v_type in self.valves}
+                "actuation_priority": {v_type: {loc: ValvePriority.NONE for loc in self.valves[v_type]} for v_type in self.valves}
             },
             "telemetry": {
                 "ingest_queue": [],
                 "status": None
             },
             "general": {
-                "mode": None
+                "hard_abort": False,
+                "soft_abort": False,
+                "stage": None
             }
         }
 
@@ -36,7 +37,7 @@ class Registry:
             "valve": {v_type: {loc: SolenoidState for loc in self.valves[v_type]} for v_type in self.valves},
             "valve_actuation": {
                 "actuation_type": {v_type: {loc: ActuationType for loc in self.valves[v_type]} for v_type in self.valves},
-                "actuation_priority": {v_type: {loc: int for loc in self.valves[v_type]} for v_type in self.valves}
+                "actuation_priority": {v_type: {loc: ValvePriority for loc in self.valves[v_type]} for v_type in self.valves}
             },
             "telemetry": {
                 "ingest_queue": list,
@@ -44,7 +45,9 @@ class Registry:
                 "resetting": bool
             },
             "general": {
-                "mode": Mode
+                "hard_abort": bool,
+                "soft_abort": bool,
+                "stage": Stage
             }
         }
 
@@ -62,44 +65,52 @@ class Registry:
                 "resetting": None
             },
             "general": {
-                "mode": None
+                "hard_abort": None,
+                "soft_abort": None,
+                "stage": None
             }
         }
 
-    def put(self, path: tuple, value) -> Error:
+    def put(self, path: tuple, value, allow_error: bool = False) -> Error:
         values, types, times = self.values, self.types, self.times
         key = path[-1]
         path = path[:-1]
         for p in path:
             if p not in values:
-                raise Exception
+                if not allow_error:
+                    raise Exception
                 return Error.KEY_ERROR
             values = values[p]
             types = types[p]
             times = times[p]
         if key not in values:
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR
         if not isinstance(value, types[key]):
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR
         values[key] = value
         times[key] = time.time()
         return Error.NONE
 
-    def get(self, path: tuple) -> tuple:
+    def get(self, path: tuple, allow_error: bool = False) -> tuple:
         values, times = self.values, self.times
         for p in path:
             if p not in values:
-                raise Exception
+                if not allow_error:
+                    raise Exception
+                    print(1/0)
                 return Error.KEY_ERROR, None, None
             values = values[p]
             times = times[p]
+        
         # Don't allow the user to get part of the registry, they can only get endpoints
         # TODO: Decide if this is somethign to keep or nah
-        # TODO: Error handling, check Jason's messenger for details
         if isinstance(values, dict):
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR, None
         return Error.NONE, values, times
 

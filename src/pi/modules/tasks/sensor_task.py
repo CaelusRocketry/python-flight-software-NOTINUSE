@@ -2,7 +2,6 @@ from modules.tasks.task import Task
 from modules.drivers.arduino import Arduino
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
-from modules.lib.errors import Error
 from modules.lib.enums import SensorType, SensorLocation
 import struct
 
@@ -28,7 +27,7 @@ class SensorTask(Task):
         return struct.unpack('f', byte_array)[0]
 
 
-    def read(self) -> Error:
+    def read(self):
         data = self.arduino.read(self.num_sensors * 4)
         assert(len(data) == self.num_sensors * 4)
 

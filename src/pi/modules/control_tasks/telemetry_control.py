@@ -38,13 +38,13 @@ class TelemetryControl():
 
     def execute(self) -> Error:
         #TODO: Check if resetting telemetry works
-        if self.registry.get(("telemetry", "status")) == False:
+        _, status, timestamp = self.registry.get(("telemetry", "status"))
+        if not status:
             self.flag.put(("telemetry", "reset"), True)
             return None
 
         self.flag.put(("telemetry", "reset"), False)
-        err, telem_queue, _ = self.registry.get(("telemetry", "ingest_queue"))
-        assert(err == Error.NONE)
+        _, telem_queue, _ = self.registry.get(("telemetry", "ingest_queue"))
         while telem_queue:
             packet = heappop(telem_queue)
             #TODO: Figure out if the command from a log is outdated
@@ -56,6 +56,7 @@ class TelemetryControl():
 
 
     def ingest(self, log: Log):
+        #TODO: Send message back to GS saying that an invalid message was sent
         header = log.header
         if header in self.funcs:
             func = self.funcs[header]
@@ -81,11 +82,9 @@ class TelemetryControl():
 
 
     def enqueue(self, log: Log, level: LogPriority):
-        err, queue = self.flag.get(("telemetry", "enqueue"))
-        assert(err is Error.NONE)
+        _, queue = self.flag.get(("telemetry", "enqueue"))
         queue.append((log, level))
-        err = self.flag.put(("telemetry", "enqueue"), queue)
-        assert(err is Error.NONE)
+        self.flag.put(("telemetry", "enqueue"), queue)
 
 
     def heartbeat(self):
@@ -93,62 +92,48 @@ class TelemetryControl():
 
 
     def hard_abort(self):
-        self.registry.put(("abort", "hard_abort"), True)
-        #TODO: For each valve, figure out what it's hard abort valve state is and add the flag for that at maximum priority
-#        self.flag.put(("abort", "hard_abort"), valves)
+        self.flag.put(("general", "hard_abort"), True)
 
 
     def soft_abort(self):
-        self.registry.put(("abort", "soft_abort"), True)
-        #TODO: For each valve, figure out what it's soft abort valve state is and add the flag for that at next to maximum priority
-#        self.flag.put(("abort", "soft_abort"), valves)
+        self.flag.put(("general", "soft_abort"), True)
 
 
     def solenoid_actuate(self, valve_location: ValveLocation, actuation_type: ActuationType, priority: int) -> Error:
-        err, currnet_priority, timestamp = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_location))
+        err, current_priority, timestamp = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_location), allow_error=True)
         if err != Error.NONE:
             #TODO: Send message back to gs saying it was an invalid message
             return Error.REQUEST_ERROR
 
-        if priority <= currnet_priority:
-            #TODO: Send message back to gs saying it was an invalid message
+        if priority <= current_priority:
+            #TODO: Send message back to gs saying that the request was made w/ too little priority
             return Error.PRIORITY_ERROR
 
-        print("LOCATION:", valve_location)
-        print("ACTUATION:", actuation_type)
+        print("Actuating solenoid at {} with actuation type {}".format(valve_location, actuation_type))
 
-        err = self.flag.put(("solenoid", "actuation_type", valve_location), actuation_type)
-        assert(err is Error.NONE)
-        err = self.flag.put(("solenoid", "actuation_priority", valve_location), priority)
-        assert(err is Error.NONE)
+        self.flag.put(("solenoid", "actuation_type", valve_location), actuation_type)
+        self.flag.put(("solenoid", "actuation_priority", valve_location), priority)
 
 
     def sensor_request(self, sensor_type: SensorType, sensor_location: SensorLocation) -> Error:
-        err, value, timestamp = self.registry.get(("sensor", sensor_type, sensor_location))
+        #TODO: Send message back to gs saying it was an invalid message
+        err, value, timestamp = self.registry.get(("sensor", sensor_type, sensor_location), allow_error=True)
         if err != Error.NONE:
-            #TODO: Send message back to gs saying it was an invalid message
             return Error.REQUEST_ERROR
-        err, status, _ = self.registry.get(("sensor_status", sensor_type, sensor_location))
-        if err != Error.NONE:
-            #TODO: Send message back to gs saying it was an invalid message
-            return Error.REQUEST_ERROR
-
+        _, status, _ = self.registry.get(("sensor_status", sensor_type, sensor_location))
         log = Log(header="sensor_data", message={"type": sensor_type, "location": sensor_location, "value": value, "status": status, "timestamp": timestamp})
         self.enqueue(log, LogPriority.INFO)
 
 
     def valve_request(self, valve_type: ValveType, valve_location: ValveLocation) -> Error: 
-        err, value, _ = self.registry.get(("valve", valve_type, valve_location))
-        if err != Error.NONE:
-            return Error.REQUEST_ERROR
-        err, value, _ = self.registry.get(("valve_actuation", "actuation_type", valve_type, valve_location))
-        if err != Error.NONE:
-            return Error.REQUEST_ERROR
-        err, value, timestamp = self.registry.get(("valve", "actuation_priority", valve_type, valve_location))
+        #TODO: Send message back to gs saying it was an invalid message
+        err, value, _ = self.registry.get(("valve", valve_type, valve_location), allow_error=True)
         if err != Error.NONE:
             return Error.REQUEST_ERROR
 
-        log = Log(header="valve_data", message={"type": valve_type, "location": valve_location, "state": value, "actuation_type": valve_actuation, "actuation_priority": valve_actuation_priority, "actuation_timestamp": timestamp})
+        _, actuation_type, timestamp = self.registry.get(("valve_actuation", "actuation_type", valve_type, valve_location))
+        _, actuation_priority, _ = self.registry.get(("valve", "actuation_priority", valve_type, valve_location))
+        log = Log(header="valve_data", message={"type": valve_type, "location": valve_location, "state": value, "actuation_type": actuation_type, "actuation_priority": actuation_priority, "actuation_timestamp": timestamp})
         self.enqueue(log, LogPriority.INFO)
 
 
