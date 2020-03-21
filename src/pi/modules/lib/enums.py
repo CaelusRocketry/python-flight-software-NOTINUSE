@@ -42,6 +42,13 @@ class ActuationType(str, Enum):
     NONE = None
 
 
+class ValvePriority(IntEnum):
+    NONE = 0
+    PI_PRIORITY = 2
+    MAX_TELEMETRY_PRIORITY = 3
+    ABORT_PRIORITY = 4
+
+
 class Stage(IntEnum):
     PROPELLANT_LOADING = 1
     LEAK_TESTING_1 = 2

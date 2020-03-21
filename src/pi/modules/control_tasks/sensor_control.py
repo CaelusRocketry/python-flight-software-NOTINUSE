@@ -2,7 +2,6 @@ import time
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.lib.packet import Log, LogPriority
-from modules.lib.errors import Error
 from modules.lib.enums import SensorType, SensorLocation
 
 class SensorControl():
@@ -24,17 +23,14 @@ class SensorControl():
         message = {}
         for sensor_type in self.sensors:
             for sensor_location in self.sensors[sensor_type]:
-                err, val, timestamp = self.registry.get(("sensor", sensor_type, sensor_location))
-                assert(err == Error.NONE)
+                _, val, timestamp = self.registry.get(("sensor", sensor_type, sensor_location))
                 if sensor_type not in message:
                     message[sensor_type] = {}
                 message[sensor_type][sensor_location] = val
         log = Log(header="sensor_data", message=message)
-        err, enqueue = self.flag.get(("telemetry", "enqueue"))
-        assert(err == Error.NONE)
+        _, enqueue = self.flag.get(("telemetry", "enqueue"))
         enqueue.append((log, LogPriority.INFO))
-        err = self.flag.put(("telemetry", "enqueue"), enqueue)
-        assert(err == Error.NONE)
+        self.flag.put(("telemetry", "enqueue"), enqueue)
 
 
     def execute(self):

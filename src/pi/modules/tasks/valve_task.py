@@ -2,8 +2,7 @@ from modules.tasks.task import Task
 from modules.drivers.arduino import Arduino
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
-from modules.lib.enums import ValveType, SolenoidState, ActuationType
-from modules.lib.errors import Error
+from modules.lib.enums import ValveType, SolenoidState, ActuationType, ValvePriority
 import struct
 from enum import Enum, auto
 
@@ -59,24 +58,18 @@ class ValveTask(Task):
 
         for idx in range(self.num_solenoids):
             valve_loc = self.solenoids[idx]
-            err = self.registry.put(("valve", ValveType.SOLENOID, valve_loc), solenoid_states[idx])
-            assert(err is Error.NONE)
-            err = self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc), actuation_types[idx])
-            assert(err is Error.NONE)
+            self.registry.put(("valve", ValveType.SOLENOID, valve_loc), solenoid_states[idx])
+            self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc), actuation_types[idx])
             if actuation_types[idx] == ActuationType.NONE:
-                err = self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_loc), 0)
-                assert(err is Error.NONE)
+                self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_loc), 0)
 
 
-    #TODO: Fix the structure of this method, it's completely different from other classes and won't work properly
-    def actuate(self):
+    def actuate_solenoids(self):
         for loc in self.solenoids:
-            err, actuation_type = self.flag.get(("solenoid", "actuation_type", loc))
-            assert(err is Error.NONE)
+            _, actuation_type = self.flag.get(("solenoid", "actuation_type", loc))
             if actuation_type != ActuationType.NONE:
-                err, actuation_priority = self.flag.get(("solenoid", "actuation_priority", loc))
-                assert(err is Error.NONE)
-                err, curr_priority, _ = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc))
+                _, actuation_priority = self.flag.get(("solenoid", "actuation_priority", loc))
+                _, curr_priority, _ = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc))
                 #TODO: Decide, >= or > ?
                 print(actuation_priority, curr_priority)
                 if actuation_priority >= curr_priority:
@@ -86,4 +79,32 @@ class ValveTask(Task):
                     self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                     self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), actuation_priority)
                     self.flag.put(("solenoid", "actuation_type", loc), ActuationType.NONE)
-                    self.flag.put(("solenoid", "actuation_priority", loc), 0)
+                    self.flag.put(("solenoid", "actuation_priority", loc), ValvePriority.NONE)
+
+
+    def abort(self):
+        for loc in self.solenoids:
+            self.flag.put(("solenoid", "actuation_type", loc), ActuationType.OPEN_VENT)
+            self.flag.put(("solenoid", "actuation_priority", loc), ValvePriority.ABORT_PRIORITY)
+
+
+    def check_abort(self):
+        if self.flag.get(("general", "hard_abort"))[1]:
+            self.registry.put(("general", "hard_abort"), True)
+            self.abort()
+        elif self.flag.get(("general", "soft_abort"))[1]:
+            self.registry.put(("general", "soft_abort"), True)
+            self.abort()
+
+        self.flag.put(("general", "hard_abort"), False)
+        self.flag.put(("general", "soft_abort"), False)
+
+
+    #TODO: Fix the structure of this method, it's completely different from other classes and won't work properly
+    def actuate(self):
+        self.check_abort()
+        if self.registry.get(("general", "soft_abort"))[1] or self.registry.get(("general", "hard_abort"))[1]:
+            # Can't actuate if the rocket's been aborted
+            return
+
+        self.actuate_solenoids()

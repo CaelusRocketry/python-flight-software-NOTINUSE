@@ -2,7 +2,6 @@ from modules.tasks.task import Task
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.drivers.telemetry_driver import Telemetry
-from modules.lib.errors import Error
 from abc import ABC, abstractmethod
 from modules.lib.packet import Log, Packet, LogPriority
 
@@ -25,25 +24,21 @@ class TelemetryTask(Task):
     # Read telemetry packets and update the respective fields in the state field registry
     def read(self):
         telemetry_status = self.telemetry.status()
-        err = self.registry.put(("telemetry", "status"), telemetry_status)
-        assert(err is Error.NONE)
+        self.registry.put(("telemetry", "status"), telemetry_status)
         if not telemetry_status:
             return
 
         telemetry_packets = self.telemetry.read(-1)
-        err, ingest_queue, _ = self.registry.get(("telemetry", "ingest_queue"))
-        assert(err is Error.NONE)
+        _, ingest_queue, _ = self.registry.get(("telemetry", "ingest_queue"))
         for pack in telemetry_packets:
             ingest_queue.append(pack)
 
-        err = self.registry.put(("telemetry", "ingest_queue"), ingest_queue)
-        assert(err is Error.NONE)
-
+        self.registry.put(("telemetry", "ingest_queue"), ingest_queue)
+        
 
     def enqueue(self, log: Log, level: LogPriority):
         added = False
-        err, send_queue = self.flag.get(("telemetry", "send_queue"))
-        assert(err == Error.NONE)
+        _, send_queue = self.flag.get(("telemetry", "send_queue"))
         for pack in send_queue:
             if pack.level == level:
                 pack.add(log)
@@ -56,23 +51,17 @@ class TelemetryTask(Task):
 
 
     def actuate(self) -> Flag:
-        err, telemetry_reset = self.flag.get(("telemetry", "reset"))
-        assert(err is Error.NONE)
+        _, telemetry_reset = self.flag.get(("telemetry", "reset"))
         if telemetry_reset:
             self.telemetry.reset()
             return
         
-        err, enqueue_queue = self.flag.get(("telemetry", "enqueue"))
-        assert(err is Error.NONE)
+        _, enqueue_queue = self.flag.get(("telemetry", "enqueue"))
         for log, level in enqueue_queue:
             self.enqueue(log, level)
-        err = self.flag.put(("telemetry", "enqueue"), [])
-        assert(err is Error.NONE)
-
-        err, send_queue = self.flag.get(("telemetry", "send_queue"))
-        assert(err is Error.NONE)
+        self.flag.put(("telemetry", "enqueue"), [])
+        
+        _, send_queue = self.flag.get(("telemetry", "send_queue"))
         for pack in send_queue:
             self.telemetry.write(pack)
-        err = self.flag.put(("telemetry", "send_queue"), [])
-        assert(err is Error.NONE)
-
+        self.flag.put(("telemetry", "send_queue"), [])
