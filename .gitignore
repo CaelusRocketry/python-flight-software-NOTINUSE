@@ -143,7 +143,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -291,3 +290,7 @@ $RECYCLE.BIN/
 
 private.pem
 .vscode
+__pycache__/*
+
+# Locally created log files
+src/pi/black_box.txt

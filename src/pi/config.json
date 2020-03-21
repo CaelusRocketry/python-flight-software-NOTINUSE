@@ -1,0 +1,23 @@
+{
+    "telemetry": {
+        "GS_IP": "127.0.0.1",
+        "GS_PORT": 5005,
+        "DELAY": 0.05
+    },
+    "sensors": {
+        "list": {
+            "thermocouple": ["chamber", "tank"],
+            "pressure": ["chamber", "tank", "injector"],
+            "load": ["tank"]
+        },
+        "address": 8,
+        "send_interval": 0.5
+    },
+    "valves": {
+        "list": {
+            "solenoid": ["pressure_relief", "propellant_vent", "main_propellant_valve"]
+        },
+        "address": 4,
+        "send_interval": 0.5
+    }
+}
