@@ -66,40 +66,46 @@ class Registry:
             }
         }
 
-    def put(self, path: tuple, value) -> Error:
+    def put(self, path: tuple, value, allow_error: bool = False) -> Error:
         values, types, times = self.values, self.types, self.times
         key = path[-1]
         path = path[:-1]
         for p in path:
             if p not in values:
-                raise Exception
+                if not allow_error:
+                    raise Exception
                 return Error.KEY_ERROR
             values = values[p]
             types = types[p]
             times = times[p]
         if key not in values:
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR
         if not isinstance(value, types[key]):
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR
         values[key] = value
         times[key] = time.time()
         return Error.NONE
 
-    def get(self, path: tuple) -> tuple:
+    def get(self, path: tuple, allow_error: bool = False) -> tuple:
         values, times = self.values, self.times
         for p in path:
             if p not in values:
-                raise Exception
+                if not allow_error:
+                    raise Exception
+                    print(1/0)
                 return Error.KEY_ERROR, None, None
             values = values[p]
             times = times[p]
+        
         # Don't allow the user to get part of the registry, they can only get endpoints
         # TODO: Decide if this is somethign to keep or nah
-        # TODO: Error handling, check Jason's messenger for details
         if isinstance(values, dict):
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR, None
         return Error.NONE, values, times
 

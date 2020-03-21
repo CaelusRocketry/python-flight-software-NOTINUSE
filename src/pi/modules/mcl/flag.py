@@ -59,34 +59,39 @@ class Flag:
         }
 
 
-    def put(self, path: 'tuple', value) -> Error:
+    def put(self, path: 'tuple', value, allow_error: bool = False) -> Error:
         flags, types = self.flags, self.types
         key = path[-1]
         path = path[:-1]
         for p in path:
             if p not in flags:
-                raise Exception
+                if not allow_error:
+                    raise Exception
                 return Error.KEY_ERROR
             flags = flags[p]
             types = types[p]
         if key not in flags:
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR
         if not isinstance(value, types[key]):
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR
         flags[key] = value
         return Error.NONE
 
 
-    def get(self, path: 'tuple') -> 'tuple':
+    def get(self, path: 'tuple', allow_error: bool = False) -> 'tuple':
         flag, types = self.flags, self.types
         for p in path:
             if p not in flag:
-                raise Exception
+                if not allow_error:
+                    raise Exception
                 return Error.KEY_ERROR, None
             flag = flag[p]
         if isinstance(flag, dict):
-            raise Exception
+            if not allow_error:
+                raise Exception
             return Error.KEY_ERROR, None
         return Error.NONE, flag
