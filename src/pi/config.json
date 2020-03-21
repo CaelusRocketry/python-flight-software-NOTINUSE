@@ -19,5 +19,37 @@
         },
         "address": 4,
         "send_interval": 0.5
+    },
+    "boundaries": {
+        "thermocouple": {
+            "chamber": {
+                "safe": [200, 250],
+                "warn": [100, 500]
+            },
+            "tank": {
+                "safe": [200, 250],
+                "warn": [100, 500]
+            }
+       },
+       "pressure": {
+            "chamber": {
+                "safe": [100, 150],
+                "warn": [50, 200]
+            },
+            "tank": {
+                "safe": [100, 150],
+                "warn": [50, 200]
+            },
+            "injector": {
+                "safe": [100, 150],
+                "warn": [50, 200]
+            }
+       },
+       "load": {
+         "tank": {
+            "safe": [100, 250],
+            "warn": [50, 300]
+         }
+       }
     }
 }
