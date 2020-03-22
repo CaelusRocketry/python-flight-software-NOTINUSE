@@ -38,25 +38,20 @@ class SensorControl():
             self.send_sensor_data()
             self.last_send_time = time.time()
 
-
         #TODO: Make these values correspond with the sensors, right now they're just random
         #TODO: Add in all sensors properly
 
-        """
-
-        if self.registry.get(("sensor", "thermocouple_chamber")) > 250:
+        if self.registry.get(("sensor_kalman", "thermocouple", "chamber")) > 250:
             pass
 
-        if self.registry.get(("sensor", "thermocouple_tank")) > 250:
+        if self.registry.get(("sensor_kalman", "thermocouple", "tank")) > 250:
             pass
 
-        if self.registry.get(("sensor", "pressure_chamber")) > 250:
+        if self.registry.get(("sensor_kalman", "pressure", "chamber")) > 250:
             pass
 
-        if self.registry.get(("sensor", "pressure_tank")) > 250:
+        if self.registry.get(("sensor_kalman", "pressure", "tank")) > 250:
             pass
 
-        if self.registry.get(("sensor", "pressure_injector")) > 250:
+        if self.registry.get(("sensor_kalman", "pressure", "injector")) > 250:
             pass
-
-        """

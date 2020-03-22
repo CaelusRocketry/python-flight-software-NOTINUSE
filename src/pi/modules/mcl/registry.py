@@ -1,6 +1,7 @@
 from modules.lib.packet import Packet
 from modules.lib.enums import SensorStatus
 from modules.lib.errors import Error
+from modules.lib.kalman import Kalman
 from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType, Stage, ValvePriority
 import time
 import json
@@ -14,6 +15,8 @@ class Registry:
         self.valves = config["valves"]["list"]
         self.values = {
             "sensor": {s_type: {loc: None for loc in self.sensors[s_type]} for s_type in self.sensors},
+            # TODO: Create a Kalman object with different parameters depending on sensor type / location
+            "sensor_kalman": {s_type: {loc: Kalman(.01**2, .01**2, 1000) for loc in self.sensors[s_type]} for s_type in self.sensors},
             "sensor_status": {s_type: {loc: None for loc in self.sensors[s_type]} for s_type in self.sensors},
             "valve": {v_type: {loc: SolenoidState.CLOSED for loc in self.valves[v_type]} for v_type in self.valves},
             "valve_actuation": {
@@ -91,7 +94,10 @@ class Registry:
             if not allow_error:
                 raise Exception
             return Error.KEY_ERROR
-        values[key] = value
+        if isinstance(values[key], Kalman):
+            values[key].update_kalman(value)
+        else:
+            values[key] = value
         times[key] = time.time()
         return Error.NONE
 
@@ -107,11 +113,13 @@ class Registry:
             times = times[p]
         
         # Don't allow the user to get part of the registry, they can only get endpoints
-        # TODO: Decide if this is somethign to keep or nah
+        # TODO: Decide if this is something to keep or nah
         if isinstance(values, dict):
             if not allow_error:
                 raise Exception
             return Error.KEY_ERROR, None
+        if isinstance(values, Kalman):
+            values = values.kalman_value
         return Error.NONE, values, times
 
     def to_string(self):
