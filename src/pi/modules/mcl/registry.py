@@ -2,7 +2,7 @@ from modules.lib.packet import Packet
 from modules.lib.enums import SensorStatus
 from modules.lib.errors import Error
 from modules.lib.kalman import Kalman
-from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType, Stage, ValvePriority
+from modules.lib.enums import SolenoidState, ValveType, ValveLocation, SensorType, SensorLocation, ActuationType, Stage, ValvePriority, SensorStatus
 import time
 import json
 
