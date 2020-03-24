@@ -61,7 +61,7 @@ class ValveTask(Task):
             self.registry.put(("valve", ValveType.SOLENOID, valve_loc), solenoid_states[idx])
             self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc), actuation_types[idx])
             if actuation_types[idx] == ActuationType.NONE:
-                self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_loc), 0)
+                self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_loc), ValvePriority.NONE)
 
 
     def actuate_solenoids(self):

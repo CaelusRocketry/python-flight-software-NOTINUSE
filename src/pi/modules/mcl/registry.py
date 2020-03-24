@@ -71,6 +71,7 @@ class Registry:
             }
         }
 
+
     def put(self, path: tuple, value, allow_error: bool = False) -> Error:
         values, types, times = self.values, self.types, self.times
         key = path[-1]
