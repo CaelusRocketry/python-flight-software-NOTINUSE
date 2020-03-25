@@ -13,6 +13,58 @@
         "address": 8,
         "send_interval": 0.5
     },
+    "kalman_setup": {
+        "thermocouple": {
+            "chamber": {},
+            "tank": {}
+       },
+       "pressure": {
+            "chamber": {},
+            "tank": {},
+            "injector": {}
+       },
+       "load": {
+            "tank": {}
+       }
+    },
+    "kalman_args": {
+        "thermocouple": {
+            "chamber": {
+                "process_variance": 0.01,
+                "measurement_variance": 0.0075,
+                "kalman_value": 3000
+            },
+            "tank": {
+                "process_variance": 0.01,
+                "measurement_variance": 0.0075,
+                "kalman_value": 200
+            }
+       },
+       "pressure": {
+            "chamber": {
+                "process_variance": 0.01,
+                "measurement_variance": 0.02,
+                "kalman_value": 1000
+            },
+            "tank": {
+                "process_variance": 0.01,
+                "measurement_variance": 0.02,
+                "kalman_value": 1000
+            },
+            "injector": {
+                "process_variance": 0.01,
+                "measurement_variance": 0.02,
+                "kalman_value": 1000
+            }
+       },
+       "load": {
+            "tank": {
+                "process_variance": 0.01,
+                "measurement_variance": 0.02,
+                "kalman_value": 50
+         }
+       }
+    },
     "valves": {
         "list": {
             "solenoid": ["pressure_relief", "propellant_vent", "main_propellant_valve"]

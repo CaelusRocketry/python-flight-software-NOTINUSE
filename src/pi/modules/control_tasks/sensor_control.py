@@ -3,6 +3,7 @@ from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.lib.packet import Log, LogPriority
 from modules.lib.enums import SensorType, SensorLocation, SensorStatus
+from modules.lib.kalman import Kalman
 
 class SensorControl():
     def __init__(self, registry: Registry, flag: Flag):
@@ -18,16 +19,25 @@ class SensorControl():
         self.valves = config["valves"]["list"]
         self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
+        self.kalman_args = config["kalman_args"]
+        self.kalman_filters = config["kalman_setup"]
+        for sensor_type in self.kalman_filters:
+            for sensor_location in self.kalman_filters[sensor_type]:
+                args = self.kalman_args[sensor_type][sensor_location]
+                self.kalman_filters[sensor_type][sensor_location] = Kalman(args["process_variance"],
+                                                                           args["measurement_variance"],
+                                                                           args["kalman_value"])
 
 
-    # Test to make sure that the sensor values are not outside the boundaries set in the config. If they are, update the registry with the appropriate SensorStatus.
+    # Test to make sure sensor values aren't outside the boundaries set in the config. If they are, update the registry with the appropriate SensorStatus.
     def control(self):
        for sensor_type in self.sensors:
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor", sensor_type, sensor_location))
-                if boundaries[sensor_type][sensor_location]["safe"][0] <= val <= boundaries[sensor_type][sensor_location]["safe"][1]:
+                kalman_val = self.kalman_filters[sensor_type][sensor_location].update_kalman(val)
+                if self.boundaries[sensor_type][sensor_location]["safe"][0] <= kalman_val <= self.boundaries[sensor_type][sensor_location]["safe"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.SAFE)
-                elif boundaries[sensor_type][sensor_location]["warn"][0] <= val <= boundaries[sensor_type][sensor_location]["warn"][1]:
+                elif self.boundaries[sensor_type][sensor_location]["warn"][0] <= kalman_val <= self.boundaries[sensor_type][sensor_location]["warn"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.WARNING)
                 else:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.CRITICAL)
@@ -37,10 +47,11 @@ class SensorControl():
         message = {}
         for sensor_type in self.sensors:
             for sensor_location in self.sensors[sensor_type]:
-                _, val, timestamp = self.registry.get(("sensor", sensor_type, sensor_location))
+                _, val, _ = self.registry.get(("sensor", sensor_type, sensor_location))
+                kalman_val = self.kalman_filters[sensor_type][sensor_location].update_kalman(val)
                 if sensor_type not in message:
                     message[sensor_type] = {}
-                message[sensor_type][sensor_location] = val
+                message[sensor_type][sensor_location] = kalman_val
         log = Log(header="sensor_data", message=message)
         _, enqueue = self.flag.get(("telemetry", "enqueue"))
         enqueue.append((log, LogPriority.INFO))
@@ -55,17 +66,17 @@ class SensorControl():
         #TODO: Make these values correspond with the sensors, right now they're just random
         #TODO: Add in all sensors properly
 
-        if self.registry.get(("sensor_kalman", "thermocouple", "chamber")) > 250:
+        if self.registry.get(("sensor", "thermocouple", "chamber"))[1] > 250:
             pass
 
-        if self.registry.get(("sensor_kalman", "thermocouple", "tank")) > 250:
+        if self.registry.get(("sensor", "thermocouple", "tank"))[1] > 250:
             pass
 
-        if self.registry.get(("sensor_kalman", "pressure", "chamber")) > 250:
+        if self.registry.get(("sensor", "pressure", "chamber"))[1] > 250:
             pass
 
-        if self.registry.get(("sensor_kalman", "pressure", "tank")) > 250:
+        if self.registry.get(("sensor", "pressure", "tank"))[1] > 250:
             pass
 
-        if self.registry.get(("sensor_kalman", "pressure", "injector")) > 250:
+        if self.registry.get(("sensor", "pressure", "injector"))[1] > 250:
             pass
