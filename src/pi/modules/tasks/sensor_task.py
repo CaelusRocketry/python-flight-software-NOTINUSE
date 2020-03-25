@@ -37,8 +37,7 @@ class SensorTask(Task):
             float_value = self.get_float(byte_value)
             assert(isinstance(float_value, float))
             self.registry.put(("sensor", sensor_type, sensor_location), float_value)
-            self.registry.put(("sensor_kalman", sensor_type, sensor_location), float_value)
 
-    
+
     def actuate(self):
         return

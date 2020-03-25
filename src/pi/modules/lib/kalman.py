@@ -17,5 +17,4 @@ class Kalman:
 
 		self.kalman_value_list.append(self.kalman_value)
 		self.sensor_value_list.append(sensor_value)
-		print("\n", "SENSOR VALUE IN UPDATE KALMAN: ", sensor_value)
 		return self.kalman_value
