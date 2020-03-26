@@ -22,12 +22,12 @@ class SensorControl():
         self.init_kalman(config)
     
 
-    def init_kalman(self, conifg: dict):
+    def init_kalman(self, config: dict):
         self.kalman_args = config["kalman_args"]
         self.kalman_filters = {}
-        for sensor_type in self.kalman_args:
+        for sensor_type in self.sensors:
             self.kalman_filters[sensor_type] = {}
-            for sensor_location in self.kalman_filters[sensor_type]:
+            for sensor_location in self.sensors[sensor_type]:
                 args = self.kalman_args[sensor_type][sensor_location]
                 self.kalman_filters[sensor_type][sensor_location] = Kalman(args["process_variance"],
                                                                            args["measurement_variance"],
