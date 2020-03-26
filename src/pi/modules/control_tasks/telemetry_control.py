@@ -17,7 +17,8 @@ class TelemetryControl():
             "solenoid_actuate": self.solenoid_actuate,
             "sensor_request": self.sensor_request,
             "valve_request": self.valve_request,
-            "progress": self.progress
+            "progress": self.progress,
+            "test": self.test,
         }
         self.arguments = {
             "heartbeat": (),
@@ -26,7 +27,8 @@ class TelemetryControl():
             "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", int)),
             "sensor_request": (("sensor_type", SensorType), ("sensor_location", SensorLocation)),
             "valve_request": (("valve_type", ValveType), ("valve_location", ValveLocation)),
-            "progress": ()
+            "progress": (),
+            "test": (("response", str),),
         }
     
 
@@ -139,4 +141,8 @@ class TelemetryControl():
 
     def progress(self, stage: Stage):
         self.flag.put(("progress", "stage"), stage)
+
+    def test(self, msg: str):
+        print("\ntest recieved:", msg)
+
 
