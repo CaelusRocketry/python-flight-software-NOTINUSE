@@ -129,14 +129,16 @@ class TelemetryControl():
 
 
     def sensor_request(self, sensor_type: SensorType, sensor_location: SensorLocation) -> Error:
-        err, value, timestamp = self.registry.get(("sensor", sensor_type, sensor_location), allow_error=True)
+        err, value, timestamp = self.registry.get(("sensor_measured", sensor_type, sensor_location), allow_error=True)
         if err != Error.NONE:
             # Send message back to gs saying it was an invalid message            
             log = Log(header="response", message={"action": ("Unable to request " + sensor_type + " data from " + sensor_location), "priority": 1, "timestamp": timestamp})
             self.enqueue(log, LogPriority.CRIT)
             return Error.REQUEST_ERROR
+
+        _, kalman_value, _ = self.registry.get(("sensor_normalized", sensor_type, sensor_location), allow_error=True)
         _, status, _ = self.registry.get(("sensor_status", sensor_type, sensor_location))
-        log = Log(header="sensor_data", message={"type": sensor_type, "location": sensor_location, "value": value, "status": status, "timestamp": timestamp})
+        log = Log(header="sensor_data", message={"type": sensor_type, "location": sensor_location, "value": (value, kalman_value), "status": status, "timestamp": timestamp})
         self.enqueue(log, LogPriority.INFO)
 
 
