@@ -52,15 +52,16 @@ class SensorControl():
         for sensor_type in self.sensors:
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor", sensor_type, sensor_location))
+                if sensor_type not in message:
+                    message[sensor_type] = {}
                 kalman_val = None
                 filter = self.kalman_filters[sensor_type][sensor_location]
                 if len(filter.sensor_value_list) >= 2 and val == filter.sensor_value_list[-1] and filter.sensor_value_list[-1] != filter.sensor_value_list[-2]:
                     kalman_val = filter.kalman_value_list[-1]
                 else:
                     kalman_val = filter.update_kalman(val)
-                if sensor_type not in message:
-                    message[sensor_type] = {}
-                message[sensor_type][sensor_location] = kalman_val
+                message[sensor_type][sensor_location] = val
+                message[sensor_type + "_kalman"][sensor_location] = kalman_val
         log = Log(header="sensor_data", message=message)
         _, enqueue = self.flag.get(("telemetry", "enqueue"))
         enqueue.append((log, LogPriority.INFO))
