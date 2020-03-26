@@ -26,7 +26,7 @@ class TelemetryControl():
             "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", int)),
             "sensor_request": (("sensor_type", SensorType), ("sensor_location", SensorLocation)),
             "valve_request": (("valve_type", ValveType), ("valve_location", ValveLocation)),
-            "progress": (),
+            "progress": ()
         }
     
 
