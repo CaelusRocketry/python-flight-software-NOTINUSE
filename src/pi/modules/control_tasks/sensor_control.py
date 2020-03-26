@@ -19,9 +19,14 @@ class SensorControl():
         self.valves = config["valves"]["list"]
         self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
+        self.init_kalman(config)
+    
+
+    def init_kalman(self, conifg: dict):
         self.kalman_args = config["kalman_args"]
-        self.kalman_filters = config["kalman_setup"]
-        for sensor_type in self.kalman_filters:
+        self.kalman_filters = {}
+        for sensor_type in self.kalman_args:
+            self.kalman_filters[sensor_type] = {}
             for sensor_location in self.kalman_filters[sensor_type]:
                 args = self.kalman_args[sensor_type][sensor_location]
                 self.kalman_filters[sensor_type][sensor_location] = Kalman(args["process_variance"],
@@ -47,12 +52,12 @@ class SensorControl():
     def send_sensor_data(self):
         message = {}
         for sensor_type in self.sensors:
+            message[sensor_type] = {}
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor_measured", sensor_type, sensor_location))
                 _, kalman_val, _ = self.registry.get(("sensor_normalized", sensor_type, sensor_location))
-                if sensor_type not in message:
-                    message[sensor_type] = {}
-                message[sensor_type][sensor_location] = (val, kalman_val)
+                _, status, _ = self.registry.get(("sensor_status", sensor_type, sensor_location))                
+                message[sensor_type][sensor_location] = {"value": (val, kalman_val), "status": status}
         log = Log(header="sensor_data", message=message)
         _, enqueue = self.flag.get(("telemetry", "enqueue"))
         enqueue.append((log, LogPriority.INFO))

@@ -2,7 +2,7 @@
     "telemetry": {
         "GS_IP": "127.0.0.1",
         "GS_PORT": 5005,
-        "DELAY": 0.05
+        "DELAY": 2
     },
     "sensors": {
         "list": {
@@ -12,20 +12,6 @@
         },
         "address": 8,
         "send_interval": 0.5
-    },
-    "kalman_setup": {
-        "thermocouple": {
-            "chamber": {},
-            "tank": {}
-       },
-       "pressure": {
-            "chamber": {},
-            "tank": {},
-            "injector": {}
-       },
-       "load": {
-            "tank": {}
-       }
     },
     "kalman_args": {
         "thermocouple": {

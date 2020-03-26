@@ -16,9 +16,11 @@ class Log:
     """ Log class stores messages to be sent to and from ground and flight station """
 
     def __init__(self, header, message={},
-                 timestamp: float = time.time()):
+                 timestamp: float = None):
         self.header = header
         self.message = message
+        if timestamp is None:
+            timestamp = time.time()
         self.timestamp = timestamp
         self.save()
 
@@ -45,8 +47,10 @@ class Log:
 class Packet:
     """ Packet class groups together logs of similar priority """
 
-    def __init__(self, logs: list = [], level: LogPriority = LogPriority.INFO, timestamp: float = time.time()):
+    def __init__(self, logs: list = [], level: LogPriority = LogPriority.INFO, timestamp: float = None):
         self.logs = logs
+        if timestamp is None:
+            timestamp = time.time()
         self.timestamp = timestamp
         self.level = level
 
