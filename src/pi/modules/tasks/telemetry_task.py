@@ -1,9 +1,9 @@
-from modules.tasks.task import Task
-from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
-from modules.lib.errors import Error
-from modules.drivers.telemetry_driver import Telemetry
 from abc import ABC, abstractmethod
+from modules.tasks.task import Task
+from modules.lib.errors import Error
+from modules.mcl.registry import Registry
+from modules.drivers.telemetry_driver import Telemetry
 from modules.lib.packet import Log, Packet, LogPriority
 
 class TelemetryTask(Task):

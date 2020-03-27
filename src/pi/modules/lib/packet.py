@@ -60,7 +60,7 @@ class Packet:
 
 
     def to_string(self):
-        output_dict = self.__dict__
+        output_dict = self.__dict__.copy()
         output_dict["logs"] = [log.to_string() for log in output_dict["logs"]]
         return json.dumps(self.__dict__)
 
