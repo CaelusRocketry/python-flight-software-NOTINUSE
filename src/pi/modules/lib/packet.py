@@ -35,6 +35,8 @@ class Log:
     def to_string(self):
         return json.dumps(self.__dict__)
 
+    def copy(self):
+        return Log(self.header, self.message.copy(), self.timestamp)
 
     @staticmethod
     def from_string(input_string):
@@ -60,9 +62,9 @@ class Packet:
 
 
     def to_string(self):
-        output_dict = self.__dict__
-        output_dict["logs"] = [log.to_string() for log in output_dict["logs"]]
-        return json.dumps(self.__dict__)
+        output_dict = self.__dict__.copy()
+        output_dict["logs"] = [log.copy().to_string()for log in output_dict["logs"]]
+        return json.dumps(output_dict)
 
 
     @staticmethod
@@ -76,7 +78,7 @@ class Packet:
 
     def __lt__(self, other):
         if self.level != other.level:
-            return self.level - other.level
+           return self.level - other.level
         return other.timestamp - self.timestamp
 
 
