@@ -14,34 +14,92 @@ Nitrous Oxide Main Propellant Valve
 */
 
 // Pin definitions
-#define NITROGEN_FILL_SWITCH 2
-#define ETHANOL_DRAIN_SWITCH 3
-#define ETHANOL_VENT_SWITCH 4
-#define ETHANOL_VENT_BUTTON 5
+#define NITROGEN_FILL 2
+#define ETHANOL_DRAIN 3
+#define ETHANOL_VENT 4
+#define ETHANOL_VENT_PULSE 5
 #define ETHANOL_MPV 6
-#define NO_FILL_SWITCH 7
-#define NO_DRAIN_SWITCH 8
-#define NO_VENT_SWITCH 9
-#define NO_VENT_BUTTON 10
+#define NO_FILL 7
+#define NO_DRAIN 8
+#define NO_VENT 9
+#define NO_VENT_PULSE 10
 #define NO_MPV 11
 #define ABORT 12
 #define OVERRIDE 13
 
 
+// Constants
+const NUM_VALVES = 8;
+const NUM_BUTTONS = 2;
+
+// variables
+boolean override;
+boolean aborted;
+
+// Arrays that keep track of stuff
+// States: 0 means closed, 1 means open -> should match digitalRead
+// TODO: CHECK IF digitalRead CAN BE COMPARED TO A BOOLEAN
+boolean states[];
+boolean pulsing[];
+int vent_pins[];
+int pulse_pins[];
+
 void setup(){
     for(int i = 2; i <= 13; i++){
         pinMode(i, INPUT);
     }
+    Serial.begin(9600);
+    override = false;
+    aborted = false;
+    states[] = new boolean[NUM_VALVES];
+    pulsing = new boolean[NUM_BUTTONS];
+    for(int i = 0; i < NUM_VALVES; i++){
+        states[i] = 0;
+    }
+    for(int i = 0; i < NUM_BUTTONS; i++){
+        pulsing[i] = false;
+    }
+    vent_pins[] = {NITROGEN_FILL, ETHANOL_DRAIN, ETHANOL_VENT, ETHANOL_MPV, NO_FILL, NO_DRAIN, NO_VENT, NO_MPV};
+    pulse_pins[] = {ETHANOL_VENT_PULSE, NO_VENT_PULSE};
 }
 
 void loop(){
-    String msg = get_message();
+    if(aborted){
+        return;
+    }
+    for(int i = 0; i < NUM_VALVES; i++){
+        if(digitalRead(vent_pins[i]) != states[i]){
+            states[i] = !states[i];
+            // Send message to valve arduino
+        }
+    }
+    if(digitalRead(OVERRIDE) != override){
+        override = !override;
+        // Send message to valve arduino
+    }
+    if(digitalRead(ABORT)){
+        aborted = true;
+        // Send message to valve arduino
+    }
+    for(int i = 0; i < NUM_BUTTONS; i++){
+        if(digitalRead(pulse_pins[i])){
+            if(pulsing[i]){
+                continue;
+            }
+            pulsing[i] = true;
+            // Send message to valve arduino
+        }
+        else{
+            pulsing[i] = false;
+        }
+    }
+
+
 }
 
-void send_message(){
-
-}
-
-String get_message(){
-
+void send_message(String msg){
+    if(!override){
+        return;
+    }
+    Serial.write(msg);
 }
