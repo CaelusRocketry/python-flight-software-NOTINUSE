@@ -53,7 +53,6 @@ class TelemetryControl():
             #TODO: Figure out if the command from a log is outdated
             for log in packet.logs:
                 err = self.ingest(log)
-                assert(err == Error.NONE)
             # Clear the ingest queue (because we just ingested everything)
             self.registry.put(("telemetry", "ingest_queue"), [])
 
@@ -68,18 +67,18 @@ class TelemetryControl():
             for arg_name, arg_type in self.arguments[header]:
                 if arg_name not in log.message:
                     print("Invalid argument", arg_name)
-                    log = Log(header="response", message={"action": ("Ingest: invalid argument: " + arg_name), "priority": 1, "timestamp": time.time()})
+                    log = Log(header="response", message={"type": "missing argument", "argument": arg_name})
                     self.enqueue(log, LogPriority.CRIT)
                     return Error.INVALID_ARGUMENT_ERROR
                 if issubclass(arg_type, enum.Enum):
                     if log.message[arg_name] not in [x.value for x in arg_type]:
                         print("Invalid argument", arg_name, arg_type)
-                        log = Log(header="response", message={"action": ("Ingest: in: " + arg_name + ", invalid argument: " + log.message[arg_name] + " with type: " + arg_type), "priority": 1, "timestamp": time.time()})
+                        log = Log(header="response", message={"type": "invalid argument type", "argument": arg_name, "argument type": str(arg_type)})
                         self.enqueue(log, LogPriority.CRIT)
                         return Error.INVALID_ARGUMENT_ERROR
                 elif not isinstance(log.message[arg_name], arg_type):
                     print("Invalid argument", arg_name, arg_type)
-                    log = Log(header="response", message={"action": ("Ingest: in: " + arg_name + ", argument: " + log.message[arg_name] + ", invalid type: " + arg_type), "priority": 1, "timestamp": time.time()})
+                    log = Log(header="response", message={"type": "invalid argument type", "argument": arg_name, "argument type": str(arg_type)})
                     self.enqueue(log, LogPriority.CRIT)
                     return Error.INVALID_ARGUMENT_ERROR
                 args.append(arg_type(log.message[arg_name]))
@@ -87,6 +86,8 @@ class TelemetryControl():
             return Error.NONE
         else:
             print("Invalid header")
+            log = Log(header="response", message={"type": "invalid header", "header": header})
+            self.enqueue(log, LogPriority.CRIT)
             return Error.INVALID_HEADER_ERROR
 
 

@@ -1,10 +1,10 @@
-from modules.drivers.driver import Driver
-from modules.lib.packet import Log, Packet
-from enum import Enum
+import time
+import heapq
 import socket
 import threading
-import heapq
-import time
+from modules.lib.errors import Error
+from modules.drivers.driver import Driver
+from modules.lib.packet import Log, Packet
 
 BUFFER = 8192
 
@@ -50,11 +50,17 @@ class Telemetry(Driver):
     The write method that is called during the Telemetry WriteTask.
     It should send everything in the send_queue over the socket connection.
     """
-    def write(self, pack: Packet):
+    def write(self, pack: Packet) -> Error:
         pack_str = pack.to_string()
         pack_bytes = pack_str.encode()
-        self.sock.send(pack_bytes)
+        try:
+            self.sock.send(pack_bytes)
+        except Exception as e:
+            print(str(e))
+            self.connection = False
+            return Error.TELEM_CONNECTION_ERROR
         time.sleep(self.DELAY_SEND)
+        return Error.NONE
         
     """
     This should be run in a thread, and should be constantly listening for data and appending to the ingest_queue.

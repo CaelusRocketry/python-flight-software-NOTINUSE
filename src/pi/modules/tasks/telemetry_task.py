@@ -1,6 +1,7 @@
 from modules.tasks.task import Task
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
+from modules.lib.errors import Error
 from modules.drivers.telemetry_driver import Telemetry
 from abc import ABC, abstractmethod
 from modules.lib.packet import Log, Packet, LogPriority
@@ -63,5 +64,8 @@ class TelemetryTask(Task):
         
         _, send_queue = self.flag.get(("telemetry", "send_queue"))
         for pack in send_queue:
-            self.telemetry.write(pack)
+            err = self.telemetry.write(pack)
+            if err != Error.NONE:
+                print("Telemetry connection lost while sending")
+                return
         self.flag.put(("telemetry", "send_queue"), [])
