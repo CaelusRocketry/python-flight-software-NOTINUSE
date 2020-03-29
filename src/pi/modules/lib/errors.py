@@ -3,7 +3,7 @@ from enum import Enum, auto
 
 class Error(Enum):
     # No error
-    NONE = auto()
+    NONE = None
     
     # Invalid packets
     INVALID_HEADER_ERROR = auto()

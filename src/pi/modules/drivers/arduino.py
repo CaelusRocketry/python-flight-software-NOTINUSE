@@ -15,7 +15,7 @@ class PseudoSensor():
         sensors = config["list"]
         self.sensor_list = [(s_type, loc) for s_type in sensors for loc in sensors[s_type]]
         self.num_sensors = len(self.sensor_list)
-        self.sensors = {i: random.random() * 50 for i in self.sensor_list}
+        self.sensors = {i: random.randint(100, 200) for i in self.sensor_list}
 
 
     def set_sensor_values(self):

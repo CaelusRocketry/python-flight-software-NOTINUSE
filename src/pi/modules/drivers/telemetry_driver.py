@@ -76,6 +76,7 @@ class Telemetry(Driver):
                     self.connection = False
                     return
                 packet_str = data.decode()
+                print("Received:", packet_str)
                 packet = Packet.from_string(packet_str)
                 while self.INGEST_LOCK:
                     pass

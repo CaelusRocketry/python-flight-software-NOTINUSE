@@ -16,18 +16,18 @@ class Log:
     """ Log class stores messages to be sent to and from ground and flight station """
 
     def __init__(self, header, message={},
-                 timestamp: float = None):
+                 timestamp: float = None, save: bool = True):
         self.header = header
         self.message = message
         if timestamp is None:
             timestamp = time.time()
         self.timestamp = timestamp
-        self.save()
+        if save:
+            self.save()
 
 
-    def save(self, filename = "blackbox.txt"):
-        print("Log: ", self.to_string())
-        f = open("black_box.txt", "a+")
+    def save(self, filename = "black_box.txt"):
+        f = open(filename, "a+")
         f.write(self.to_string() + "\n")
         f.close()
 
@@ -36,7 +36,7 @@ class Log:
         return json.dumps(self.__dict__)
 
     def copy(self):
-        return Log(self.header, self.message.copy(), self.timestamp)
+        return Log(self.header, self.message.copy(), self.timestamp, save=False)
 
     @staticmethod
     def from_string(input_string):
