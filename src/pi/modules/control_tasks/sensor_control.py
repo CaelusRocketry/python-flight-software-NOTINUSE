@@ -1,9 +1,9 @@
 import time
-from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
+from modules.lib.kalman import Kalman
+from modules.mcl.registry import Registry
 from modules.lib.packet import Log, LogPriority
 from modules.lib.enums import SensorType, SensorLocation, SensorStatus
-from modules.lib.kalman import Kalman
 
 class SensorControl():
     def __init__(self, registry: Registry, flag: Flag):
@@ -69,6 +69,7 @@ class SensorControl():
         if self.last_send_time is None or time.time() - self.last_send_time > self.send_interval:
             self.send_sensor_data()
             self.last_send_time = time.time()
+            print("Sending sensor data", time.time())
 
         #TODO: Make these values correspond with the sensors, right now they're just random
         #TODO: Add in all sensors properly

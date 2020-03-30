@@ -2,7 +2,7 @@
     "telemetry": {
         "GS_IP": "127.0.0.1",
         "GS_PORT": 5005,
-        "DELAY": 2
+        "DELAY": 0.1
     },
     "sensors": {
         "list": {

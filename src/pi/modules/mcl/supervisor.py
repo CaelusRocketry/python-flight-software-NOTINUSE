@@ -90,6 +90,7 @@ class Supervisor:
     def run(self):
         self.initialize()
         while True:
+            import time
             self.read()
             self.control()
             self.actuate()
