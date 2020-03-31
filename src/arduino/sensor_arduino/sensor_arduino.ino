@@ -14,6 +14,17 @@ double thermo = 0.0;
 double pressure = 0.0;
 double load = 0.0;
 
+// Contains all three data variables
+struct sensorVars {
+  double thermo;
+  double pressure;
+  double load;
+};
+
+// Temporary data storage
+sensorVars buffer[1000]{};
+int index = 0;
+
 void setup() {
   // I2C initialization
   Wire.begin(SLAVE_ADDRESS);
@@ -31,6 +42,9 @@ void loop() {
   thermo = getThermo();
   pressure = getPressure();
   load = random(1, 500) / 20.0;
+  sensorVars current{thermo, pressure, load};
+  buffer[index] = current;
+  index += 1;
 }
 
 float mapVal(float val, float lower1, float upper1, float lower2, float upper2){
@@ -72,29 +86,35 @@ void sendData(){
   Serial.print(", Load: ");
   Serial.print(load);
   Serial.println();
-  union cvt {
-    float val;
-    unsigned char byte_array[4];
-  } x;
-  x.val = thermo;
-  
-  union cvt2 {
-    float val;
-    unsigned char byte_array[4];
-  } y;
-  y.val = pressure;
-  
-  union cvt3 {
-    float val;
-    unsigned char byte_array[4];
-  } z;
-  z.val = load;
 
-  byte data[12];
-  for(int i = 0; i < 4; i++){ data[i] = x.byte_array[i];}
-  for(int i = 4; i < 8; i++){ data[i] = y.byte_array[i - 4];}
-  for(int i = 8; i < 12; i++){ data[i] = z.byte_array[i - 8];}
+  const int dataSize = index * 12;
+  byte data[dataSize];
+  for(int j = 0; j < index; j++){
+    sensorVars bufferedData = buffer[j];
+    union cvt {
+      float val;
+      unsigned char byte_array[4];
+    } x;
+    x.val = bufferedData.thermo;
+    
+    union cvt2 {
+      float val;
+      unsigned char byte_array[4];
+    } y;
+    y.val = bufferedData.pressure;
+    
+    union cvt3 {
+      float val;
+      unsigned char byte_array[4];
+    } z;
+    z.val = bufferedData.load;
   
-  Wire.write(data, 12);
+    int startIndex = j * 12; 
+    for(int i = startIndex; i < startIndex + 4; i++){ data[i] = x.byte_array[i - startIndex];}
+    for(int i = startIndex + 4; i < startIndex + 8; i++){ data[i] = y.byte_array[i - startIndex - 4];}
+    for(int i = startIndex + 8; i < startIndex + 12; i++){ data[i] = z.byte_array[i - startIndex - 8];}
+  }
+
+  Wire.write(data, dataSize);
 }
 
