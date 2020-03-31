@@ -24,17 +24,44 @@ Nitrous Oxide Main Propellant Valve
 #define NO_VENT 9
 #define NO_VENT_PULSE 10
 #define NO_MPV 11
-#define ABORT 12
-#define OVERRIDE 13
+#define ABORT_PIN 12
+#define OVERRIDE_PIN 13
+
+// Valve arduino pin definitions - MAKE SURE THESE MATCH VALVE ARDUINO
+#define VALVE_NITROGEN_FILL 2
+#define VALVE_ETHANOL_DRAIN 3
+#define VALVE_ETHANOL_VENT 4
+#define VALVE_ETHANOL_MPV 5
+#define VALVE_NO_FILL 6
+#define VALVE_NO_DRAIN 7
+#define VALVE_NO_VENT 8
+#define VALVE_NO_MPV 9
+
+// Serial definitions
+const DATA = 0;
+const CLOSE_VENT = 1;
+const OPEN_VENT = 2;
+const PULSE = 3;
+const OVERRIDE = 0;
+const OVERRIDE_UNDO = 1;
+
+// Pin order and actuation types
+const MAX_PIN = 14;
+int PIN_MAP[] = new int[MAX_PIN];
+PIN_MAP[NITROGEN_FILL] = VALVE_NITROGEN_FILL;
+PIN_MAP[ETHANOL_DRAIN] = VALVE_ETHANOL_DRAIN;
+PIN_MAP[ETHANOL_VENT] = VALVE_ETHANOL_VENT;
+PIN_MAP[ETHANOL_VENT_PULSE] = VALVE_ETHANOL_VENT;
+PIN_MAP[ETHANOL_MPV] = VALVE_ETHANOL_MPV;
+PIN_MAP[NO_FILL] = VALVE_NO_FILL;
+PIN_MAP[NO_DRAIN] = VALVE_NO_DRAIN;
+PIN_MAP[NO_VENT] = VALVE_NO_VENT;
+PIN_MAP[NO_VENT_PULSE] = VALVE_NO_VENT;
+PIN_MAP[NO_MPV] = VALVE_NO_MPV;
 
 // Pin counts
-#define NUM_VALVES 8;
-#define NUM_BUTTONS 2;
-
-// Serial message variables
-const OVERRIDE_UNDO = 14;
-int open[] = new int[NUM_VALVES];
-int closed[] = new int[NUM_VALVES];
+const NUM_VALVES = 8;
+const NUM_BUTTONS = 2;
 
 // Local variables
 boolean override;
@@ -60,8 +87,6 @@ void setup(){
     pulse_pins[] = {ETHANOL_VENT_PULSE, NO_VENT_PULSE};
     for(int i = 0; i < NUM_VALVES; i++){
         states[i] = 0;
-        open[i] = vent_pins[i];
-        closed[i] = vent_pins[i] + 32; // Remember that this is +32
     }
     for(int i = 0; i < NUM_BUTTONS; i++){
         pulsing[i] = false;
@@ -76,25 +101,27 @@ void loop(){
         if(digitalRead(vent_pins[i]) != states[i]){
             states[i] = !states[i];
             if(states[i]){
-                send_message(open[i]);
+                send_message(OPEN_VENT, PIN_MAP[vent_pins[i]]);
             }
             else{
-                send_message(closed[i]);
+                send_message(CLOSE_VENT, closed[i]);
             }
         }
     }
-    if(digitalRead(OVERRIDE) != override){
-        override = !override;
-        if(override){
-            send_message(OVERRIDE);
-        }
-        else{
-            send_message(OVERRIDE_UNDO);
-        }
+    if(digitalRead(OVERRIDE_PIN) && !override){
+        override = true;
+        send_message(DATA, OVERRIDE);
     }
-    if(digitalRead(ABORT)){
+    if(!digitalRead(OVERRIDE_PIN) && override){
+        override = false;
+        send_message(DATA, OVERRIDE_UNDO);
+    }
+    if(digitalRead(ABORT_PIN)){
         aborted = true;
-        send_message(ABORT);
+        send_message(DATA, OVERRIDE);
+        for(int i = 0; i < NUM_VALVES; i++){
+            send_message(CLOSE_VENT, PIN_MAP[vent_pins[i]]);
+        }
     }
     for(int i = 0; i < NUM_BUTTONS; i++){
         if(digitalRead(pulse_pins[i])){
@@ -102,7 +129,7 @@ void loop(){
                 continue;
             }
             pulsing[i] = true;
-            send_message(pulse_pins[i]);
+            send_message(PULSE, PIN_MAP[pulse_pins[i]]);
         }
         else{
             pulsing[i] = false;
@@ -110,9 +137,11 @@ void loop(){
     }
 }
 
-void send_message(int msg){
+void send_message(int cmd, int data){
     if(!override){
         return;
     }
-    Serial.write(msg);
+    Serial.write(cmd);
+    Serial.write(data);
+    delay(50);
 }

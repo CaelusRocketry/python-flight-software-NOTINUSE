@@ -11,7 +11,8 @@ class ValveTask(Task):
         self.name = "Valve Arduino"
         self.registry = registry
         self.flag = flag
-        self.actuation_types = list(ActuationType)
+        self.actuation_dict = {0: ActuationType.NONE, 1: ActuationType.OPEN_VENT, 2: ActuationType.CLOSE_VENT, 3: ActuationType.PULSE}
+        self.state_dict = {0: SolenoidState.OPEN, 1: SolenoidState.CLOSED}
         self.num_actuation_types = len(self.actuation_types)
 
 
@@ -25,13 +26,11 @@ class ValveTask(Task):
 
 
     def get_solenoid_state(self, val):
-        state_dict = {0: SolenoidState.OPEN, 1: SolenoidState.CLOSED}
-        return state_dict[val] if val in state_dict else None
+        return self.state_dict[val] if val in state_dict else None
 
 
     def get_actuation_type(self, val):
-        actuation_dict = {0: ActuationType.PULSE, 1: ActuationType.OPEN_VENT, 2: ActuationType.CLOSE_VENT, 3: ActuationType.NONE}
-        return actuation_dict[val] if val in actuation_dict else None
+        return self.actuation_dict[val] if val in actuation_dict else None
 
 
     def get_float(self, data):
@@ -42,7 +41,8 @@ class ValveTask(Task):
     def get_command(self, loc, actuation_type):
         #Formula: idx1 * 16 + idx2
         loc_idx = self.solenoids.index(loc)
-        actuation_idx = self.actuation_types.index(actuation_type)
+        inv_actuations = {v:k for k,v in zip(self.actuation_dict)}
+        actuation_idx = inv_actuations[actuation_type]
         return loc_idx*16 + actuation_idx
 
 

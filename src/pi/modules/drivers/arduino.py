@@ -38,20 +38,19 @@ class PseudoValve():
         print("CREATING PSEUDO VALVE")
         self.config = config
         valves = self.config["list"]
-        self.actuation_types = list(ActuationType)
         self.solenoid_locs = [loc for loc in valves[ValveType.SOLENOID]]
         self.valve_states = {(ValveType.SOLENOID, loc): SolenoidState.CLOSED for loc in self.solenoid_locs}
         self.valve_actuations = {(ValveType.SOLENOID, loc): ActuationType.NONE for loc in self.solenoid_locs}
+        self.state_dict = {SolenoidState.CLOSED: 0, SolenoidState.OPEN: 1}
+        self.actuation_dict = {ActuationType.NONE: 0, ActuationType.OPEN_VENT: 1, ActuationType.CLOSE_VENT: 2, ActuationType.PULSE: 3}
 
 
     def read(self):
 #        self.set_sensor_values()
-        state_dict = {SolenoidState.OPEN: 0, SolenoidState.CLOSED: 1}
-        actuation_dict = {ActuationType.PULSE: 0, ActuationType.OPEN_VENT: 1, ActuationType.CLOSE_VENT: 2, ActuationType.NONE: 3}
         ret = []
         for key in self.valve_states:
-            ret.append(state_dict[self.valve_states[key]])
-            ret.append(actuation_dict[self.valve_actuations[key]])
+            ret.append(self.state_dict[self.valve_states[key]])
+            ret.append(self.actuation_dict[self.valve_actuations[key]])
         return bytes(ret)
     
 
@@ -67,7 +66,8 @@ class PseudoValve():
         loc_idx = msg // 16
         actuation_idx = msg % 16
         valve = (ValveType.SOLENOID, self.solenoid_locs[loc_idx])
-        actuation_type = self.actuation_types[actuation_idx]
+        inv_actuations = {v:k for k,v in zip(self.actuation_dict)}
+        actuation_type = inv_actuations[actuation_idx]
         # Switch statement
         if actuation_type == ActuationType.NONE:
             # Reset
