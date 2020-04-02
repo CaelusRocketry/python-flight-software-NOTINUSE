@@ -18,7 +18,14 @@ const VALVE_ORDER = {NITROGEN_FILL, ETHANOL_DRAIN, ETHANOL_VENT, ETHANOL_MPV, NO
 
 // Pin counts. MAKE SURE the order in ALL_PINS matches config.json.
 #define NUM_VALVES 8;
-const ALL_PINS = {2, 3, 4, 5, 6, 7, 8, 9};
+const ALL_PINS = {NITROGEN_FILL,
+                  ETHANOL_DRAIN,
+                  ETHANOL_VENT,
+                  ETHANOL_MPV,
+                  NO_FILL,
+                  NO_DRAIN,
+                  NO_VENT,
+                  NO_MPV};
 const MAX_PIN = 10;
 int states[] = new int[MAX_PIN];
 unsigned long times[] = new unsigned long[MAX_PIN];
@@ -169,11 +176,7 @@ void actuate(int loc_idx, int actuation_idx){
 }
 
 void receiveData(int byteCount){
-  // Command formula: idx1 * 16 + idx2
   while(Wire.available()){
-//    int command = Wire.read();
-//    int loc_idx = command / 16;
-//    int actuation_type = command % 16;
     int loc_idx = Wire.read();
     int actuation_type = Wire.read();
     if(override){
@@ -192,14 +195,16 @@ void receiveData(int byteCount){
         break;
     }
   }
-
 }
 
 void sendData(){
   unsigned long data = 0;
+  if(override){
+    data = 1;
+  }
   for(int valve = 0; valve < NUM_VALVES; valve++){
     int state = states[ALL_PINS[valve]];
-    data = data | (1 << state * 2)
+    data = data | (state << (valve * 2 + 1))
   }
   byte buf[4];
   buf[0] = (byte) data;

@@ -12,7 +12,7 @@ class Flag:
             "general": {
                 "hard_abort": False,
                 "soft_abort": False,
-                "progress_stage": False
+                "progress": False
             },
             "telemetry": {
                 "enqueue": [],
@@ -29,7 +29,7 @@ class Flag:
             "general": {
                 "hard_abort": bool,
                 "soft_abort": bool,
-                "progress_stage": bool
+                "progress": bool
             },
             "telemetry": {
                 "send_queue": list,

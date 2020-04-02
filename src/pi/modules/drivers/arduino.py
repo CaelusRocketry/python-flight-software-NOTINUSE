@@ -40,39 +40,35 @@ class PseudoValve():
         valves = self.config["list"]
         self.solenoid_locs = [loc for loc in valves[ValveType.SOLENOID]]
         self.valve_states = {(ValveType.SOLENOID, loc): SolenoidState.CLOSED for loc in self.solenoid_locs}
-        self.valve_actuations = {(ValveType.SOLENOID, loc): ActuationType.NONE for loc in self.solenoid_locs}
+        self.valve_actuations = {(ValveType.SOLENOID, loc): ActuationType.CLOSE_VENT for loc in self.solenoid_locs}
         self.state_dict = {SolenoidState.CLOSED: 0, SolenoidState.OPEN: 1}
-        self.actuation_dict = {ActuationType.NONE: 0, ActuationType.OPEN_VENT: 1, ActuationType.CLOSE_VENT: 2, ActuationType.PULSE: 3}
+        self.actuation_dict = {ActuationType.CLOSE_VENT: 1, ActuationType.OPEN_VENT: 2, ActuationType.PULSE: 3}
 
 
     def read(self):
 #        self.set_sensor_values()
-        ret = []
-        for key in self.valve_states:
-            ret.append(self.state_dict[self.valve_states[key]])
-            ret.append(self.actuation_dict[self.valve_actuations[key]])
-        return bytes(ret)
+        data = 0
+        for idx, loc in enumerate(self.solenoid_locs):
+            state = self.actuation_dict[self.valve_actuations[(ValveType.SOLENOID, loc)]]
+            data = data | (state << (idx * 2 + 1))
+        return int.to_bytes(data, 4, 'little')
     
 
     def actuate(self, valve, state1, timer, state2):
         self.valve_states[valve] = state1
         time.sleep(timer)
         self.valve_states[valve] = state2
-        self.valve_actuations[valve] = ActuationType.NONE
 
 
     def write(self, msg):
         #Formula: idx1 * 16 + idx2
-        loc_idx = msg // 16
-        actuation_idx = msg % 16
+        loc_idx = msg[0]
+        actuation_idx = msg[1]
         valve = (ValveType.SOLENOID, self.solenoid_locs[loc_idx])
         inv_actuations = {v:k for k,v in zip(self.actuation_dict)}
         actuation_type = inv_actuations[actuation_idx]
         # Switch statement
-        if actuation_type == ActuationType.NONE:
-            # Reset
-            raise NotImplementedError
-        elif actuation_type == ActuationType.OPEN_VENT:
+        if actuation_type == ActuationType.OPEN_VENT:
             state1 = SolenoidState.OPEN
             timer = 0
             state2 = SolenoidState.OPEN

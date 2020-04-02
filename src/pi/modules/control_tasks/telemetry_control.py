@@ -165,8 +165,8 @@ class TelemetryControl():
         self.enqueue(log, LogPriority.INFO)
 
 
-    def progress(self, stage: Stage):
-        #TODO: Determine if the rocket is ready to progress to the next stage
+    def progress(self):
+        self.flag.put(("general", "progress"), True)
         if True:
             print("Progressing to the next stage")
             self.flag.put(("progress", "stage"), stage)

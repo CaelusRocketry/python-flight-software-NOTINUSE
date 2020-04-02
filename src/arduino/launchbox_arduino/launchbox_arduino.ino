@@ -120,7 +120,7 @@ void loop(){
         aborted = true;
         send_message(DATA, OVERRIDE);
         for(int i = 0; i < NUM_VALVES; i++){
-            send_message(CLOSE_VENT, PIN_MAP[vent_pins[i]]);
+            send_message(OPEN_VENT, PIN_MAP[vent_pins[i]]);
         }
     }
     for(int i = 0; i < NUM_BUTTONS; i++){

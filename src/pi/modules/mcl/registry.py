@@ -31,7 +31,8 @@ class Registry:
 			"general": {
 				"hard_abort": False,
 				"soft_abort": False,
-				"stage": None
+				"stage": None,
+				"stage_status": 0
 			}
 		}
 
@@ -54,7 +55,8 @@ class Registry:
 			"general": {
 				"hard_abort": bool,
 				"soft_abort": bool,
-				"stage": Stage
+				"stage": Stage,
+				"stage_status": float
 			}
 		}
 
@@ -75,7 +77,8 @@ class Registry:
 			"general": {
 				"hard_abort": None,
 				"soft_abort": None,
-				"stage": None
+				"stage": None,
+				"stage_status": None
 			}
 		}
 

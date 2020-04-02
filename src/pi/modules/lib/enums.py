@@ -49,13 +49,13 @@ class ValvePriority(IntEnum):
     ABORT_PRIORITY = 4
 
 
-class Stage(IntEnum):
-    PROPELLANT_LOADING = 1
-    LEAK_TESTING_1 = 2
-    PRESSURANT_LOADING = 3
-    LEAK_TESTING_2 = 4
-    PRE_IGNITION = 5
-    DISCONNECTION = 6
+class Stage(str, Enum):
+    PROPELLANT_LOADING = "propellant_loading"
+    LEAK_TESTING_1 = "leak_testing_1"
+    PRESSURANT_LOADING = "pressurant_loading"
+    LEAK_TESTING_2 = "leak_testing_2"
+    PRE_IGNITION = "pre_ignition"
+    DISCONNECTION = "disconnection"
 
 
 ENUMS = [SensorType, SensorLocation, SolenoidState, ValveType, ValveLocation, ActuationType, Stage]
