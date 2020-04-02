@@ -12,7 +12,7 @@ class StageControl:
         self.registry = registry
         self.flag = flag
         self.request_time = None
-        self.send_time = time.time()
+        self.send_time = None
         self.start_time = time.time()
     
 
@@ -42,7 +42,7 @@ class StageControl:
         elif self.curr_stage == Stage.DISCONNECTION:
             pass
 
-        return 100.0
+        return min((time.time() - self.start_time) * 5, 100.0)
 
 
     def send_progression_request(self):
@@ -55,7 +55,7 @@ class StageControl:
 
 
     def send_stage_data(self):
-        if time.time() > self.send_time + self.send_interval:
+        if self.send_time is None or time.time() > self.send_time + self.send_interval:
             log = Log(header="stage", message={"stage": self.curr_stage, "status": self.status})
             _, queue = self.flag.get(("telemetry", "enqueue"))
             queue.append((log, LogPriority.INFO))
@@ -78,6 +78,7 @@ class StageControl:
         self.request_time = None
         self.status = self.calculate_status()
         self.registry.put(("general", "stage_status"), self.status)
+        self.start_time = time.time()
 
 
     def stage_valve_control(self):
@@ -92,6 +93,7 @@ class StageControl:
         _, progress = self.flag.get(("general", "progress"))
         if progress:
             self.progress()
+            self.flag.put(("general", "progress"), False)
         elif self.status == 100:
             self.send_progression_request()
 

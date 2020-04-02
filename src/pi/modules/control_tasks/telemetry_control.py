@@ -167,12 +167,7 @@ class TelemetryControl():
 
     def progress(self):
         self.flag.put(("general", "progress"), True)
-        if True:
-            print("Progressing to the next stage")
-            self.flag.put(("progress", "stage"), stage)
-            self.enqueue(Log("progress", message={"header": "Progress to next stage", "stage": stage, "status": "success"}), LogPriority.CRIT)
-        else:
-            self.enqueue(Log("response", message={"header": "Progress to next stage", "stage": stage, "status": "failure", "description": "Pi not ready"}), LogPriority.CRIT)
+
 
     def test(self, msg: str):
         print("\ntest recieved:", msg)
