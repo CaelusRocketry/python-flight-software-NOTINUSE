@@ -47,6 +47,8 @@ class PseudoValve():
 
     def read(self):
 #        self.set_sensor_values()
+#        print(self.valve_states.values(), self.valve_actuations.values())
+        time.sleep(0.5)
         data = 0
         for idx, loc in enumerate(self.solenoid_locs):
             state = self.actuation_dict[self.valve_actuations[(ValveType.SOLENOID, loc)]]

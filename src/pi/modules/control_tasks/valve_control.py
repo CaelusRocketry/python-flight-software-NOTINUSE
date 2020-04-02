@@ -31,8 +31,8 @@ class ValveControl():
 
 
     def execute(self):
+#        print([self.registry.get(("valve", valve_type, valve_loc)) for valve_type in self.valves for valve_loc in self.valves[valve_type]])
         if self.last_send_time is None or time.time() - self.last_send_time > self.send_interval:
             self.send_valve_data()
             self.last_send_time = time.time()
         
-        #TODO: Valves can't be open for too long

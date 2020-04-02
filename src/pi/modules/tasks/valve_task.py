@@ -59,7 +59,7 @@ class ValveTask(Task):
             val = int_data & 0b11
             actuation = self.get_actuation_type(val)
             actuation_types.append(actuation)
-            states.append(SolenoidState.CLOSED if actuation == ActuationType.CLOSE_VENT else SolenoidState.OPEN)
+            states.append(SolenoidState.CLOSED if actuation == ActuationType.CLOSE_VENT or actuation == ActuationType.NONE else SolenoidState.OPEN)
             int_data = int_data >> 2
 
         for idx in range(self.num_solenoids):

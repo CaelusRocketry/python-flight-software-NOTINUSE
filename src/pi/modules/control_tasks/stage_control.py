@@ -47,7 +47,7 @@ class StageControl:
 
     def send_progression_request(self):
         if self.request_time is None or time.time() > self.request_time + self.request_interval:
-            log = Log(header="response", message={"header": "stage progression request", "current stage": self.curr_stage, "next stage": self.stages[self.stage_idx + 1]})
+            log = Log(header="response", message={"header": "Stage progression request", "Current stage": self.curr_stage, "Next stage": self.stages[self.stage_idx + 1]})
             _, queue = self.flag.get(("telemetry", "enqueue"))
             queue.append((log, LogPriority.CRIT))
             self.flag.put(("telemetry", "enqueue"), queue)
@@ -65,7 +65,7 @@ class StageControl:
 
     def progress(self):
         if self.status != 100:
-            log = Log(header="response", message={"header": "stage progression failed", "description": "Stage progression failed, rocket not yet ready", "stage": self.curr_stage, "status": self.status})
+            log = Log(header="response", message={"header": "Stage progression failed", "description": "Stage progression failed, rocket not yet ready", "Stage": self.curr_stage, "Status": self.status})
             _, queue = self.flag.get(("telemetry", "enqueue"))
             queue.append((log, LogPriority.CRIT))
             self.flag.put(("telemetry", "enqueue"), queue)
@@ -79,6 +79,10 @@ class StageControl:
         self.status = self.calculate_status()
         self.registry.put(("general", "stage_status"), self.status)
         self.start_time = time.time()
+        log = Log(header="response", message={"header": "Stage progression successful", "description": "Stage progression was successful", "Stage": self.curr_stage, "Status": self.status})
+        _, queue = self.flag.get(("telemetry", "enqueue"))
+        queue.append((log, LogPriority.CRIT))
+        self.flag.put(("telemetry", "enqueue"), queue)
 
 
     def stage_valve_control(self):

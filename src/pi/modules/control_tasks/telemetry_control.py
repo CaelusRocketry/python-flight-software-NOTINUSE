@@ -28,7 +28,7 @@ class TelemetryControl():
             "sensor_request": (("sensor_type", SensorType), ("sensor_location", SensorLocation)),
             "valve_request": (("valve_type", ValveType), ("valve_location", ValveLocation)),
             "progress": (),
-            "test": (("response", str),),
+            "test": (("response", str),)
         }
     
 
@@ -67,18 +67,18 @@ class TelemetryControl():
             for arg_name, arg_type in self.arguments[header]:
                 if arg_name not in log.message:
                     print("Invalid argument", arg_name)
-                    log = Log(header="response", message={"header": "Missing argument", "argument": arg_name})
+                    log = Log(header="response", message={"header": "Missing argument", "Argument": arg_name})
                     self.enqueue(log, LogPriority.CRIT)
                     return Error.INVALID_ARGUMENT_ERROR
                 if issubclass(arg_type, enum.Enum):
                     if log.message[arg_name] not in [x.value for x in arg_type]:
                         print("Invalid argument", arg_name, arg_type)
-                        log = Log(header="response", message={"header": "Invalid argument type", "argument": arg_name, "argument type": str(arg_type)})
+                        log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Argument type": str(arg_type)})
                         self.enqueue(log, LogPriority.CRIT)
                         return Error.INVALID_ARGUMENT_ERROR
                 elif not isinstance(log.message[arg_name], arg_type):
                     print("Invalid argument", arg_name, arg_type)
-                    log = Log(header="response", message={"header": "Invalid argument type", "argument": arg_name, "argument type": str(arg_type)})
+                    log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Argument type": str(arg_type)})
                     self.enqueue(log, LogPriority.CRIT)
                     return Error.INVALID_ARGUMENT_ERROR
                 args.append(arg_type(log.message[arg_name]))
@@ -86,7 +86,7 @@ class TelemetryControl():
             return Error.NONE
         else:
             print("Invalid header")
-            log = Log(header="response", message={"header": "Invalid telemetry header", "telemetry_header": header})
+            log = Log(header="response", message={"header": "Invalid telemetry header", "Telemetry header": header})
             self.enqueue(log, LogPriority.CRIT)
             return Error.INVALID_HEADER_ERROR
 
@@ -104,13 +104,13 @@ class TelemetryControl():
 
     def hard_abort(self):
         self.flag.put(("general", "hard_abort"), True)
-        log = Log(header="response", message={"header": "Hard abort", "status": "Success", "description": "Rocket is undergoing hard abort"})
+        log = Log(header="response", message={"header": "Hard abort", "Status": "Success", "Description": "Rocket is undergoing hard abort"})
         self.enqueue(log, LogPriority.CRIT)
 
 
     def soft_abort(self):
         self.flag.put(("general", "soft_abort"), True)
-        log = Log(header="response", message={"header": "Soft abort", "status": "Success", "description": "Rocket is undergoing soft abort"})
+        log = Log(header="response", message={"header": "Soft abort", "Status": "Success", "Description": "Rocket is undergoing soft abort"})
         self.enqueue(log, LogPriority.CRIT)
 
 
@@ -118,13 +118,13 @@ class TelemetryControl():
         err, current_priority, timestamp = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_location), allow_error=True)
         if err != Error.NONE:
             # Send message back to gs saying it was an invalid message
-            log = Log(header="response", message={"header": "Valve actuation", "status": "Failure", "description": "Unable to find solenoid in " + valve_location + " with actuation type " + actuation_type})
+            log = Log(header="response", message={"header": "Valve actuation", "Status": "Failure", "Description": "Unable to find solenoid in " + valve_location + " with actuation type " + actuation_type})
             self.enqueue(log, LogPriority.CRIT)
             return Error.REQUEST_ERROR
 
         if priority <= current_priority:
             # Send message back to gs saying that the request was made w/ too little priority
-            log = Log(header="response", message={"header": "Valve actuation", "status": "Failure", "description": "Too little priority to actuate solenoid at " + valve_location + " with actuation type " + actuation_type + " at priority " + str(priority)})
+            log = Log(header="response", message={"header": "Valve actuation", "Status": "Failure", "Description": "Too little priority to actuate solenoid at " + valve_location + " with actuation type " + actuation_type + " at priority " + str(priority)})
             self.enqueue(log, LogPriority.CRIT)
             return Error.PRIORITY_ERROR
 
@@ -133,7 +133,7 @@ class TelemetryControl():
         self.flag.put(("solenoid", "actuation_type", valve_location), actuation_type)
         self.flag.put(("solenoid", "actuation_priority", valve_location), priority)
 
-        log = Log(header="response", message={"header": "Valve actuation", "status": "Success", "description": "Actuated solenoid at " + valve_location + " with actuation type " + actuation_type + " at priority " + str(priority)})
+        log = Log(header="response", message={"header": "Valve actuation", "Status": "Success", "Description": "Actuated solenoid at " + valve_location + " with actuation type " + actuation_type + " at priority " + str(priority)})
         self.enqueue(log, LogPriority.CRIT)
 
 
@@ -141,13 +141,13 @@ class TelemetryControl():
         err, value, timestamp = self.registry.get(("sensor_measured", sensor_type, sensor_location), allow_error=True)
         if err != Error.NONE:
             # Send message back to gs saying it was an invalid message            
-            log = Log(header="response", message={"header": "Sensor data", "status": "Failure", "description": "Unable to find " + sensor_type + " in " + sensor_location})
+            log = Log(header="response", message={"header": "Sensor data", "Status": "Failure", "Description": "Unable to find " + sensor_type + " in " + sensor_location})
             self.enqueue(log, LogPriority.CRIT)
             return Error.REQUEST_ERROR
 
         _, kalman_value, _ = self.registry.get(("sensor_normalized", sensor_type, sensor_location), allow_error=True)
         _, status, _ = self.registry.get(("sensor_status", sensor_type, sensor_location))
-        log = Log(header="response", message={"header": "Sensor data", "status": "Success", "type": sensor_type, "location": sensor_location, "value": (value, kalman_value), "sensor_status": status, "last_updated": timestamp})
+        log = Log(header="response", message={"header": "Sensor data", "Status": "Success", "Type": sensor_type, "Location": sensor_location, "Measured value": value, "Normalized value": kalman_value, "Sensor status": status, "Last updated": timestamp})
         self.enqueue(log, LogPriority.INFO)
 
 
@@ -155,13 +155,13 @@ class TelemetryControl():
         err, value, timestamp = self.registry.get(("valve", valve_type, valve_location), allow_error=True)
         if err != Error.NONE:
             # Send message back to gs saying it was an invalid message            
-            log = Log(header="response", message={"header": "Valve data", "status": "Failure", "description": "Unable to find " + valve_type + " in " + valve_location})
+            log = Log(header="response", message={"header": "Valve data request", "Status": "Failure", "Description": "Unable to find " + valve_type + " in " + valve_location})
             self.enqueue(log, LogPriority.CRIT)
             return Error.REQUEST_ERROR
 
         _, actuation_type, timestamp = self.registry.get(("valve_actuation", "actuation_type", valve_type, valve_location))
-        _, actuation_priority, _ = self.registry.get(("valve", "actuation_priority", valve_type, valve_location))
-        log = Log(header="response", message={"header": "Valve data", "status": "Success", "type": valve_type, "location": valve_location, "state": value, "actuation_type": actuation_type, "actuation_priority": actuation_priority, "last_actuated": timestamp})
+        _, actuation_priority, _ = self.registry.get(("valve_actuation", "actuation_priority", valve_type, valve_location))
+        log = Log(header="response", message={"header": "Valve data", "Status": "Success", "Type": valve_type, "Location": valve_location, "State": value, "Actuation type": actuation_type, "Actuation priority": actuation_priority, "Last actuated": timestamp})
         self.enqueue(log, LogPriority.INFO)
 
 
