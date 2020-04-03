@@ -12,6 +12,7 @@ class ValveTask(Task):
         self.registry = registry
         self.flag = flag
         self.actuation_dict = {0: ActuationType.NONE, 1: ActuationType.CLOSE_VENT, 2: ActuationType.OPEN_VENT, 3: ActuationType.PULSE}
+        self.inv_actuations = dict([[v,k] for k,v in self.actuation_dict.items()])
         self.state_dict = {0: SolenoidState.OPEN, 1: SolenoidState.CLOSED}
 
 
@@ -42,8 +43,7 @@ class ValveTask(Task):
     def get_command(self, loc, actuation_type):
         #Formula: idx1 * 16 + idx2
         loc_idx = self.solenoids.index(loc)
-        inv_actuations = {v:k for k,v in zip(self.actuation_dict)}
-        actuation_idx = inv_actuations[actuation_type]
+        actuation_idx = self.inv_actuations[actuation_type]
         return loc_idx*16 + actuation_idx
 
 
@@ -87,7 +87,7 @@ class ValveTask(Task):
                         self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                         self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), actuation_priority)
 
-                    self.arduino.write(command)
+                    # self.arduino.write(command)
                     self.flag.put(("solenoid", "actuation_type", loc), ActuationType.NONE)
                     self.flag.put(("solenoid", "actuation_priority", loc), ValvePriority.NONE)
 
@@ -103,6 +103,7 @@ class ValveTask(Task):
             self.registry.put(("general", "hard_abort"), True)
             self.abort()
         elif self.flag.get(("general", "soft_abort"))[1]:
+            print("ABORTING VALVES")
             self.registry.put(("general", "soft_abort"), True)
             self.abort()
 
@@ -113,8 +114,8 @@ class ValveTask(Task):
     #TODO: Fix the structure of this method, it's completely different from other classes and won't work properly
     def actuate(self):
         self.check_abort()
-        if self.registry.get(("general", "soft_abort"))[1] or self.registry.get(("general", "hard_abort"))[1]:
-            # Can't actuate if the rocket's been aborted
-            return
+        # if self.registry.get(("general", "soft_abort"))[1] or self.registry.get(("general", "hard_abort"))[1]:
+        #     # Can't actuate if the rocket's been aborted
+        #     return
 
         self.actuate_solenoids()

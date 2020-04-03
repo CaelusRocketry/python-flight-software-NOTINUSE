@@ -19,7 +19,7 @@ class PseudoSensor():
 
 
     def set_sensor_values(self):
-        self.sensors = {i: self.sensors[i] + random.randint(-1, 1) for i in self.sensor_list}
+        self.sensors = {i: self.sensors[i] + random.randint(-10, 10) for i in self.sensor_list}
 
 
     def read(self):
