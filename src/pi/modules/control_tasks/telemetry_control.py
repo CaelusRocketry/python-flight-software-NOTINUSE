@@ -4,7 +4,7 @@ from modules.mcl.flag import Flag
 from modules.lib.errors import Error
 from modules.mcl.registry import Registry
 from modules.lib.packet import Packet, Log, LogPriority
-from modules.lib.enums import SensorType, SensorLocation, ValveLocation, ActuationType, ValveType, Stage
+from modules.lib.enums import SensorType, SensorLocation, ValveLocation, ActuationType, ValveType, ValvePriority, Stage
 
 class TelemetryControl(): 
     def __init__(self, registry: Registry, flag: Flag):
@@ -24,7 +24,7 @@ class TelemetryControl():
             "heartbeat": (),
             "hard_abort": (),
             "soft_abort": (),
-            "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", int)),
+            "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", ValvePriority)),
             "sensor_request": (("sensor_type", SensorType), ("sensor_location", SensorLocation)),
             "valve_request": (("valve_type", ValveType), ("valve_location", ValveLocation)),
             "progress": (),
@@ -73,12 +73,12 @@ class TelemetryControl():
                 if issubclass(arg_type, enum.Enum):
                     if log.message[arg_name] not in [x.value for x in arg_type]:
                         print("Invalid argument", arg_name, arg_type)
-                        log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Argument type": str(arg_type)})
+                        log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Received argument type": str(type(log.message[arg_name])), "Expected argument type (enum)": str(arg_type)})
                         self.enqueue(log, LogPriority.CRIT)
                         return Error.INVALID_ARGUMENT_ERROR
                 elif not isinstance(log.message[arg_name], arg_type):
                     print("Invalid argument", arg_name, arg_type)
-                    log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Argument type": str(arg_type)})
+                    log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Received argument type": str(type(log.message[arg_name])), "Expected argument type": str(arg_type)})
                     self.enqueue(log, LogPriority.CRIT)
                     return Error.INVALID_ARGUMENT_ERROR
                 args.append(arg_type(log.message[arg_name]))
@@ -103,13 +103,13 @@ class TelemetryControl():
 
 
     def hard_abort(self):
-        self.flag.put(("general", "hard_abort"), True)
+        self.registry.put(("general", "hard_abort"), True)
         log = Log(header="response", message={"header": "Hard abort", "Status": "Success", "Description": "Rocket is undergoing hard abort"})
         self.enqueue(log, LogPriority.CRIT)
 
 
     def soft_abort(self):
-        self.flag.put(("general", "soft_abort"), True)
+        self.registry.put(("general", "soft_abort"), True)
         log = Log(header="response", message={"header": "Soft abort", "Status": "Success", "Description": "Rocket is undergoing soft abort"})
         self.enqueue(log, LogPriority.CRIT)
 

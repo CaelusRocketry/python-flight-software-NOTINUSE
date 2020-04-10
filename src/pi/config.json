@@ -97,7 +97,7 @@
                 "leak_testing_2",
                 "pre_ignition",
                 "disconnection"],
-        "request_interval": 3,
+        "request_interval": 10,
         "send_interval": 2
     }
 }

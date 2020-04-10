@@ -28,10 +28,12 @@ const ALL_PINS = {NITROGEN_FILL,
                   NO_MPV};
 const MAX_PIN = 10;
 int states[] = new int[MAX_PIN];
+boolean actuation_on[] = new int[MAX_PIN];
 unsigned long times[] = new unsigned long[MAX_PIN];
 
 // Serial/I2C definitions. MAKE SURE CLOSE_VENT, OPEN_VENT, PULSE MATCH WHATEVER'S IN valve_task.py
 const DATA = 0;
+const NO_ACTUATION = 0;
 const CLOSE_VENT = 1;
 const OPEN_VENT = 2;
 const PULSE = 3;
@@ -184,14 +186,19 @@ void receiveData(int byteCount){
     }
     int valve_pin = ALL_PINS[loc_idx];
     switch(actuation_type){
+      case NO_ACTUATION:
+        actuation_on[valve_pin] = false;
       case CLOSE_VENT:
         close(valve_pin);
+        actuation_on[valve_pin] = true;
         break;
       case OPEN_VENT:
         open(valve_pin);
+        actuation_on[valve_pin] = true;
         break;
       case PULSE:
         pulse(valve_pin);
+        actuation_on[valve_pin] = true;
         break;
     }
   }
@@ -204,6 +211,9 @@ void sendData(){
   }
   for(int valve = 0; valve < NUM_VALVES; valve++){
     int state = states[ALL_PINS[valve]];
+    if(!actuation_on[ALL_PINS[valve]]){
+      state = 0;
+    }
     data = data | (state << (valve * 2 + 1))
   }
   byte buf[4];

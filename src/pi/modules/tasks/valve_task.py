@@ -12,6 +12,7 @@ class ValveTask(Task):
         self.registry = registry
         self.flag = flag
         self.actuation_dict = {0: ActuationType.NONE, 1: ActuationType.CLOSE_VENT, 2: ActuationType.OPEN_VENT, 3: ActuationType.PULSE}
+        self.inv_actuations = {self.actuation_dict[k]:k for k in self.actuation_dict}
         self.state_dict = {0: SolenoidState.OPEN, 1: SolenoidState.CLOSED}
 
 
@@ -40,11 +41,10 @@ class ValveTask(Task):
 
 
     def get_command(self, loc, actuation_type):
-        #Formula: idx1 * 16 + idx2
+        # Message structure: [loc, actuation type]
         loc_idx = self.solenoids.index(loc)
-        inv_actuations = {v:k for k,v in zip(self.actuation_dict)}
-        actuation_idx = inv_actuations[actuation_type]
-        return loc_idx*16 + actuation_idx
+        actuation_idx = self.inv_actuations[actuation_type]
+        return [loc_idx, actuation_idx]
 
 
     def read(self):
@@ -59,6 +59,7 @@ class ValveTask(Task):
             val = int_data & 0b11
             actuation = self.get_actuation_type(val)
             actuation_types.append(actuation)
+#            print(val, actuation)
             states.append(SolenoidState.CLOSED if actuation == ActuationType.CLOSE_VENT or actuation == ActuationType.NONE else SolenoidState.OPEN)
             int_data = int_data >> 2
 
@@ -74,7 +75,7 @@ class ValveTask(Task):
             _, actuation_priority = self.flag.get(("solenoid", "actuation_priority", loc))
             if actuation_priority != ValvePriority.NONE:
                 _, curr_priority, _ = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc))
-                print(actuation_priority, curr_priority)
+#                print(actuation_priority, curr_priority)
                 if actuation_priority >= curr_priority:
                     if actuation_type == ActuationType.NONE:
                         print("Allowing others to actuate")
@@ -82,7 +83,7 @@ class ValveTask(Task):
                         self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                         self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), ValvePriority.NONE)
                     else:
-                        print("Actuating")
+#                        print("Actuating")
                         command = self.get_command(loc, actuation_type)
                         self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                         self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), actuation_priority)
@@ -92,29 +93,10 @@ class ValveTask(Task):
                     self.flag.put(("solenoid", "actuation_priority", loc), ValvePriority.NONE)
 
 
-    def abort(self):
-        for loc in self.solenoids:
-            self.flag.put(("solenoid", "actuation_type", loc), ActuationType.OPEN_VENT)
-            self.flag.put(("solenoid", "actuation_priority", loc), ValvePriority.ABORT_PRIORITY)
-
-
-    def check_abort(self):
-        if self.flag.get(("general", "hard_abort"))[1]:
-            self.registry.put(("general", "hard_abort"), True)
-            self.abort()
-        elif self.flag.get(("general", "soft_abort"))[1]:
-            self.registry.put(("general", "soft_abort"), True)
-            self.abort()
-
-        self.flag.put(("general", "hard_abort"), False)
-        self.flag.put(("general", "soft_abort"), False)
-
 
     #TODO: Fix the structure of this method, it's completely different from other classes and won't work properly
     def actuate(self):
-        self.check_abort()
-        if self.registry.get(("general", "soft_abort"))[1] or self.registry.get(("general", "hard_abort"))[1]:
+#        if self.registry.get(("general", "soft_abort"))[1] or self.registry.get(("general", "hard_abort"))[1]:
             # Can't actuate if the rocket's been aborted
-            return
-
+#            return
         self.actuate_solenoids()

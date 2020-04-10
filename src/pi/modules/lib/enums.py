@@ -14,7 +14,7 @@ class SensorLocation(str, Enum):
 
 
 class SolenoidState(str, Enum):
-    OPEN = 'open'
+    OPEN = "open"
     CLOSED = "closed"
 
 
@@ -44,6 +44,7 @@ class ActuationType(str, Enum):
 
 class ValvePriority(IntEnum):
     NONE = 0
+    LOW_PRIORITY = 1
     PI_PRIORITY = 2
     MAX_TELEMETRY_PRIORITY = 3
     ABORT_PRIORITY = 4
@@ -56,14 +57,3 @@ class Stage(str, Enum):
     LEAK_TESTING_2 = "leak_testing_2"
     PRE_IGNITION = "pre_ignition"
     DISCONNECTION = "disconnection"
-
-
-ENUMS = [SensorType, SensorLocation, SolenoidState, ValveType, ValveLocation, ActuationType, Stage]
-class EnumEncoder(json.JSONEncoder):
-    def default(self, obj):
-        print("TYPE: ", type(obj))
-        if type(obj) in ENUMS:
-            string = str(obj)
-#            return string[string.index(".") + 1:]
-            return string
-        return json.JSONEncoder.default(self, obj)

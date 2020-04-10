@@ -40,20 +40,21 @@ class PseudoValve():
         valves = self.config["list"]
         self.solenoid_locs = [loc for loc in valves[ValveType.SOLENOID]]
         self.valve_states = {(ValveType.SOLENOID, loc): SolenoidState.CLOSED for loc in self.solenoid_locs}
-        self.valve_actuations = {(ValveType.SOLENOID, loc): ActuationType.CLOSE_VENT for loc in self.solenoid_locs}
+        self.valve_actuations = {(ValveType.SOLENOID, loc): ActuationType.NONE for loc in self.solenoid_locs}
         self.state_dict = {SolenoidState.CLOSED: 0, SolenoidState.OPEN: 1}
-        self.actuation_dict = {ActuationType.CLOSE_VENT: 1, ActuationType.OPEN_VENT: 2, ActuationType.PULSE: 3}
+        self.actuation_dict = {ActuationType.NONE: 0, ActuationType.CLOSE_VENT: 1, ActuationType.OPEN_VENT: 2, ActuationType.PULSE: 3}
+        self.inv_actuations = {self.actuation_dict[k]:k for k in self.actuation_dict}
 
 
     def read(self):
 #        self.set_sensor_values()
 #        print(self.valve_states.values(), self.valve_actuations.values())
-        time.sleep(0.5)
+#        time.sleep(0.5)
         data = 0
         for idx, loc in enumerate(self.solenoid_locs):
             state = self.actuation_dict[self.valve_actuations[(ValveType.SOLENOID, loc)]]
             data = data | (state << (idx * 2 + 1))
-        return int.to_bytes(data, 4, 'little')
+        return int.to_bytes(data, 4, 'big')
     
 
     def actuate(self, valve, state1, timer, state2):
@@ -63,12 +64,12 @@ class PseudoValve():
 
 
     def write(self, msg):
-        #Formula: idx1 * 16 + idx2
+        # Message structure: [loc, actuation type]
         loc_idx = msg[0]
         actuation_idx = msg[1]
         valve = (ValveType.SOLENOID, self.solenoid_locs[loc_idx])
-        inv_actuations = {v:k for k,v in zip(self.actuation_dict)}
-        actuation_type = inv_actuations[actuation_idx]
+        actuation_type = self.inv_actuations[actuation_idx]
+#        print("Actuating:", valve, actuation_type)
         # Switch statement
         if actuation_type == ActuationType.OPEN_VENT:
             state1 = SolenoidState.OPEN

@@ -1,7 +1,6 @@
 import time
 import json
 from enum import IntEnum
-from modules.lib.enums import EnumEncoder
 
 
 class LogPriority(IntEnum):

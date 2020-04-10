@@ -10,8 +10,6 @@ class Flag:
         self.solenoids = self.valves[ValveType.SOLENOID]
         self.flags = {
             "general": {
-                "hard_abort": False,
-                "soft_abort": False,
                 "progress": False
             },
             "telemetry": {
@@ -27,8 +25,6 @@ class Flag:
 
         self.types = {
             "general": {
-                "hard_abort": bool,
-                "soft_abort": bool,
                 "progress": bool
             },
             "telemetry": {

@@ -1,11 +1,12 @@
 ### Import the necessary classes
+import time
+from modules.mcl.flag import Flag
+from modules.mcl.registry import Registry
 from modules.tasks.telemetry_task import TelemetryTask
 from modules.tasks.sensor_task import SensorTask
 from modules.tasks.valve_task import ValveTask
 from modules.control_tasks.control_task import ControlTask
 from modules.lib.enums import SensorType, SensorLocation, ValveType, ValveLocation
-from modules.mcl.flag import Flag
-from modules.mcl.registry import Registry
 
 class Supervisor:
 
@@ -89,14 +90,14 @@ class Supervisor:
 
     def run(self):
         self.initialize()
+        start = time.time()
         while True:
-            import time
             self.read()
             self.control()
             self.actuate()
+            if time.time() - start > 3:
+                self.registry.put(("general", "soft_abort"), True)
 
 
-#TODO: Valve control shouldn't allow valves to be open for more than 5 secs
-#TODO: Create boundaries in config.json and properly parse it
-#TODO: Sensor control should check for boundaries and respond accordingly
+#TODO: S̶e̶n̶s̶o̶r̶ c̶o̶n̶t̶r̶o̶l̶ s̶h̶o̶u̶l̶d̶ c̶h̶e̶c̶k̶ f̶o̶r̶ b̶o̶u̶n̶d̶a̶r̶i̶e̶s̶ and respond accordingly
 #TODO: Soft and hard abort implementations
