@@ -36,7 +36,8 @@ class SensorControl():
 
     # Test to make sure sensor values aren't outside the boundaries set in the config. If they are, update the registry with the appropriate SensorStatus.
     def boundary_check(self):
-       for sensor_type in self.sensors:
+        crits = []
+        for sensor_type in self.sensors:
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor_measured", sensor_type, sensor_location))
                 kalman_val = self.kalman_filters[sensor_type][sensor_location].update_kalman(val)
@@ -47,15 +48,21 @@ class SensorControl():
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.WARNING)
                 else:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.CRITICAL)
+                    crits.append([sensor_type, sensor_location])
 
-                    # soft abort if sensor status is critical and send info to GS
-                    soft = self.registry.get(("general", "soft_abort"))[1]
-                    if not soft:
-                        self.registry.put(("general", "soft_abort"), True)
-                        log = Log(header="response", message={"header": "soft_abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
-                        _, enqueue = self.flag.get(("telemetry", "enqueue"))
-                        enqueue.append((log, LogPriority.CRIT))
-                        self.flag.put(("telemetry", "enqueue"), enqueue)
+        if len(crits) == 0:
+            pass
+
+        else:
+            # soft abort if sensor status is critical and send info to GS
+            soft = self.registry.get(("general", "soft_abort"))[1]
+            if not soft:
+                self.registry.put(("general", "soft_abort"), True)
+                log = Log(header="response", message={"header": "soft_abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
+                print("SEND HEADER MESSAGE TO GS")
+                _, enqueue = self.flag.get(("telemetry", "enqueue"))
+                enqueue.append((log, LogPriority.CRIT))
+                self.flag.put(("telemetry", "enqueue"), enqueue)
 
 
     def send_sensor_data(self):
