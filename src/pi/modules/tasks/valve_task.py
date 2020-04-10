@@ -83,12 +83,12 @@ class ValveTask(Task):
                         self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                         self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), ValvePriority.NONE)
                     else:
-#                        print("Actuating")
+                        print("Actuating")
                         command = self.get_command(loc, actuation_type)
                         self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                         self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), actuation_priority)
 
-                    # self.arduino.write(command)
+                    self.arduino.write(command)
                     self.flag.put(("solenoid", "actuation_type", loc), ActuationType.NONE)
                     self.flag.put(("solenoid", "actuation_priority", loc), ValvePriority.NONE)
 

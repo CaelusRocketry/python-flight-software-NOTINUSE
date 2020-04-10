@@ -98,7 +98,6 @@ class TelemetryControl():
 
 
     def heartbeat(self):
-        print("Heartbeating")
         self.enqueue(Log(header="heartbeat", message={"response": "OK"}), level=LogPriority.INFO)
 
 

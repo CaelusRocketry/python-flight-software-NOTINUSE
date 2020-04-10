@@ -42,7 +42,6 @@ class ValveControl():
 
 
     def check_abort(self):
-        # TODO: This is gonna spam Arduino w/ "ABORT" commands, but that should be fine right?
         if self.registry.get(("general", "hard_abort"))[1] or self.registry.get(("general", "soft_abort"))[1]:
             self.abort()
 
