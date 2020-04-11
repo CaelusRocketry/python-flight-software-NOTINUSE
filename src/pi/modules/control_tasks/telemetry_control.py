@@ -100,12 +100,14 @@ class TelemetryControl():
         self.registry.put(("general", "hard_abort"), True)
         log = Log(header="response", message={"header": "Hard abort", "Status": "Success", "Description": "Rocket is undergoing hard abort"})
         enqueue(self.flag, log, LogPriority.CRIT)
+        enqueue(self.flag, Log(header="mode", message={"mode": "Hard abort"}), LogPriority.CRIT)
 
 
     def soft_abort(self):
         self.registry.put(("general", "soft_abort"), True)
         log = Log(header="response", message={"header": "Soft abort", "Status": "Success", "Description": "Rocket is undergoing soft abort"})
         enqueue(self.flag, log, LogPriority.CRIT)
+        enqueue(self.flag, Log(header="mode", message={"mode": "Soft abort"}), LogPriority.CRIT)
 
 
     def solenoid_actuate(self, valve_location: ValveLocation, actuation_type: ActuationType, priority: int) -> Error:

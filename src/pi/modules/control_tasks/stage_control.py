@@ -52,7 +52,7 @@ class StageControl:
             self.request_time = time.time()
 
 
-    def send_stage_data(self):
+    def send_data(self):
         if self.send_time is None or time.time() > self.send_time + self.send_interval:
             log = Log(header="stage", message={"stage": self.curr_stage, "status": self.status})
             enqueue(self.flag, log, LogPriority.INFO)
@@ -78,9 +78,19 @@ class StageControl:
 
 
     def stage_valve_control(self):
-        # TODO: Actuate valves, make sure they're actuated properly
-        # Valve actuation should depend on current stage, so do it in a switch statement
-        pass
+        # TODO: Actuate valves based on current stage and make sure they're actuated properly
+        if self.curr_stage == Stage.PROPELLANT_LOADING:
+            pass
+        elif self.curr_stage == Stage.LEAK_TESTING_1:
+            pass
+        elif self.curr_stage == Stage.PRESSURANT_LOADING:
+            pass
+        elif self.curr_stage == Stage.LEAK_TESTING_2:
+            pass
+        elif self.curr_stage == Stage.PRE_IGNITION:
+            pass
+        elif self.curr_stage == Stage.DISCONNECTION:
+            pass
 
 
     def execute(self):
@@ -94,4 +104,4 @@ class StageControl:
             self.send_progression_request()
 
         self.stage_valve_control()
-        self.send_stage_data()
+        self.send_data()
