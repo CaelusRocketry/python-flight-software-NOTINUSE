@@ -1,4 +1,3 @@
-from modules.lib.mode import Mode
 from modules.lib.errors import Error
 from modules.lib.enums import ValveType, ValveLocation, ActuationType, ValvePriority
 

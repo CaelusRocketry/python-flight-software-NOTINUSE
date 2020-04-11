@@ -1,5 +1,6 @@
 import time
 from modules.mcl.flag import Flag
+from modules.lib.helpers import enqueue
 from modules.mcl.registry import Registry
 from modules.lib.packet import Log, LogPriority
 from modules.lib.enums import ActuationType, ValvePriority, ValveType
@@ -25,9 +26,7 @@ class ValveControl():
                 _, val, _ = self.registry.get(("valve", valve_type, valve_loc))
                 message[valve_type][valve_loc] = val
         log = Log(header="valve_data", message=message)
-        _, enqueue = self.flag.get(("telemetry", "enqueue"))
-        enqueue.append((log, LogPriority.INFO))
-        self.flag.put(("telemetry", "enqueue"), enqueue)
+        enqueue(self.flag, log, LogPriority.INFO)
 
 
     def abort(self):

@@ -4,7 +4,7 @@ from modules.lib.packet import Log, LogPriority
 from modules.lib.errors import Error
 from modules.mcl.registry import Registry
 from modules.lib.enums import Stage
-
+from modules.lib.helpers import enqueue
 
 class StageControl:
 
@@ -48,27 +48,21 @@ class StageControl:
     def send_progression_request(self):
         if self.request_time is None or time.time() > self.request_time + self.request_interval:
             log = Log(header="response", message={"header": "Stage progression request", "Current stage": self.curr_stage, "Next stage": self.stages[self.stage_idx + 1]})
-            _, queue = self.flag.get(("telemetry", "enqueue"))
-            queue.append((log, LogPriority.CRIT))
-            self.flag.put(("telemetry", "enqueue"), queue)
+            enqueue(self.flag, log, LogPriority.CRIT)
             self.request_time = time.time()
 
 
     def send_stage_data(self):
         if self.send_time is None or time.time() > self.send_time + self.send_interval:
             log = Log(header="stage", message={"stage": self.curr_stage, "status": self.status})
-            _, queue = self.flag.get(("telemetry", "enqueue"))
-            queue.append((log, LogPriority.INFO))
-            self.flag.put(("telemetry", "enqueue"), queue)
+            enqueue(self.flag, log, LogPriority.INFO)
             self.send_time = time.time()
 
 
     def progress(self):
         if self.status != 100:
             log = Log(header="response", message={"header": "Stage progression failed", "description": "Stage progression failed, rocket not yet ready", "Stage": self.curr_stage, "Status": self.status})
-            _, queue = self.flag.get(("telemetry", "enqueue"))
-            queue.append((log, LogPriority.CRIT))
-            self.flag.put(("telemetry", "enqueue"), queue)
+            enqueue(self.flag, log, LogPriority.CRIT)
             return
 
         self.stage_idx += 1
@@ -80,9 +74,7 @@ class StageControl:
         self.registry.put(("general", "stage_status"), self.status)
         self.start_time = time.time()
         log = Log(header="response", message={"header": "Stage progression successful", "description": "Stage progression was successful", "Stage": self.curr_stage, "Status": self.status})
-        _, queue = self.flag.get(("telemetry", "enqueue"))
-        queue.append((log, LogPriority.CRIT))
-        self.flag.put(("telemetry", "enqueue"), queue)
+        enqueue(self.flag, log, LogPriority.CRIT)
 
 
     def stage_valve_control(self):

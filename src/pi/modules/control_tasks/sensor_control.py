@@ -1,6 +1,7 @@
 import time
 from modules.mcl.flag import Flag
 from modules.lib.kalman import Kalman
+from modules.lib.helpers import enqueue
 from modules.mcl.registry import Registry
 from modules.lib.packet import Log, LogPriority
 from modules.lib.enums import SensorType, SensorLocation, SensorStatus
@@ -58,18 +59,14 @@ class SensorControl():
                     # Undo soft abort (since all sensors are back to normal)
                     self.registry.put(("general", "soft_abort"), False)
                     log = Log(header="response", message={"header": "Undoing soft abort", "Description": "All sensors have returned to non-critical levels"})
-                    _, enqueue = self.flag.get(("telemetry", "enqueue"))
-                    enqueue.append((log, LogPriority.CRIT))
-                    self.flag.put(("telemetry", "enqueue"), enqueue)
+                    enqueue(self.flag, log, LogPriority.CRIT)
             else:
                 # soft abort if sensor status is critical and send info to GS
                 soft = self.registry.get(("general", "soft_abort"))[1]
                 if not soft:
                     self.registry.put(("general", "soft_abort"), True)
                     log = Log(header="response", message={"header": "Soft abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
-                    _, enqueue = self.flag.get(("telemetry", "enqueue"))
-                    enqueue.append((log, LogPriority.CRIT))
-                    self.flag.put(("telemetry", "enqueue"), enqueue)
+                    enqueue(self.flag, log, LogPriority.CRIT)
 
 
     def send_sensor_data(self):
@@ -82,9 +79,7 @@ class SensorControl():
                 _, status, _ = self.registry.get(("sensor_status", sensor_type, sensor_location))                
                 message[sensor_type][sensor_location] = {"value": (val, kalman_val), "status": status}
         log = Log(header="sensor_data", message=message)
-        _, enqueue = self.flag.get(("telemetry", "enqueue"))
-        enqueue.append((log, LogPriority.INFO))
-        self.flag.put(("telemetry", "enqueue"), enqueue)
+        enqueue(self.flag, log, LogPriority.INFO)
 
 
     def execute(self):
