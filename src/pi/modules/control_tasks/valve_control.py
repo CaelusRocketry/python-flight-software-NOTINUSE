@@ -27,7 +27,6 @@ class ValveControl():
         log = Log(header="valve_data", message=message)
         _, enqueue = self.flag.get(("telemetry", "enqueue"))
         enqueue.append((log, LogPriority.INFO))
-        print(log.to_string())
         self.flag.put(("telemetry", "enqueue"), enqueue)
 
 
@@ -36,19 +35,28 @@ class ValveControl():
             actuation_type = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc))[1]
             actuation_priority = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_loc))[1]
             if actuation_type != ActuationType.OPEN_VENT or actuation_priority != ValvePriority.ABORT_PRIORITY:
-#                print("Hai")
                 self.flag.put(("solenoid", "actuation_type", valve_loc), ActuationType.OPEN_VENT)
+                self.flag.put(("solenoid", "actuation_priority", valve_loc), ValvePriority.ABORT_PRIORITY)
+
+
+    def undo_abort(self):
+        for valve_loc in self.valves["solenoid"]:
+            actuation_type = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc))[1]
+            actuation_priority = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_loc))[1]
+            if actuation_priority == ValvePriority.ABORT_PRIORITY:
+                self.flag.put(("solenoid", "actuation_type", valve_loc), ActuationType.NONE)
                 self.flag.put(("solenoid", "actuation_priority", valve_loc), ValvePriority.ABORT_PRIORITY)
 
 
     def check_abort(self):
         if self.registry.get(("general", "hard_abort"))[1] or self.registry.get(("general", "soft_abort"))[1]:
             self.abort()
+        elif not self.registry.get(("general", "soft_abort"))[1]:
+            self.undo_abort()
 
 
     def execute(self):
         self.check_abort()
-#        print([self.registry.get(("valve", valve_type, valve_loc)) for valve_type in self.valves for valve_loc in self.valves[valve_type]])
         if self.last_send_time is None or time.time() - self.last_send_time > self.send_interval:
             self.send_valve_data()
             self.last_send_time = time.time()

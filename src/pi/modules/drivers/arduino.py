@@ -1,3 +1,4 @@
+import json
 import time
 import random
 import struct
@@ -19,7 +20,16 @@ class PseudoSensor():
 
 
     def set_sensor_values(self):
-        self.sensors = {i: self.sensors[i] + random.randint(-10, 10) for i in self.sensor_list}
+        import os
+        print("Waiting")
+        time.sleep(0.7)
+        ranges = json.load(open("modules/drivers/pseudo_sensor_ranges.json"))["ranges"]
+        for sensor in ranges:
+            for loc in ranges[sensor]:
+                range = ranges[sensor][loc]
+                assert((sensor, loc) in self.sensors)
+                self.sensors[(sensor, loc)] = random.randint(range[0], range[1])
+#        self.sensors = {i: self.sensors[i] + random.randint(-10, 10) for i in self.sensor_list}
 
 
     def read(self):
@@ -47,7 +57,7 @@ class PseudoValve():
 
 
     def read(self):
-#        self.set_sensor_values()
+#        print(self.valve_actuations)
 #        print(self.valve_states.values(), self.valve_actuations.values())
 #        time.sleep(0.5)
         data = 0
@@ -59,8 +69,13 @@ class PseudoValve():
 
     def actuate(self, valve, state1, timer, state2):
         self.valve_states[valve] = state1
-        time.sleep(timer)
+        if timer != -1:
+            time.sleep(timer)
         self.valve_states[valve] = state2
+        print("Done actuating boi")
+        if timer != -1:
+            print("Setting valve actuation type to none")
+            self.valve_actuations[valve] = ActuationType.NONE
 
 
     def write(self, msg):
@@ -73,14 +88,13 @@ class PseudoValve():
         # Switch statement
         if actuation_type == ActuationType.OPEN_VENT:
             state1 = SolenoidState.OPEN
-            timer = 0
+            timer = -1
             state2 = SolenoidState.OPEN
-        elif actuation_type == ActuationType.CLOSE_VENT:
+        elif actuation_type == ActuationType.CLOSE_VENT or actuation_type == ActuationType.NONE:
             state1 = SolenoidState.CLOSED
-            timer = 0
+            timer = -1
             state2 = SolenoidState.CLOSED
         elif actuation_type == ActuationType.PULSE:
-            print("Pulsing")
             state1 = SolenoidState.OPEN
             #TODO: Change the timer to the actual pulse timer
             timer = 2.0

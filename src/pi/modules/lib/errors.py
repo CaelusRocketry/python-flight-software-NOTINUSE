@@ -14,5 +14,6 @@ class Error(Enum):
 
     # Valve and sensor request errors
     REQUEST_ERROR = auto()
+    PRIORITY_ERROR = auto()
 
     TELEM_CONNECTION_ERROR = auto()

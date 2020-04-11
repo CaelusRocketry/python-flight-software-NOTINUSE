@@ -79,7 +79,7 @@ class ValveTask(Task):
                 if actuation_priority >= curr_priority:
                     if actuation_type == ActuationType.NONE:
                         print("Allowing others to actuate")
-                        command = self.get_command(loc, ActuationType.CLOSE_VENT)
+                        command = self.get_command(loc, ActuationType.NONE)
                         self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                         self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), ValvePriority.NONE)
                     else:
@@ -94,7 +94,6 @@ class ValveTask(Task):
 
 
 
-    #TODO: Fix the structure of this method, it's completely different from other classes and won't work properly
     def actuate(self):
 #        if self.registry.get(("general", "soft_abort"))[1] or self.registry.get(("general", "hard_abort"))[1]:
             # Can't actuate if the rocket's been aborted

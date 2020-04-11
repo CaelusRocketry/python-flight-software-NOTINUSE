@@ -50,19 +50,26 @@ class SensorControl():
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.CRITICAL)
                     crits.append([sensor_type, sensor_location])
 
-        if len(crits) == 0:
-            pass
-
-        else:
-            # soft abort if sensor status is critical and send info to GS
-            soft = self.registry.get(("general", "soft_abort"))[1]
-            if not soft:
-                self.registry.put(("general", "soft_abort"), True)
-                log = Log(header="response", message={"header": "soft_abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
-                print("SEND HEADER MESSAGE TO GS")
-                _, enqueue = self.flag.get(("telemetry", "enqueue"))
-                enqueue.append((log, LogPriority.CRIT))
-                self.flag.put(("telemetry", "enqueue"), enqueue)
+        hard = self.registry.get(("general", "hard_abort"))[1]
+        if not hard:
+            if len(crits) == 0:
+                soft = self.registry.get(("general", "soft_abort"))[1]
+                if soft:
+                    # Undo soft abort (since all sensors are back to normal)
+                    self.registry.put(("general", "soft_abort"), False)
+                    log = Log(header="response", message={"header": "Undoing soft abort", "Description": "All sensors have returned to non-critical levels"})
+                    _, enqueue = self.flag.get(("telemetry", "enqueue"))
+                    enqueue.append((log, LogPriority.CRIT))
+                    self.flag.put(("telemetry", "enqueue"), enqueue)
+            else:
+                # soft abort if sensor status is critical and send info to GS
+                soft = self.registry.get(("general", "soft_abort"))[1]
+                if not soft:
+                    self.registry.put(("general", "soft_abort"), True)
+                    log = Log(header="response", message={"header": "Soft abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
+                    _, enqueue = self.flag.get(("telemetry", "enqueue"))
+                    enqueue.append((log, LogPriority.CRIT))
+                    self.flag.put(("telemetry", "enqueue"), enqueue)
 
 
     def send_sensor_data(self):
@@ -85,22 +92,4 @@ class SensorControl():
         if self.last_send_time is None or time.time() - self.last_send_time > self.send_interval:
             self.send_sensor_data()
             self.last_send_time = time.time()
-            print("Sending sensor data", time.time())
-
-        #TODO: Make these values correspond with the sensors, right now they're just random
-        #TODO: Add in all sensors properly
-
-        if self.registry.get(("sensor_measured", "thermocouple", "chamber"))[1] > 250:
-            pass
-
-        if self.registry.get(("sensor_measured", "thermocouple", "tank"))[1] > 250:
-            pass
-
-        if self.registry.get(("sensor_measured", "pressure", "chamber"))[1] > 250:
-            pass
-
-        if self.registry.get(("sensor_measured", "pressure", "tank"))[1] > 250:
-            pass
-
-        if self.registry.get(("sensor_measured", "pressure", "injector"))[1] > 250:
-            pass
+#            print("Sending sensor data", time.time())

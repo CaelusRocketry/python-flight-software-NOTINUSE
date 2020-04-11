@@ -90,14 +90,7 @@ class Supervisor:
 
     def run(self):
         self.initialize()
-#        start = time.time()
         while True:
             self.read()
             self.control()
             self.actuate()
-#            if time.time() - start > 3:
-#                self.registry.put(("general", "soft_abort"), True)
-
-
-#TODO: S̶e̶n̶s̶o̶r̶ c̶o̶n̶t̶r̶o̶l̶ s̶h̶o̶u̶l̶d̶ c̶h̶e̶c̶k̶ f̶o̶r̶ b̶o̶u̶n̶d̶a̶r̶i̶e̶s̶ and respond accordingly
-#TODO: Soft and hard abort implementations

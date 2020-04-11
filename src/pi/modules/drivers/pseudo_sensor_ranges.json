@@ -1,0 +1,16 @@
+{
+    "ranges": {
+        "thermocouple": {
+            "chamber": [450, 550],
+            "tank": [200, 250]
+        },
+        "pressure": {
+            "chamber": [100, 150],
+            "tank": [100, 150],
+            "injector": [100, 150]
+        },
+        "load": {
+            "tank": [100, 250]
+        }
+    }
+}
