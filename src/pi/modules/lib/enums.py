@@ -39,7 +39,7 @@ class ActuationType(str, Enum):
     PULSE = "pulse"
     OPEN_VENT = "open_vent"
     CLOSE_VENT = "close_vent"
-    NONE = None
+    NONE = "none"
 
 
 class ValvePriority(IntEnum):

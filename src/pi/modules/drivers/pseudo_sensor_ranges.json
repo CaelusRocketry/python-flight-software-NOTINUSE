@@ -1,7 +1,7 @@
 {
     "ranges": {
         "thermocouple": {
-            "chamber": [450, 550],
+            "chamber": [450, 500],
             "tank": [200, 250]
         },
         "pressure": {

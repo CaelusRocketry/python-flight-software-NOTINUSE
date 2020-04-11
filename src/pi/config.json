@@ -99,8 +99,5 @@
                 "disconnection"],
         "request_interval": 10,
         "send_interval": 2
-    },
-    "mode": {
-        "send_interval": 2
     }
 }

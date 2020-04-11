@@ -118,7 +118,7 @@ class TelemetryControl():
             enqueue(self.flag, log, LogPriority.CRIT)
             return Error.REQUEST_ERROR
 
-        if priority <= current_priority:
+        if priority < current_priority:
             # Send message back to gs saying that the request was made w/ too little priority
             log = Log(header="response", message={"header": "Valve actuation", "Status": "Failure", "Description": "Too little priority to actuate solenoid", "Valve location": valve_location, "Actuation type": actuation_type, "Priority": priority})
             enqueue(self.flag, log, LogPriority.CRIT)
