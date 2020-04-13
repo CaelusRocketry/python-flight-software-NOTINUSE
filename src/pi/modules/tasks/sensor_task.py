@@ -5,7 +5,6 @@ from modules.mcl.flag import Flag
 from modules.lib.enums import SensorType, SensorLocation
 import struct
 
-#TODO: Check w/ some boundaries file (boundaries should be part of config.json) and correspondingly update sensor statuses in registry
 class SensorTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
         self.name = "Sensor Arduino"

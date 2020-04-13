@@ -40,7 +40,6 @@ class TelemetryControl():
 
 
     def execute(self) -> Error:
-        #TODO: Check if resetting telemetry works
         _, status, timestamp = self.registry.get(("telemetry", "status"))
         if not status:
             self.flag.put(("telemetry", "reset"), True)
