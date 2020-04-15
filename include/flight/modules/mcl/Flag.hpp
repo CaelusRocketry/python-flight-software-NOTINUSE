@@ -6,10 +6,9 @@ using namespace std;
 
 class Flag {
 private:
-    string name;
 
 public:
-    Flag(string name);
+    Flag();
 };
 
 #endif //FLIGHT_FLAG_HPP

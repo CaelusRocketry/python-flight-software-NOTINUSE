@@ -14,7 +14,7 @@ class Supervisor {
         Flag* flag;
 
     public:
-        Supervisor(string name);
+        Supervisor();
         void initialize();
         void read();
         void control();

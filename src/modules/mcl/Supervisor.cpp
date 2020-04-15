@@ -2,11 +2,11 @@
 #include <Logger/logger_util.h>
 #include <flight/modules/mcl/Supervisor.hpp>
 
-Supervisor::Supervisor(string name){
+Supervisor::Supervisor(){
     log("Running the constructor");
     this->name = "Supervisor";
-    this->registry = new Registry("Registry");
-    this->flag = new Flag("Flag");
+    this->registry = new Registry();
+    this->flag = new Flag();
     log(this->name);
 }
 
