@@ -15,7 +15,6 @@ private:
     Flag* _flag;
 
 public:
-    TelemetryTask();
     TelemetryTask(Registry* registry, Flag* flag);
     void read();
     void actuate();
