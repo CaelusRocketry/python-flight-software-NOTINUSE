@@ -1,4 +1,5 @@
 #include <thread> // For time delay
+#include <assert.h>
 #include <Logger/logger_util.h>
 #include <flight/modules/mcl/Supervisor.hpp>
 
@@ -15,29 +16,18 @@ void Supervisor::initialize(){
 }
 
 void Supervisor::read(){
-    registry->put<int>("general.stage_progress", 0);
-//    registry->put<int>("general.stage_progress", 0);
-//    int val = registry->get<int>("general.stage_progress");
-//    int val = registry->get<int>("general.stage_progress");
-//    log("Current value: " + to_string(val));
+    int val = registry->get<int>("general.stage_progress");
+    log(to_string(val));
 }
 
 void Supervisor::control(){
-//    log("Controlling");
+    log("Controlling");
 }
 
 void Supervisor::actuate(){
-//    int val = registry->get<int>("general.stage_progress");
-//    bool worked = registry->put<int>("general.stage_progress", val + 1);
-/*
-    bool worked = false;
-    if(worked){
-        log("Put was successful");
-    }
-    else{
-        log("Put was unsuccessful");
-    }
-    */
+    int val = registry->get<int>("general.stage_progress");
+    bool worked = registry->put<int>("general.stage_progress", val + 1);
+    assert(worked);
 }
 
 void Supervisor::run(){
