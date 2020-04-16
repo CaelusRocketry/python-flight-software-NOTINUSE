@@ -6,6 +6,7 @@
 #include <flight/modules/mcl/Field.hpp>
 #include <flight/modules/mcl/FieldBase.hpp>
 #include <Logger/logger_util.h>
+
 using namespace std;
 
 class Registry {
@@ -28,6 +29,11 @@ public:
     template <typename T>
     void add(string path, T value){
         fields[path] = new Field<T>(path, value);
+    }
+
+    template <typename T>
+    void add(string path){
+        fields[path] = new Field<T>(path);
     }
 
     template <typename T>

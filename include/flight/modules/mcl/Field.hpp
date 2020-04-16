@@ -5,7 +5,7 @@
 
 using namespace std;
 
-template <typename T>
+template <class T>
 class Field : public virtual FieldBase {
     private:
         const string _id;
@@ -13,6 +13,11 @@ class Field : public virtual FieldBase {
         float _time;
 
     public:
+        Field(const string &id)
+        : _id(id),
+          _time(-1) {}
+
+
         Field(const string &id, int val)
         : _id(id),
           _val(val),

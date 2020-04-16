@@ -1,4 +1,5 @@
 #include <iostream>
+#include <flight/modules/tasks/TelemetryTask.hpp>
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Flag.hpp>
 
@@ -12,6 +13,7 @@ class Supervisor {
         string name;
         Registry* registry;
         Flag* flag;
+        TelemetryTask* task;
 
     public:
         Supervisor();

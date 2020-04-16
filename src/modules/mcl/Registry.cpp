@@ -1,3 +1,4 @@
+#include <queue>
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Field.hpp>
 
@@ -9,6 +10,9 @@ Registry::Registry(){
     // Valve fields
 
     // Telemetry fields
+    add<priority_queue<int>>("telemetry.ingest_queue");
+    add<bool>("telemetry.status", false);
+    add<bool>("telemetry.resetting", false);
 
     // General fields
     add<bool>("general.hard_abort", false);

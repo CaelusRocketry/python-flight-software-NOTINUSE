@@ -1,8 +1,20 @@
-//
-// Created by Srikar on 4/15/2020.
-//
+#ifndef FLIGHT_TELEMETRYTASK_HPP
+#define FLIGHT_TELEMETRYTASK_HPP
 
-#ifndef FLIGHT_TELEMETRY_HPP
-#define FLIGHT_TELEMETRY_HPP
+#include <string>
+#include <flight/modules/drivers/Telemetry.hpp>
 
-#endif //FLIGHT_TELEMETRY_HPP
+using namespace std;
+
+class TelemetryTask {
+private:
+    Telemetry* telemetry;
+
+public:
+    TelemetryTask();
+    void read();
+    void actuate();
+};
+
+
+#endif //FLIGHT_TELEMETRYTASK_HPP

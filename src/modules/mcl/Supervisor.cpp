@@ -8,6 +8,7 @@ Supervisor::Supervisor(){
     name = "Supervisor";
     registry = new Registry();
     flag = new Flag();
+    task = new TelemetryTask();
     log(name);
 }
 

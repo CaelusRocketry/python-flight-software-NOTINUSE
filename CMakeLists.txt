@@ -6,7 +6,10 @@ set (SOURCE_FILES
     "./src/main.cpp"
     "./src/modules/mcl/Supervisor.cpp"
         "./src/modules/mcl/Registry.cpp"
-        "./src/modules/mcl/Flag.cpp")
+        "./src/modules/mcl/Flag.cpp"
+        "src/modules/drivers/Telemetry.cpp"
+        "src/modules/tasks/TelemetryTask.cpp"
+        )
 
 
 set(CMAKE_CXX_STANDARD 11) # misc stuff
