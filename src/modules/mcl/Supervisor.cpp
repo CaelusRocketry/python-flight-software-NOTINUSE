@@ -4,10 +4,10 @@
 
 Supervisor::Supervisor(){
     log("Running the constructor");
-    this->name = "Supervisor";
-    this->registry = new Registry();
-    this->flag = new Flag();
-    log(this->name);
+    name = "Supervisor";
+    registry = new Registry();
+    flag = new Flag();
+    log(name);
 }
 
 void Supervisor::initialize(){
@@ -15,15 +15,29 @@ void Supervisor::initialize(){
 }
 
 void Supervisor::read(){
-    log("Reading");
+    registry->put<int>("general.stage_progress", 0);
+//    registry->put<int>("general.stage_progress", 0);
+//    int val = registry->get<int>("general.stage_progress");
+//    int val = registry->get<int>("general.stage_progress");
+//    log("Current value: " + to_string(val));
 }
 
 void Supervisor::control(){
-    log("Controlling");
+//    log("Controlling");
 }
 
 void Supervisor::actuate(){
-    log("Actuating");
+//    int val = registry->get<int>("general.stage_progress");
+//    bool worked = registry->put<int>("general.stage_progress", val + 1);
+/*
+    bool worked = false;
+    if(worked){
+        log("Put was successful");
+    }
+    else{
+        log("Put was unsuccessful");
+    }
+    */
 }
 
 void Supervisor::run(){

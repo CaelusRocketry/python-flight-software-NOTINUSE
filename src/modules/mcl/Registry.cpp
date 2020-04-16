@@ -4,17 +4,63 @@
 
 Registry::Registry(){
     log("Registry created");
-    Field<int>* f = new Field<int>("hello", 5);
-    log(f->getName());
-    log(to_string(f->getVal()));
-    f->setVal(10);
-    log(to_string(f->getVal()));
+
+    // Sensor fields
+
+    // Valve fields
+
+    // Telemetry fields
+
+    // General fields
+    add<bool>("general.hard_abort", false);
+    add<bool>("general.soft_abort", false);
+    put<int>("general.stage", 0);
+    add<int>("general.stage_progress", 0);
 }
 
-void Registry::get(string name){
-    log("Getting");
+template <typename T>
+void Registry::add(string path, T value){
+    fields[path] = new Field<T>(path, value);
 }
 
-void Registry::put(string name){
-    log("Putting");
+template <typename T>
+T Registry::get(string path){
+    Field<T>* field = cast<T>(fields[path]);
+    if(field){
+        return field->getVal();
+    }
+    return nullptr;
+}
+
+template <typename T>
+void Registry::put(string path, T value){
+    fields[path] = new Field<T>(path, value);
+}
+
+/*
+template <typename T>
+void Registry::put(string path, T value){
+    Field<T>* field = cast<T>(fields[path]);
+    if(field){
+        field->setVal(value);
+//        return true;
+    }
+//    return false;
+}
+*/
+
+//template <typename T>
+//void Registry::put(string path, T value){
+//    fields[path] = new Field<T>(path, value);
+//}
+
+
+template <typename T>
+Field<T>* Registry::cast(FieldBase* base){
+    Field<T>* field = dynamic_cast<Field<T>*>(base);
+    if(field){
+        return field;
+    }
+    log("Dynamic casting failed");
+    return nullptr;
 }
