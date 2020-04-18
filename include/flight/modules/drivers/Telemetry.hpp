@@ -3,43 +3,42 @@
 
 #include <string>
 #include <queue>
-#include <websocketpp/config/asio_no_tls_client.hpp>
-#include <websocketpp/client.hpp>
+#include <stdio.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <mutex>
+#include <thread>
 
 using namespace std;
 
 class Telemetry {
 private:
 
-    typedef websocketpp::client<websocketpp::config::asio_client> client;
-    typedef websocketpp::lib::lock_guard<websocketpp::lib::mutex> scoped_lock;
-    typedef websocketpp::log::alevel alevel;
-
     string IP;
     int PORT;
-    double DELAY_LISTEN;
-    double DELAY_SEND;
-    bool _connection;
-    bool INGEST_LOCK;
+    long int DELAY_LISTEN;
+    long int DELAY_SEND;
+    bool connection;
     queue<string> ingest_queue;
     queue<string> send_queue;
+    mutex mtx;
+    thread* recv_thread;
+    bool TERMINATE_FLAG = false;
 
-    client m_client;
-    websocketpp::connection_hdl m_hdl;
-    websocketpp::lib::mutex m_lock;
-    bool m_open;
-    bool m_done;
+    struct sockaddr_in serv_addr;
+    int sock;
 
 
 public:
     Telemetry();
-    void run(const std::string & uri);
-    void on_open(websocketpp::connection_hdl);
-    void on_close(websocketpp::connection_hdl);
-    void on_fail(websocketpp::connection_hdl);
-    void telemetry_loop();
-
-
+    queue<string> read(int num_messages);
+    bool write(string msg);
+    void recv_loop();
+    bool status();
+    void reset();
+    bool connect();
+    void end();
 };
 
 

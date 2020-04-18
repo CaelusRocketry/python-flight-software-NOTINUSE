@@ -1,5 +1,5 @@
 #include <iostream>
-#include <flight/modules/tasks/TelemetryTask.hpp>
+#include <flight/modules/tasks/Task.hpp>
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Flag.hpp>
 
@@ -10,10 +10,9 @@ using namespace std;
 
 class Supervisor {
     private:
-        string name;
         Registry* registry;
         Flag* flag;
-        TelemetryTask* task;
+        Task* tasks[3];
 
     public:
         Supervisor();

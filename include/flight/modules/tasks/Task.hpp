@@ -1,17 +1,23 @@
-//
-// Created by Srikar on 4/15/2020.
-//
-
 #ifndef FLIGHT_TASK_HPP
 #define FLIGHT_TASK_HPP
+
+#include <flight/modules/mcl/Registry.hpp>
+#include <flight/modules/mcl/Flag.hpp>
 
 using namespace std;
 
 class Task {
     private:
+        Registry* registry;
+        Flag* flag;
 
     public:
-        Task();
+        Task(Registry* r, Flag* f)
+        : registry(r),
+          flag(f) {}
+        virtual void initialize() = 0;
+        virtual void read() = 0;
+        virtual void actuate() = 0;
 };
 
 

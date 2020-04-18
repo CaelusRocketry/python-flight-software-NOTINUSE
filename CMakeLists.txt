@@ -9,7 +9,7 @@ set (SOURCE_FILES
         "./src/modules/mcl/Flag.cpp"
         "src/modules/drivers/Telemetry.cpp"
         "src/modules/tasks/TelemetryTask.cpp"
-        )
+        src/modules/tasks/SensorTask.cpp src/modules/tasks/ValveTask.cpp)
 
 
 set(CMAKE_CXX_STANDARD 11) # misc stuff

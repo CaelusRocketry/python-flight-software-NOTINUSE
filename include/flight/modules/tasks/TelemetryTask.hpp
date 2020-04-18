@@ -2,20 +2,19 @@
 #define FLIGHT_TELEMETRYTASK_HPP
 
 #include <string>
+#include <flight/modules/tasks/Task.hpp>
 #include <flight/modules/drivers/Telemetry.hpp>
-#include <flight/modules/mcl/Registry.hpp>
-#include <flight/modules/mcl/Flag.hpp>
 
 using namespace std;
 
-class TelemetryTask {
+class TelemetryTask : public Task {
 private:
     Telemetry* _telemetry;
-    Registry* _registry;
-    Flag* _flag;
 
 public:
-    TelemetryTask(Registry* registry, Flag* flag);
+    TelemetryTask(Registry* r, Flag* f)
+    : Task(r, f) {}
+    void initialize();
     void read();
     void actuate();
 };
