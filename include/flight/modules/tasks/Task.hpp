@@ -7,7 +7,7 @@
 using namespace std;
 
 class Task {
-    private:
+    protected:
         Registry* registry;
         Flag* flag;
 

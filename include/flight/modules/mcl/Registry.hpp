@@ -1,6 +1,8 @@
 #ifndef FLIGHT_REGISTRY_HPP
 #define FLIGHT_REGISTRY_HPP
 
+#include <iostream>
+#include <assert.h>
 #include <string>
 #include <unordered_map>
 #include <flight/modules/mcl/Field.hpp>
@@ -38,11 +40,14 @@ public:
 
     template <typename T>
     T get(string path){
+        assert(fields.find(path) != fields.end());
+        log("Field exists");
         Field<T>* field = cast<T>(fields[path]);
         if(field){
             T val = field->getVal();
             return val;
         }
+        log("Dynamic casting no work");
         return NULL;
     }
 
@@ -54,6 +59,7 @@ public:
             field->setVal(value);
             return true;
         }
+        assert(false);
         return false;
     }
 };

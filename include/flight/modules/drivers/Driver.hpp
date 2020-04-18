@@ -1,7 +1,0 @@
-#ifndef FLIGHT_DRIVER_HPP
-#define FLIGHT_DRIVER_HPP
-
-
-
-
-#endif //FLIGHT_DRIVER_HPP

@@ -6,6 +6,12 @@ Registry::Registry(){
     log("Registry created");
 
     // Sensor fields
+    add<double>("sensor_measured.thermocouple.chamber", 0.0);
+    add<double>("sensor_measured.thermocouple.tank", 0.0);
+    add<double>("sensor_measured.pressure.chamber", 0.0);
+    add<double>("sensor_measured.pressure.tank", 0.0);
+    add<double>("sensor_measured.pressure.injector", 0.0);
+    add<double>("sensor_measured.load.tank", 0.0);
 
     // Valve fields
 

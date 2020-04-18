@@ -3,8 +3,6 @@
 
 #include <flight/modules/tasks/Task.hpp>
 
-using namespace std;
-
 class ValveTask : public Task {
 private:
 

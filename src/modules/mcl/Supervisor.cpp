@@ -11,9 +11,9 @@ Supervisor::Supervisor(){
     flag = new Flag();
 
     log("Creating tasks");
-    tasks[0] = new SensorTask(registry, flag);
-    tasks[1] = new TelemetryTask(registry, flag);
-    tasks[2] = new ValveTask(registry, flag);
+    tasks.push_back(new SensorTask(registry, flag));
+//    tasks.push_back(new TelemetryTask(registry, flag));
+//    tasks.push_back(new ValveTask(registry, flag));
 }
 
 void Supervisor::initialize(){
@@ -31,7 +31,7 @@ void Supervisor::read(){
 }
 
 void Supervisor::control(){
-//    log("Controlling");
+//    log("Sensor value: " + to_string(registry->get<double>("sensor_measured.thermocouple.chamber")));
 }
 
 void Supervisor::actuate(){

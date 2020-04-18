@@ -5,8 +5,6 @@
 #include <flight/modules/tasks/Task.hpp>
 #include <flight/modules/drivers/Telemetry.hpp>
 
-using namespace std;
-
 class TelemetryTask : public Task {
 private:
     Telemetry* _telemetry;
