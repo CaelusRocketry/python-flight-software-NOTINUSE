@@ -1,10 +1,17 @@
 #include <queue>
 #include "flight/modules/mcl/Flag.hpp"
 #include <Logger/logger_util.h>
+#include <flight/modules/lib/Enums.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+namespace pt = boost::property_tree;
 
 Flag::Flag(){
     log("Flag created");
-    //TODO: convert this to parsing from json: https://www.codespeedy.com/read-data-from-json-file-in-cpp/
+    //parsing from json: https://www.codespeedy.com/read-data-from-json-file-in-cpp/
+    pt::ptree root;
+    pt::read_json("flight/modules/lib/config.json", root);
 
     //general fields
     add<bool>("general.progress", false);
@@ -15,5 +22,9 @@ Flag::Flag(){
     add<bool>("telemetry.reset", true);
 
     //solenoid fields
-    //TODO: add this once the enums are done
+    auto sensor = root.get_child("sensors").get_child("list").get_child("solenoid");
+    for(auto &location : sensor) {
+        add<ActuationType>("solenoid.actuation_type." + location.second.get_value<std::string>(), ActuationType::NONE);
+        add<ValvePriority>("solenoid.actuation_priority" + location.second.get_value<std::string>(), ValvePriority::NONE);
+    }
 }
