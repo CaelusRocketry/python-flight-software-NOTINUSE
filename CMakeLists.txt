@@ -9,7 +9,7 @@ set (SOURCE_FILES
         "./src/modules/mcl/Flag.cpp"
         "src/modules/drivers/Telemetry.cpp"
         "src/modules/tasks/TelemetryTask.cpp"
-        src/modules/tasks/SensorTask.cpp src/modules/tasks/ValveTask.cpp include/flight/modules/drivers/PseudoArduino.hpp src/modules/drivers/Arduino.cpp include/flight/modules/drivers/PseudoSensor.hpp include/flight/modules/drivers/PseudoValve.hpp src/modules/drivers/PseudoSensor.cpp src/modules/drivers/PseudoValve.cpp)
+        src/modules/tasks/SensorTask.cpp src/modules/tasks/ValveTask.cpp include/flight/modules/drivers/PseudoArduino.hpp src/modules/drivers/Arduino.cpp include/flight/modules/drivers/PseudoSensor.hpp include/flight/modules/drivers/PseudoValve.hpp src/modules/drivers/PseudoSensor.cpp src/modules/drivers/PseudoValve.cpp include/flight/modules/lib/Enums.hpp)
 
 
 set(CMAKE_CXX_STANDARD 11) # misc stuff
