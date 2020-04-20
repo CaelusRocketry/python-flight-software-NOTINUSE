@@ -5,6 +5,8 @@
 Registry::Registry(){
     log("Registry created");
 
+    //TODO: convert this to parsing from json: https://www.codespeedy.com/read-data-from-json-file-in-cpp/
+
     // Sensor fields
     add<double>("sensor_measured.thermocouple.chamber", 0.0);
     add<double>("sensor_measured.thermocouple.tank", 0.0);
