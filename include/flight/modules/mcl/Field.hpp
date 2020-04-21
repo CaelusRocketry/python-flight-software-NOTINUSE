@@ -18,7 +18,7 @@ class Field : public virtual FieldBase {
           _time(-1) {}
 
 
-        Field(const string &id, int val)
+        Field(const string &id, T val)
         : _id(id),
           _val(val),
           _time(-1) {}
