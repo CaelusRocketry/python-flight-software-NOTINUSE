@@ -11,9 +11,8 @@ Registry::Registry(){
     log("Registry created");
 
     //parsing from json: https://www.codespeedy.com/read-data-from-json-file-in-cpp/
-
     pt::ptree root;
-    pt::read_json("flight/modules/lib/config.json", root);
+    pt::read_json("config.json", root);
 
     // Sensor fields
     auto sensor = root.get_child("sensors").get_child("list");

@@ -10,8 +10,9 @@ namespace pt = boost::property_tree;
 Flag::Flag(){
     log("Flag created");
     //parsing from json: https://www.codespeedy.com/read-data-from-json-file-in-cpp/
+
     pt::ptree root;
-    pt::read_json("flight/modules/lib/config.json", root);
+    pt::read_json("config.json", root);
 
     //general fields
     add<bool>("general.progress", false);
@@ -22,9 +23,9 @@ Flag::Flag(){
     add<bool>("telemetry.reset", true);
 
     //solenoid fields
-    auto sensor = root.get_child("sensors").get_child("list").get_child("solenoid");
+    auto sensor = root.get_child("sensors").get_child("list");
     for(auto &location : sensor) {
-        add<ActuationType>("solenoid.actuation_type." + location.second.get_value<std::string>(), ActuationType::NONE);
-        add<ValvePriority>("solenoid.actuation_priority" + location.second.get_value<std::string>(), ValvePriority::NONE);
+        add<ActuationType>("solenoid.actuation_type." + location.first, ActuationType::NONE);
+        add<ValvePriority>("solenoid.actuation_priority." + location.first, ValvePriority::NONE);
     }
 }
