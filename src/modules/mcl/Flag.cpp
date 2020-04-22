@@ -12,7 +12,7 @@ Flag::Flag(){
     //parsing from json: https://www.codespeedy.com/read-data-from-json-file-in-cpp/
 
     pt::ptree root;
-    pt::read_json("config.json", root);
+    pt::read_json("../src/config.json", root);
 
     //general fields
     add<bool>("general.progress", false);

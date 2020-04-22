@@ -4,6 +4,7 @@
 #include <flight/modules/lib/Enums.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <fstream>
 
 namespace pt = boost::property_tree;
 
@@ -12,7 +13,7 @@ Registry::Registry(){
 
     //parsing from json: https://www.codespeedy.com/read-data-from-json-file-in-cpp/
     pt::ptree root;
-    pt::read_json("config.json", root);
+    pt::read_json("../src/config.json", root);
 
     // Sensor fields
     auto sensor = root.get_child("sensors").get_child("list");
