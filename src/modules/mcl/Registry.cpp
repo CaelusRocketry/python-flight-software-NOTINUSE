@@ -2,35 +2,26 @@
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Field.hpp>
 #include <flight/modules/lib/Enums.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <fstream>
-
-namespace pt = boost::property_tree;
+#include <flight/modules/lib/Util.hpp>
 
 Registry::Registry(){
     log("Registry created");
 
-    //parsing from json: https://www.codespeedy.com/read-data-from-json-file-in-cpp/
-    pt::ptree root;
-    pt::read_json("../src/config.json", root);
-
     // Sensor fields
-    auto sensor = root.get_child("sensors").get_child("list");
-    for(auto &outer : sensor) {
-        for(auto &inner : sensor.get_child(outer.first)) {
-            add<double>("sensor_measured." + outer.first + "." + inner.second.get_value<std::string>(), 0.0);
-            add<double>("sensor_normalized." + outer.first + "." + inner.second.get_value<std::string>(), 0.0);
-            add<SensorStatus>("sensor_status." + outer.first + "." + inner.second.get_value<std::string>(), SensorStatus::SAFE);
+    for(string outer : Util::parse_json({"sensors", "list"})) {
+        for(string inner : Util::parse_json_list({"sensors", "list", outer})) {
+            add<double>("sensor_measured." + outer + "." + inner, 0.0);
+            add<double>("sensor_normalized." + outer + "." + inner, 0.0);
+            add<SensorStatus>("sensor_status." + outer + "." + inner, SensorStatus::SAFE);
+
         }
     }
 
     // Valve fields
-    auto valve = root.get_child("valves").get_child("list");
-    for(auto &outer : sensor) {
-        for(auto &inner : sensor.get_child(outer.first)) {
-            add<SolenoidState>("valve." + outer.first + "." + inner.second.get_value<std::string>(), SolenoidState::CLOSED);
-            add<ActuationType>("valve_actuation." + outer.first + "." + inner.second.get_value<std::string>(), ActuationType::NONE);
+    for(string outer : Util::parse_json({"valves", "list"})) {
+        for(string inner : Util::parse_json_list({"valves", "list", outer})) {
+            add<SolenoidState>("valve." + outer + "." + inner, SolenoidState::CLOSED);
+            add<ActuationType>("valve_actuation." + outer + "." + inner, ActuationType::NONE);
         }
     }
 
