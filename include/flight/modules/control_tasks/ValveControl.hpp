@@ -15,8 +15,8 @@ private:
     Registry registry;
     Flag flag;
     std::vector<std::string> valves;
-    double m_sendInterval;
-    double m_lastSendTime;
+    double send_interval;
+    double last_send_time;
 
     void sendValveData();
     void abort();
@@ -24,7 +24,7 @@ private:
     void checkAbort();
 
 public:
-    ValveControl(Registry, Flag);
+    ValveControl(Registry& registry, Flag& flag);
     void execute();
 };
 

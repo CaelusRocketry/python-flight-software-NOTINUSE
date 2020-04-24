@@ -12,9 +12,9 @@ class StageControl {
 private:
     Registry registry;
     Flag flag;
-    double m_requestTime;
-    double m_sendTime;
-    double m_startTime;
+    double request_time;
+    double send_time;
+    double start_time;
 
     double calculateStatus();
 
@@ -24,7 +24,7 @@ private:
     void stageValveControl();
 
 public:
-    StageControl(Registry, Flag);
+    StageControl(Registry& registry, Flag& flag);
     void execute();
 };
 
