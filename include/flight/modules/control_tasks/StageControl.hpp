@@ -7,11 +7,12 @@
 
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Flag.hpp>
+#include <flight/modules/control_tasks/Control.hpp>
 
-class StageControl {
+class StageControl : public Control {
 private:
-    Registry registry;
-    Flag flag;
+    Registry *registry;
+    Flag *flag;
     double request_time;
     double send_time;
     double start_time;
@@ -24,7 +25,8 @@ private:
     void stageValveControl();
 
 public:
-    StageControl(Registry& registry, Flag& flag);
+    StageControl(Registry *registry, Flag *flag);
+    void begin();
     void execute();
 };
 

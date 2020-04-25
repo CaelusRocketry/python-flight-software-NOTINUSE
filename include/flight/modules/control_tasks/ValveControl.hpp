@@ -9,11 +9,12 @@
 #include <flight/modules/mcl/Flag.hpp>
 #include <vector>
 #include <string>
+#include <flight/modules/control_tasks/Control.hpp>
 
-class ValveControl {
+class ValveControl : public Control {
 private:
-    Registry registry;
-    Flag flag;
+    Registry *registry;
+    Flag *flag;
     std::vector<std::string> valves;
     double send_interval;
     double last_send_time;
@@ -24,7 +25,8 @@ private:
     void checkAbort();
 
 public:
-    ValveControl(Registry& registry, Flag& flag);
+    ValveControl(Registry *registry, Flag *flag);
+    void begin();
     void execute();
 };
 
