@@ -5,6 +5,7 @@
 #include <flight/modules/mcl/Flag.hpp>
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/control_tasks/Control.hpp>
+#include <flight/modules/lib/Kalman.hpp>
 
 #ifndef FLIGHT_SENSORCONTROL_HPP
 #define FLIGHT_SENSORCONTROL_HPP
@@ -14,14 +15,17 @@ private:
     Registry *registry;
     Flag *flag;
     vector<string> sensors;
-    unordered_map<string, pair<int, int>> boundaries;
+    unordered_map<string, pair<double, double>> boundaries;
     double send_interval;
     double last_send_time;
+    unordered_map<string, Kalman> kalman_filters;
+    const vector<string> sensor_status_names = {"", "CRITICAL", "WARNING", "SAFE"};
 
-    unordered_map<string, pair<int, int>> build_boundaries();
+    unordered_map<string, pair<double, double>> build_boundaries();
+    vector<string> build_sensors();
     void boundary_check();
     void send_sensor_data();
-    void init_kalman();
+    unordered_map<string, Kalman> init_kalman();
 
 public:
     SensorControl(Registry *registry, Flag *flag);

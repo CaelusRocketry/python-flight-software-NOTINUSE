@@ -41,7 +41,7 @@ public:
     template <typename T>
     T get(string path){
         assert(fields.find(path) != fields.end());
-        log("Field exists");
+        //log("Field exists");
         Field<T>* field = cast<T>(fields[path]);
         if(field){
             T val = field->getVal();
