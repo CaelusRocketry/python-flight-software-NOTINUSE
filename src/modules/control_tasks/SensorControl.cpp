@@ -49,13 +49,13 @@ void SensorControl::boundary_check() {
     vector<string> crits;
 
     for(string &sensor : sensors) {
-        double value = registry->get<double>("sensor_normalized." + sensor);
+        double value = registry->get<double>("sensor_measured." + sensor);
         double kalman_value = kalman_filters.at(sensor).update_kalman(value);
         this->registry->put("sensor_normalized." + sensor, kalman_value);
 
-        if (boundaries.at(sensor + ".safe").first <= kalman_value <= boundaries.at(sensor + ".safe").second) {
+        if (boundaries.at(sensor + ".safe").first <= kalman_value && kalman_value <= boundaries.at(sensor + ".safe").second) {
             registry->put("sensor_status." + sensor, SensorStatus::SAFE);
-        } else if (boundaries.at(sensor + ".warn").first <= kalman_value <= boundaries.at(sensor + ".warn").second) {
+        } else if (boundaries.at(sensor + ".warn").first <= kalman_value && kalman_value <= boundaries.at(sensor + ".warn").second) {
             registry->put("sensor_status." + sensor, SensorStatus::WARNING);
         } else {
             registry->put("sensor_status." + sensor, SensorStatus::CRITICAL);
@@ -132,12 +132,11 @@ void SensorControl::send_sensor_data() {
         double value = registry->get<double>("sensor_measured." + sensor);
         double kalman_value = registry->get<double>("sensor_normalized." + sensor);
 
-        //TODO: make this work, rn registry cant do get with enums???
-        //SensorStatus status = registry->get<SensorStatus>("sensor_status." + sensor);
+        SensorStatus status = registry->get<SensorStatus>("sensor_status." + sensor);
 
         //TODO: replace with enqueue once telemetry is done
 
-        log(sensor + " - normal: " + to_string(value) + " kalman: " + to_string(kalman_value) + " status: " + sensor_status_names.at(3));
+        log(sensor + " - normal: " + to_string(value) + " kalman: " + to_string(kalman_value) + " status: " + sensor_status_names.at(int(status)));
     }
 }
 
