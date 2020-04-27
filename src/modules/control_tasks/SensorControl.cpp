@@ -4,6 +4,7 @@
 
 #include <flight/modules/control_tasks/SensorControl.hpp>
 #include <flight/modules/lib/Enums.hpp>
+#include <flight/modules/lib/Util.hpp>
 #include <boost/any.hpp>
 #include <chrono>
 

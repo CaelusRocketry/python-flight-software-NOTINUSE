@@ -34,6 +34,7 @@ Registry::Registry(){
     add<bool>("general.hard_abort", false);
     add<bool>("general.soft_abort", false);
     add<Stage>("general.stage", Stage::PROPELLANT_LOADING);
+    add<double>("general.stage_status", 0.0);
     add<int>("general.stage_progress", 0);
 }
 

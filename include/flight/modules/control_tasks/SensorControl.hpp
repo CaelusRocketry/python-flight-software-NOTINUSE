@@ -3,9 +3,9 @@
 //
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Flag.hpp>
-#include <flight/modules/lib/Util.hpp>
 #include <flight/modules/control_tasks/Control.hpp>
 #include <flight/modules/lib/Kalman.hpp>
+#include <vector>
 
 #ifndef FLIGHT_SENSORCONTROL_HPP
 #define FLIGHT_SENSORCONTROL_HPP
