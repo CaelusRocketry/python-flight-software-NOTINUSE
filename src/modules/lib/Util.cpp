@@ -1,11 +1,6 @@
-//
-// Created by adiv413 on 4/27/2020.
-//
-
 #include <flight/modules/lib/Util.hpp>
 
 namespace pt = boost::property_tree;
-
 vector<string> Util::parse_json(initializer_list<string> args) {
     pt::ptree root;
     pt::read_json("../src/config.json", root);
@@ -88,4 +83,36 @@ string Util::parse_json_value(initializer_list<string> args) {
     }
 
     return ret;
+}
+
+string Util::map_to_string(map<string, string> data, string key_delim, string element_delim){
+    string output = "";
+    map<string, string>::iterator it = data.begin();
+    while(it != data.end()){
+        string key = it->first;
+        string value = it->second;
+        output += key + key_delim + value;
+        output += element_delim;
+        it++;
+    }
+    return output;
+}
+
+
+map<string, string> Util::string_to_map(string data, string key_delim, string element_delim){
+    map<string, string> output;
+    string temp = data;
+
+    size_t pos;
+    while((pos = temp.find(element_delim)) != string::npos){
+        string token = temp.substr(0, pos);
+        size_t split = token.find(key_delim);
+        assert(split != string::npos);
+        string key = token.substr(0, split);
+        token.erase(0, split + key_delim.length());
+        output.insert(pair<string, string>(key, token));
+        temp.erase(0, pos + element_delim.length());
+    }
+
+    return output;
 }

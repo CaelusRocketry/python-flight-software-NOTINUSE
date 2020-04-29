@@ -1,7 +1,3 @@
-//
-// Created by adiv413 on 4/26/2020.
-//
-
 #ifndef FLIGHT_KALMAN_HPP
 #define FLIGHT_KALMAN_HPP
 

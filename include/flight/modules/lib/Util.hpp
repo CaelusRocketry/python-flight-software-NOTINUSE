@@ -1,9 +1,6 @@
-//
-// Created by adiv413 on 4/23/2020.
-//
-
 #include <iostream>
 #include <vector>
+#include <map>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <Logger/logger_util.h>
@@ -38,4 +35,21 @@ public:
      */
 
     static string parse_json_value(initializer_list<string> args);
+
+    /*
+     * Used to convert a dictionary (with string key and value) to a string.
+     * Used by Log and Packet in the toString methods.
+     * key_delim is the separator between the key and the value (for example ':' when python prints a dictionary)
+     * element_delim is the separator between multiple elements (for example ',' when python prints a dictionary)
+     */
+    static string map_to_string(map<string, string> data, string key_delim, string element_delim);
+
+
+    /*
+     * Used to convert a string to a dictionary (with string key and value).
+     * Used by Log and Packet in the toString methods.
+     * Follows the format of map_to_string
+     */
+    static map<string, string> string_to_map(string data, string key_delim, string element_delim);
+
 };
