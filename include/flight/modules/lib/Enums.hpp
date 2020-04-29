@@ -30,8 +30,8 @@ enum class SensorLocation {
 };
 
 enum class SolenoidState {
-    OPEN,
-    CLOSED
+    OPEN = 0,
+    CLOSED = 1
 };
 
 enum class SensorStatus {
@@ -52,10 +52,10 @@ enum class ValveLocation {
 };
 
 enum class ActuationType {
-    PULSE,
-    OPEN_VENT,
-    CLOSE_VENT,
-    NONE
+    NONE = 0,
+    CLOSE_VENT = 1,
+    OPEN_VENT = 2,
+    PULSE = 3,
 };
 
 enum class ValvePriority {

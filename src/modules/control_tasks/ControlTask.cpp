@@ -14,16 +14,16 @@ ControlTask::ControlTask(Registry *registry, Flag *flag, unordered_map<string, b
     this->registry = registry;
     this->flag = flag;
 
-    if(config.find("sensor") != config.end()) {
+    if(config.at("sensor")) {
         controls.push_back(unique_ptr<Control>(new SensorControl(registry, flag)));
     }
-    if(config.find("telemetry") != config.end()) {
+    if(config.at("telemetry")) {
         controls.push_back(unique_ptr<Control>(new TelemetryControl(registry, flag)));
     }
-    if(config.find("valve") != config.end()) {
+    if(config.at("valve")) {
         controls.push_back(unique_ptr<Control>(new ValveControl(registry, flag)));
     }
-    if(config.find("stage") != config.end()) {
+    if(config.at("stage")) {
         controls.push_back(unique_ptr<Control>(new StageControl(registry, flag)));
     }
 }

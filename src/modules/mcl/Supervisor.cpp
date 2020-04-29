@@ -11,10 +11,11 @@ Supervisor::Supervisor(){
     flag = new Flag();
 
     log("Creating tasks");
-    tasks.push_back(new SensorTask(registry, flag));
+//    tasks.push_back(new SensorTask(registry, flag));
+    tasks.push_back(new ValveTask(registry, flag));
 
     log("Creating control tasks");
-    controlTask = new ControlTask(registry, flag, {{"sensor", true}, {"telemetry", true}, {"valve", true}, {"stage", true}});
+    controlTask = new ControlTask(registry, flag, {{"sensor", false}, {"telemetry", false}, {"valve", false}, {"stage", false}});
 }
 
 Supervisor::~Supervisor() {
@@ -38,19 +39,16 @@ void Supervisor::initialize(){
 }
 
 void Supervisor::read(){
-    log("Reading from tasks");
     for(Task* task : tasks){
         task->read();
     }
 }
 
 void Supervisor::control(){
-    log("Controlling tasks");
     controlTask->control();
 }
 
 void Supervisor::actuate(){
-    log("Actuating in tasks");
     for(Task* task : tasks){
         task->actuate();
     }

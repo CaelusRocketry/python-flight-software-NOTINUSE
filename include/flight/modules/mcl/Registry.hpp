@@ -52,7 +52,6 @@ public:
         assert(false);
         T val = field->getVal();
         return val;
-//        return NULL;
     }
 
 
