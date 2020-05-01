@@ -19,10 +19,16 @@ private:
     double send_interval;
     double last_send_time;
 
-    void sendValveData();
+    vector<string> build_valves();
+    const vector<string> actuation_type_names = {"NONE", "CLOSE_VENT", "OPEN_VENT", "PULSE"};
+    const vector<string> solenoid_state_names = {"OPEN", "CLOSED"};
+    const vector<string> valve_priority_names = {"NONE", "LOW_PRIORITY", "PI_PRIORITY", "MAX_TELEMETRY_PRIORITY", "ABORT_PRIORITY"};
+
+
+    void send_valve_data();
     void abort();
-    void undoAbort();
-    void checkAbort();
+    void undo_abort();
+    void check_abort();
 
 public:
     ValveControl(Registry *registry, Flag *flag);

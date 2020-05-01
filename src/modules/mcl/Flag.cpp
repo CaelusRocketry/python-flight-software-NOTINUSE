@@ -17,9 +17,12 @@ Flag::Flag(){
     add<priority_queue<int>>("telemetry.send_queue");
     add<bool>("telemetry.reset", true);
 
-    //solenoid fields
-    for(string s : Util::parse_json_list({"valves", "list", "solenoid"})) {
-        add<ActuationType>("solenoid.actuation_type." + s, ActuationType::NONE);
-        add<ValvePriority>("solenoid.actuation_priority." + s, ValvePriority::NONE);
+    // Valve fields
+    for(string outer : Util::parse_json({"valves", "list"})) {  // [solenoid]
+        for(string inner : Util::parse_json_list({"valves", "list", outer})) {  // ["pressure_relief", "propellant_vent", "main_propellant_valve"]
+            add<SolenoidState>("valve." + outer + "." + inner, SolenoidState::CLOSED);
+            add<ActuationType>("valve_actuation_type." + outer + "." + inner, ActuationType::NONE);
+            add<ValvePriority>("valve_actuation_priority." + outer + "." + inner, ValvePriority::NONE);
+        }
     }
 }

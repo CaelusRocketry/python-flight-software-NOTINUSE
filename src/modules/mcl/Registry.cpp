@@ -4,7 +4,7 @@
 #include <flight/modules/lib/Enums.hpp>
 #include <flight/modules/lib/Util.hpp>
 
-Registry::Registry(){
+Registry::Registry() {
     log("Registry created");
 
     // Sensor fields
@@ -18,10 +18,11 @@ Registry::Registry(){
     }
 
     // Valve fields
-    for(string outer : Util::parse_json({"valves", "list"})) {
-        for(string inner : Util::parse_json_list({"valves", "list", outer})) {
+    for(string outer : Util::parse_json({"valves", "list"})) {  // [solenoid]
+        for(string inner : Util::parse_json_list({"valves", "list", outer})) {  // ["pressure_relief", "propellant_vent", "main_propellant_valve"]
             add<SolenoidState>("valve." + outer + "." + inner, SolenoidState::CLOSED);
-            add<ActuationType>("valve_actuation." + outer + "." + inner, ActuationType::NONE);
+            add<ActuationType>("valve_actuation_type." + outer + "." + inner, ActuationType::NONE);
+            add<ValvePriority>("valve_actuation_priority." + outer + "." + inner, ValvePriority::NONE);
         }
     }
 

@@ -15,7 +15,7 @@ Supervisor::Supervisor(){
     tasks.push_back(new ValveTask(registry, flag));
 
     log("Creating control tasks");
-    controlTask = new ControlTask(registry, flag, {{"sensor", false}, {"telemetry", false}, {"valve", false}, {"stage", false}});
+    controlTask = new ControlTask(registry, flag, {{"sensor", false}, {"telemetry", false}, {"valve", true}, {"stage", false}});
 }
 
 Supervisor::~Supervisor() {
