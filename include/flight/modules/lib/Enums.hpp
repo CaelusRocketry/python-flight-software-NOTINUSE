@@ -34,6 +34,11 @@ enum class SolenoidState {
     CLOSED = 1
 };
 
+static unordered_map<SolenoidState, string> solenoid_state_map {
+        {SolenoidState::OPEN, "OPEN"},
+        {SolenoidState::CLOSED, "CLOSED"}
+};
+
 enum class SensorStatus {
     SAFE = 3,
     WARNING = 2,
@@ -71,6 +76,13 @@ static unordered_map<string, ActuationType> actuation_type_map {
         {"PULSE", ActuationType::PULSE}
 };
 
+static unordered_map<ActuationType, string> actuation_type_inverse_map {
+        {ActuationType::NONE, "NONE"},
+        {ActuationType::CLOSE_VENT, "CLOSE_VENT"},
+        {ActuationType::OPEN_VENT, "SAFE"},
+        {ActuationType::PULSE, "PULSE"}
+};
+
 enum class ValvePriority {
     NONE = 0,
     LOW_PRIORITY = 1,
@@ -85,6 +97,14 @@ static unordered_map<string, ValvePriority> valve_priority_map {
         {"PI_PRIORITY", ValvePriority::PI_PRIORITY},
         {"MAX_TELEMETRY_PRIORITY", ValvePriority::MAX_TELEMETRY_PRIORITY},
         {"ABORT_PRIORITY", ValvePriority::ABORT_PRIORITY}
+};
+
+static unordered_map<ValvePriority, string> valve_priority_inverse_map {
+        {ValvePriority::NONE, "NONE"},
+        {ValvePriority::LOW_PRIORITY, "LOW_PRIORITY"},
+        {ValvePriority::PI_PRIORITY, "PI_PRIORITY"},
+        {ValvePriority::MAX_TELEMETRY_PRIORITY, "MAX_TELEMETRY_PRIORITY"},
+        {ValvePriority::ABORT_PRIORITY, "ABORT_PRIORITY"}
 };
 
 enum class Stage {

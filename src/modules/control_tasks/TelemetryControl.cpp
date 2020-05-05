@@ -144,7 +144,23 @@ void TelemetryControl::sensor_request(vector<string> args) {
         ", \"Last updated\": \"" + to_string(std::chrono::system_clock::now().time_since_epoch().count()) + "}"), LogPriority::CRIT);
 }
 void TelemetryControl::valve_request(vector<string> args) {
+    string value;
+    string actuation_type;
+    string actuation_priority;
+    try {
+        value = solenoid_state_map.at(this->registry->get<SolenoidState>("valve." + args[0] + "." + args[1]));
+        actuation_type = actuation_type_inverse_map.at(this->registry->get<ActuationType>("valve_actuation_type." + args[0] + "." + args[1]));
+        actuation_priority = valve_priority_inverse_map.at(this->registry->get<ValvePriority>("valve_actuation_priority." + args[0] + "." + args[1]));
+    }
+    catch(...) {
+        Util::enqueue(this->flag, Log("response", "{\"header\": \"Valve data request\", \"Status\": \"Failure\", \"Description\": \"Unable to find valve\", \"Valve type\": \"" + args[0] + ", \"Valve location\": \"" + args[1] + "}"), LogPriority::CRIT);
+        //TODO: throw error
+    }
 
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"Valve data request\", \"Status\": \"Success\", "
+        "\"Type\": \"" + args[0] + "\", \"Location\": \"" + args[1] + ", \"State\": \"" + value + ", \"Actuation type\": \"" +
+        actuation_type + ", \"Actuation priority\": \"" + actuation_priority + ", \"Last actuated\": \"" +
+        to_string(std::chrono::system_clock::now().time_since_epoch().count()) + "}"), LogPriority::CRIT);
 }
 void TelemetryControl::progress(vector<string> args) {
     this->flag->put("general.progress", true);
