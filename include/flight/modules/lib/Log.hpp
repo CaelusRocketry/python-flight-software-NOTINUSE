@@ -27,7 +27,8 @@ public:
     string toString();
     Log copy();
     static Log fromString(string inputString);
-
+    string getHeader();
+    string getMessage();
 };
 
 

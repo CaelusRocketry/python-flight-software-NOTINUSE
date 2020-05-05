@@ -25,8 +25,8 @@ string Packet::toString(){
 Packet Packet::fromString(string inputString){
     // Create Packet object from input string
     map<string, string> data = Util::string_to_map(inputString, ":", "\n");
-    long timestamp = stol(data["timstamp"]);
-    LogPriority level = static_cast<LogPriority>(stoi(data["timstamp"]));
+    long timestamp = stol(data["timestamp"]);
+    LogPriority level = static_cast<LogPriority>(stoi(data["timestamp"]));
     Packet packet = Packet(level, timestamp);
 
     // Add all the Logs to the Packet
@@ -41,3 +41,6 @@ Packet Packet::fromString(string inputString){
     return packet;
 }
 
+vector<Log> Packet::getLogs() {
+    return this->logs;
+}

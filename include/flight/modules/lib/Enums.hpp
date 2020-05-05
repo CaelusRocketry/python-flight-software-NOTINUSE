@@ -40,6 +40,12 @@ enum class SensorStatus {
     CRITICAL = 1
 };
 
+static unordered_map<SensorStatus, string> sensor_status_map {
+        {SensorStatus::CRITICAL, "CRITICAL"},
+        {SensorStatus::WARNING, "WARNING"},
+        {SensorStatus::SAFE, "SAFE"}
+};
+
 enum class ValveType {
     SOLENOID,
     BALL
@@ -58,12 +64,27 @@ enum class ActuationType {
     PULSE = 3,
 };
 
+static unordered_map<string, ActuationType> actuation_type_map {
+        {"NONE", ActuationType::NONE},
+        {"CLOSE_VENT", ActuationType::CLOSE_VENT},
+        {"OPEN_VENT", ActuationType::OPEN_VENT},
+        {"PULSE", ActuationType::PULSE}
+};
+
 enum class ValvePriority {
     NONE = 0,
     LOW_PRIORITY = 1,
     PI_PRIORITY = 2,
     MAX_TELEMETRY_PRIORITY = 3,
     ABORT_PRIORITY = 4
+};
+
+static unordered_map<string, ValvePriority> valve_priority_map {
+        {"NONE", ValvePriority::NONE},
+        {"LOW_PRIORITY", ValvePriority::LOW_PRIORITY},
+        {"PI_PRIORITY", ValvePriority::PI_PRIORITY},
+        {"MAX_TELEMETRY_PRIORITY", ValvePriority::MAX_TELEMETRY_PRIORITY},
+        {"ABORT_PRIORITY", ValvePriority::ABORT_PRIORITY}
 };
 
 enum class Stage {

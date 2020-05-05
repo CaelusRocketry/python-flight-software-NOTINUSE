@@ -1,4 +1,5 @@
 #include <flight/modules/lib/Util.hpp>
+#include <queue>
 
 namespace pt = boost::property_tree;
 vector<string> Util::parse_json(initializer_list<string> args) {
@@ -115,4 +116,12 @@ map<string, string> Util::string_to_map(string data, string key_delim, string el
     }
 
     return output;
+}
+
+static void enqueue(Flag *flag, Log log, LogPriority logPriority) {
+    Packet packet = Packet(logPriority);
+    packet.add(log);
+    auto queue = flag->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.enqueue");
+    queue.push(packet);
+    flag->put("telemetry.enqueue", queue);
 }

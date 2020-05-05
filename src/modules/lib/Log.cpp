@@ -33,3 +33,11 @@ Log Log::fromString(string inputString){
     map<string, string> data = Util::string_to_map(inputString, ":", ",");
     return Log(data["header"], data["message"], stol(data["timestamp"]));
 }
+
+string Log::getHeader() {
+    return this->header;
+}
+
+string Log::getMessage() {
+    return this->message;
+}

@@ -28,7 +28,17 @@ public:
     void add(Log log);
     string toString();
     static Packet fromString(string inputString);
-    bool operator< (const Packet& packet) const;
+    vector<Log> getLogs();
+
+    struct compareTo {
+        bool operator()(Packet lhs, Packet rhs)
+        {
+            if(lhs.level != rhs.level) {
+                return lhs.level < rhs.level;
+            }
+            return lhs.timestamp < rhs.timestamp;
+        }
+    };
 
 };
 

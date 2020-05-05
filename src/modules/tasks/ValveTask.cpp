@@ -40,7 +40,7 @@ void ValveTask::read(){
         auto path = valve_list[i];
         string type = get<0>(path);
         string loc = get<1>(path);
-        registry->put<ActuationType>("valve_actuation." + type + "." + loc, actuations[i]);
+        registry->put<ActuationType>("valve_actuation_type." + type + "." + loc, actuations[i]);
         if(actuations[i] == ActuationType::NONE || actuations[i] == ActuationType::CLOSE_VENT) {
             registry->put<SolenoidState>("valve." + type + "." + loc, SolenoidState::CLOSED);
             log("CLOSED");

@@ -5,6 +5,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <flight/modules/lib/Packet.hpp>
 
 Flag::Flag(){
     log("Flag created");
@@ -13,8 +14,8 @@ Flag::Flag(){
     add<bool>("general.progress", false);
 
     //telemetry fields
-    add<priority_queue<int>>("telemetry.enqueue");
-    add<priority_queue<int>>("telemetry.send_queue");
+    add<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.enqueue");
+    add<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.send_queue");
     add<bool>("telemetry.reset", true);
 
     // Valve fields

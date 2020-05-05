@@ -1,13 +1,13 @@
 #include <chrono>
 #include <Logger/logger_util.h>
 #include <flight/modules/drivers/Telemetry.hpp>
+#include <flight/modules/lib/Util.hpp>
 
 Telemetry::Telemetry(){
-    // Config stuff
-    IP = "127.0.0.1";
-    PORT = 5005;
-    DELAY_LISTEN = 50;
-    DELAY_SEND = 50;
+    IP = Util::parse_json_value({"telemetry", "GS_IP"});
+    PORT = stoi(Util::parse_json_value({"telemetry", "GS_PORT"}));
+    DELAY_LISTEN = stoi(Util::parse_json_value({"telemetry", "DELAY_LISTEN"}));
+    DELAY_SEND = stoi(Util::parse_json_value({"telemetry", "DELAY_SEND"}));
 
     // Initialize variables
     connection = false;

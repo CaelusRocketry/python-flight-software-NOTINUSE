@@ -4,6 +4,10 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <Logger/logger_util.h>
+#include <flight/modules/mcl/Flag.hpp>
+#include <flight/modules/lib/Log.hpp>
+#include <flight/modules/lib/Enums.hpp>
+#include <flight/modules/lib/Packet.hpp>
 
 using namespace std;
 
@@ -51,5 +55,11 @@ public:
      * Follows the format of map_to_string
      */
     static map<string, string> string_to_map(string data, string key_delim, string element_delim);
+
+    /*
+     * Enqueues a packet in the Flag telemetry queue.
+     */
+
+    static void enqueue(Flag *flag, Log log, LogPriority logPriority);
 
 };

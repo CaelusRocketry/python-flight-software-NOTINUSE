@@ -3,6 +3,7 @@
 #include <flight/modules/mcl/Field.hpp>
 #include <flight/modules/lib/Enums.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <flight/modules/lib/Packet.hpp>
 
 Registry::Registry() {
     log("Registry created");
@@ -13,7 +14,6 @@ Registry::Registry() {
             add<double>("sensor_measured." + outer + "." + inner, 0.0);
             add<double>("sensor_normalized." + outer + "." + inner, 0.0);
             add<SensorStatus>("sensor_status." + outer + "." + inner, SensorStatus::SAFE);
-
         }
     }
 
@@ -27,7 +27,7 @@ Registry::Registry() {
     }
 
     // Telemetry fields
-    add<priority_queue<int>>("telemetry.ingest_queue");
+    add<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.ingest_queue");
     add<bool>("telemetry.status", false);
     add<bool>("telemetry.resetting", false);
 
