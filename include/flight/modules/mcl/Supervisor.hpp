@@ -25,6 +25,7 @@ class Supervisor {
         void control();
         void actuate();
         void run();
+        unordered_map<string, bool> parse_config();
 };
 
 #endif //FLIGHT_SUPERVISOR_HPP

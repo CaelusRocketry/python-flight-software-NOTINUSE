@@ -4,6 +4,7 @@
 #include <flight/modules/tasks/SensorTask.hpp>
 #include <flight/modules/tasks/TelemetryTask.hpp>
 #include <flight/modules/tasks/ValveTask.hpp>
+#include <flight/modules/lib/Util.hpp>
 
 Supervisor::Supervisor(){
     log("Creating registry and flag");
@@ -11,11 +12,10 @@ Supervisor::Supervisor(){
     flag = new Flag();
 
     log("Creating tasks");
-//    tasks.push_back(new SensorTask(registry, flag));
-    tasks.push_back(new ValveTask(registry, flag));
+    auto config = parse_config();
 
     log("Creating control tasks");
-    controlTask = new ControlTask(registry, flag, {{"sensor", false}, {"telemetry", false}, {"valve", true}, {"stage", false}});
+    controlTask = new ControlTask(registry, flag, config);
 }
 
 Supervisor::~Supervisor() {
@@ -61,4 +61,28 @@ void Supervisor::run(){
         actuate();
         this_thread::sleep_for(chrono::seconds(1));
     }
+}
+
+unordered_map<string, bool> Supervisor::parse_config() {
+    auto task_config = Util::parse_json_list({"task_config", "tasks"});
+    auto control_task_config = Util::parse_json_list({"task_config", "control_tasks"});
+    unordered_map<string, bool> control_tasks;
+
+    for(string task : task_config) {
+        if(task.compare("sensor") == 0) {
+            tasks.push_back(new SensorTask(registry, flag));
+        }
+        if(task.compare("telemetry") == 0) {
+            tasks.push_back(new TelemetryTask(registry, flag));
+        }
+        if(task.compare("valve") == 0) {
+            tasks.push_back(new ValveTask(registry, flag));
+        }
+    }
+
+    for(string control_task : control_task_config) {
+        control_tasks[control_task] = true;
+    }
+
+    return control_tasks;
 }

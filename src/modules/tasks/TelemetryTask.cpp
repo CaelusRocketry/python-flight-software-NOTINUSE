@@ -5,7 +5,7 @@
 void TelemetryTask::initialize(){
 //    _telemetry = new Telemetry();
 //    _telemetry->connect();
-    log("Telemetry is initialized");
+    log("Telemetry Task started");
 }
 
 

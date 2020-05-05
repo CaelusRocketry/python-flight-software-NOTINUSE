@@ -118,7 +118,7 @@ map<string, string> Util::string_to_map(string data, string key_delim, string el
     return output;
 }
 
-static void enqueue(Flag *flag, Log log, LogPriority logPriority) {
+void Util::enqueue(Flag *flag, Log log, LogPriority logPriority) {
     Packet packet = Packet(logPriority);
     packet.add(log);
     auto queue = flag->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.enqueue");

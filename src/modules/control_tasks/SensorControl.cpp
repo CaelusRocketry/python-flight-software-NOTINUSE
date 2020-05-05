@@ -24,6 +24,7 @@ unordered_map<string, pair<double, double>> SensorControl::build_boundaries() {
 }
 
 SensorControl::SensorControl(Registry *registry, Flag *flag) {
+    log("Sensor Control started");
     this->registry = registry;
     this->flag = flag;
     this->last_send_time = 0;
@@ -34,7 +35,6 @@ void SensorControl::begin() {
     this->send_interval = stod(Util::parse_json_value({"sensors", "send_interval"}));
     this->boundaries = build_boundaries();
     this->kalman_filters = init_kalman();
-    log("Sensor Control started");
 }
 
 void SensorControl::execute() {

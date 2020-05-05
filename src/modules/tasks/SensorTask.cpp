@@ -10,7 +10,7 @@ void SensorTask::initialize(){
     sensor_list.push_back(make_tuple("load", "tank"));
 
     sensor = new Arduino("PseudoSensor");
-    log("Initialized sensor task");
+    log("Sensor task started");
 }
 
 void SensorTask::read(){

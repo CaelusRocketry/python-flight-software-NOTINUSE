@@ -8,6 +8,7 @@
 #include <flight/modules/mcl/Field.hpp>
 #include <flight/modules/mcl/FieldBase.hpp>
 #include <Logger/logger_util.h>
+#include <flight/modules/lib/Errors.hpp>
 
 using namespace std;
 
@@ -46,8 +47,7 @@ public:
             T val = field->getVal();
             return val;
         }
-        log("Dynamic casting doesn't work");
-        return NULL;
+        throw DYNAMIC_CAST_ERROR();
     }
 
 

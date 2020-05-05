@@ -12,6 +12,7 @@ class Task {
         Flag* flag;
 
     public:
+        virtual ~Task() = default;
         Task(Registry* r, Flag* f)
         : registry(r),
           flag(f) {}

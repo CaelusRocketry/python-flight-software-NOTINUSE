@@ -4,6 +4,7 @@
 #include <flight/modules/tasks/ValveTask.hpp>
 
 void ValveTask::initialize(){
+    log("Valve task started");
     valve_list.push_back(make_tuple("solenoid", "main_propellant_valve"));
     valve_list.push_back(make_tuple("solenoid", "pressure_relief"));
     valve_list.push_back(make_tuple("solenoid", "propellant_vent"));

@@ -8,6 +8,7 @@
 #include <flight/modules/mcl/Field.hpp>
 #include <flight/modules/mcl/FieldBase.hpp>
 #include <Logger/logger_util.h>
+#include <flight/modules/lib/Errors.hpp>
 
 using namespace std;
 
@@ -21,8 +22,7 @@ private:
         if(field){
             return field;
         }
-        log("Dynamic casting failed");
-        return nullptr;
+        throw DYNAMIC_CAST_ERROR();
     }
 
 public:

@@ -8,9 +8,9 @@ using namespace std; // allows access to standard library utilities
 int main(int argc, char** argv){ // argc = len(argv) in python; char** argv = actual arguments
     log("INFO: Starting Application"); 
     
-    Supervisor* supervisor = new Supervisor(); // Creates a new instance of 'Supervisor'
-    supervisor->initialize();
-    supervisor->run();
+    Supervisor supervisor; // Creates a new instance of 'Supervisor'
+    supervisor.initialize();
+    supervisor.run();
 
     log("INFO: Created supervisor");
 
