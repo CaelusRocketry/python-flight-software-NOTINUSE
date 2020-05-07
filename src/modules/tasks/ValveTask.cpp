@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <Logger/logger_util.h>
 #include <flight/modules/tasks/ValveTask.hpp>
+#include <flight/modules/lib/Util.hpp>
 
 void ValveTask::initialize(){
     log("Valve task started");
@@ -15,16 +16,10 @@ void ValveTask::initialize(){
 
 void ValveTask::read(){
     log("Reading");
-    union Conversion {
-        uint32_t value;
-        char bytes[4];
-    };
     char* data = valve->read();
-    Conversion conv;
-    for(int i = 0; i < 4; i++){
-        conv.bytes[i] = data[i];
-    }
-    uint32_t int_data = conv.value;
+
+    uint32_t int_data;
+    memcpy(&int_data, data, sizeof(int));
     constexpr int num_bits = NUM_VALVES * 2 + 1;
     string str_data = bitset<num_bits>(int_data).to_string();
     vector<ActuationType> actuations;
@@ -56,4 +51,39 @@ void ValveTask::read(){
 
 void ValveTask::actuate(){
     log("Actuating valves");
+    this->actuate_solenoids();
+}
+
+void ValveTask::actuate_solenoids() {
+    auto locations = Util::parse_json_list({"valves", "list", "solenoid"});
+    for(int loc_idx = 0; loc_idx < locations.size(); loc_idx++) {
+        auto loc = locations[loc_idx];
+        auto actuation_type = this->flag->get<ActuationType>("valve_actuation_type.solenoid." + loc);
+        auto actuation_priority = this->flag->get<ValvePriority>("valve_actuation_priority.solenoid." + loc);
+
+        if(actuation_priority != ValvePriority::NONE) {
+            auto current_priority = this->registry->get<ValvePriority>("valve_actuation_priority.solenoid." + loc);
+            char ret[2];
+            ret[0] = loc_idx;
+
+            if(int(actuation_priority) >= int(current_priority)) {
+                if(actuation_type == ActuationType::NONE) {
+                    log("Allowing others to actuate"); //TODO: change to enqueue
+                    ret[1] = int(ActuationType::NONE);
+                    this->registry->put("valve_actuation_type.solenoid." + loc, actuation_type);
+                    this->registry->put("valve_actuation_priority.solenoid." + loc, ValvePriority::NONE);
+                }
+                else {
+                    ret[1] = int(actuation_type);
+                    log("Actuating..."); //TODO: change to enqueue
+                    this->registry->put("valve_actuation_type.solenoid." + loc, actuation_type);
+                    this->registry->put("valve_actuation_priority.solenoid." + loc, actuation_priority);
+                }
+
+                this->valve->write(ret);
+                this->registry->put("valve_actuation_type.solenoid." + loc, ActuationType::NONE);
+                this->registry->put("valve_actuation_priority.solenoid." + loc, ValvePriority::NONE);
+            }
+        }
+    }
 }

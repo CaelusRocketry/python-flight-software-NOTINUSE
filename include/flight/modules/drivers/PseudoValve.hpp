@@ -7,7 +7,7 @@
 #include <map>
 #include <flight/modules/drivers/PseudoArduino.hpp>
 
-class PseudoValve : PseudoArduino {
+class PseudoValve : public PseudoArduino {
 private:
     int num_solenoids;
     vector<string> solenoid_locs;

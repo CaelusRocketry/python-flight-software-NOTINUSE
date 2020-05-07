@@ -8,7 +8,7 @@ void Arduino::reset(){
         arduino = new PseudoSensor();
     }
     else if(name == "PseudoValve"){
-        arduino = new PseudoSensor();
+        arduino = new PseudoValve();
     }
     else{
         log("REEEE UNKNOWN ARDUINO TYPE");

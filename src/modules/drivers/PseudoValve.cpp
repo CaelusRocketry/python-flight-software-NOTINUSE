@@ -2,12 +2,11 @@
 #include <chrono>
 #include <Logger/logger_util.h>
 #include <flight/modules/drivers/PseudoValve.hpp>
+#include <flight/modules/lib/Util.hpp>
 
 PseudoValve::PseudoValve(){
-    // List all solenoids (this should normally be done in a config.json)
-    solenoid_locs.push_back("main_propellant_valve");
-    solenoid_locs.push_back("pressure_relief");
-    solenoid_locs.push_back("propellant_vent");
+    // List all solenoids
+    solenoid_locs = Util::parse_json_list({"valves", "list", "solenoid"});
     num_solenoids = solenoid_locs.size();
     // Initialize valve states to be closed and actuations to be none
     for(auto valve : solenoid_locs){
@@ -17,19 +16,19 @@ PseudoValve::PseudoValve(){
 }
 
 char* PseudoValve::read(){
-    union Conversion {
-        uint32_t value;
-        char bytes[4];
-    };
-    uint32_t data;
-    for(int i = 0; i < num_solenoids; i++){
+    uint32_t data = 0;
+    static char bytes[4];
+    for(int i = 0u; i < num_solenoids; i++){
         string actuation = valve_actuations[make_tuple("solenoid", solenoid_locs[i])];
-        int state = actuation_dict.at(actuation);
-        data = data | (state << (i * 2 + 1));
+        unsigned int state = actuation_dict.at(actuation);
+        data = data | (state << (i * 2u + 1u));
     }
-    Conversion conv;
-    conv.value = data;
-    return conv.bytes;
+
+    for (int i = 0u; i < 4; i++) {
+        bytes[3 - i] = (data >> (i * 8u));
+    }
+
+    return bytes;
 }
 
 // Timer in milliseconds
@@ -77,6 +76,6 @@ void PseudoValve::write(char* msg){
             break;
     }
     valve_actuations[valve] = actuation_type;
-//    thread act(&PseudoValve::actuate, valve, state1, timer, state2);
-//    act.detach();
+    thread act([=] { actuate(valve, state1, timer, state2); });
+    act.detach();
 }

@@ -9,7 +9,7 @@
 #include <map>
 #include <flight/modules/drivers/PseudoArduino.hpp>
 
-class PseudoSensor : public virtual PseudoArduino {
+class PseudoSensor : public PseudoArduino {
 private:
     vector<tuple<string, string>> sensor_list;
     map<tuple<string, string>, double> sensor_values;

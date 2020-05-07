@@ -18,6 +18,7 @@ public:
     void initialize();
     void read();
     void actuate();
+    void actuate_solenoids();
 };
 
 
