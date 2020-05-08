@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <mutex>
 #include <thread>
+#include <flight/modules/lib/Packet.hpp>
 
 using namespace std;
 
@@ -33,7 +34,7 @@ private:
 public:
     Telemetry();
     queue<string> read(int num_messages);
-    bool write(string msg);
+    bool write(Packet packet);
     void recv_loop();
     bool status();
     void reset();

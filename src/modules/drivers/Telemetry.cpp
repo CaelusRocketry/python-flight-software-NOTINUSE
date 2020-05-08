@@ -28,7 +28,8 @@ queue<string> Telemetry::read(int num_messages){
 }
 
 
-bool Telemetry::write(string msg){
+bool Telemetry::write(Packet packet){
+    string msg = packet.toString();
     log("Sending: " + msg);
     send(sock, msg.c_str(), msg.length(), 0);
     this_thread::sleep_for(chrono::milliseconds(DELAY_SEND));
@@ -75,7 +76,8 @@ bool Telemetry::connect(){
     sock = 0;
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        printf("\n Socket creation error \n");
+        //TODO: throw error
+        log("\n Socket creation error \n");
         connection = false;
         return false;
     }
@@ -84,14 +86,14 @@ bool Telemetry::connect(){
     serv_addr.sin_port = htons(PORT);
     if(inet_pton(AF_INET, IP.c_str(), &serv_addr.sin_addr)<=0)
     {
-        printf("\nInvalid address/ Address not supported \n");
+        log("\nInvalid address/ Address not supported \n");
         connection = false;
         return false;
     }
 
     if (::connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
-        printf("\nConnection Failed \n");
+        log("\nConnection Failed \n");
         connection = false;
         return false;
     }
@@ -105,7 +107,12 @@ bool Telemetry::connect(){
 
 void Telemetry::end(){
     TERMINATE_FLAG = true;
-    recv_thread->join();
+    if(recv_thread->joinable()) { //TODO: fix recv thread (it doesn't work at all when not connected) cuz it's not a joinable but not nullptr???
+        recv_thread->join();
+    }
+    else {
+        log("Cannot end telemetry; it was never connected properly in the first place.");
+    }
     //TODO: Kill the socket connection
     connection = false;
     sock = 0;

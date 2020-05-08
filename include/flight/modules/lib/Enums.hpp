@@ -2,9 +2,11 @@
 // Created by adiv413 on 4/20/2020.
 //
 
+#include <unordered_map>
+using namespace std;
+
 #ifndef FLIGHT_ENUMS_HPP
 #define FLIGHT_ENUMS_HPP
-
 
 // Level Enum indicates the priority or status of the Packet
 enum class LogPriority {

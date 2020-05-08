@@ -7,13 +7,14 @@
 
 class TelemetryTask : public Task {
 private:
-    Telemetry* _telemetry;
+    Telemetry telemetry;
 
 public:
     TelemetryTask(Registry* r, Flag* f)
     : Task(r, f) {}
     void initialize();
     void read();
+    void enqueue();
     void actuate();
 };
 
