@@ -39,12 +39,12 @@ bool Telemetry::write(Packet packet){
 void Telemetry::recv_loop(){
     while(connection){
         if(TERMINATE_FLAG){
-            return;
+            break;
         }
         try{
             // Read in data from socket
             char buffer[1024] = {0};
-            int valread = ::read(sock, buffer, 1024);
+            ::read(sock, buffer, 1024);
             string msg(buffer);
             mtx.lock();
             ingest_queue.push(msg);
@@ -53,12 +53,12 @@ void Telemetry::recv_loop(){
             this_thread::sleep_for(chrono::seconds(DELAY_LISTEN));
         }
         catch (...){
+            //TODO: throw exception
             log("Encountered exception, terminating socket");
             end();
-            return;
+            break;
         }
     }
-    return;
 }
 
 bool Telemetry::status(){
@@ -76,7 +76,7 @@ bool Telemetry::connect(){
     sock = 0;
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        //TODO: throw error
+        //TODO: throw errors for all of these logs
         log("\n Socket creation error \n");
         connection = false;
         return false;
@@ -99,22 +99,17 @@ bool Telemetry::connect(){
     }
 
     thread t(&Telemetry::recv_loop, this);
-    recv_thread = &t;
-
     connection = true;
+    TERMINATE_FLAG = false;
+    recv_thread = &t;
+    recv_thread->detach();
+
     return true;
 }
 
 void Telemetry::end(){
     TERMINATE_FLAG = true;
-    if(recv_thread->joinable()) { //TODO: fix recv thread (it doesn't work at all when not connected) cuz it's not a joinable but not nullptr???
-        recv_thread->join();
-    }
-    else {
-        log("Cannot end telemetry; it was never connected properly in the first place.");
-    }
     //TODO: Kill the socket connection
     connection = false;
     sock = 0;
-    TERMINATE_FLAG = false;
 }

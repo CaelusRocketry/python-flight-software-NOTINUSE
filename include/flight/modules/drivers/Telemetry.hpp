@@ -24,7 +24,7 @@ private:
     queue<string> ingest_queue;
     queue<string> send_queue;
     mutex mtx;
-    thread* recv_thread;
+    thread* recv_thread = nullptr;
     bool TERMINATE_FLAG = false;
 
     struct sockaddr_in serv_addr;
