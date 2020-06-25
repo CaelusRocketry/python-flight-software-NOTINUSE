@@ -68,21 +68,19 @@ double StageControl::calculateStatus() {
 }
 
 void StageControl::sendProgressionRequest() {
-    log("[Approval needed from ground station] Request to progress to the next stage"); //TODO: change to enqueue once telemetry is done
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"stage_progression_request\", \"Description\": \"Request to progress to the next stage\"}"), LogPriority::CRIT);
 }
 
 void StageControl::sendData() {
     if(this->send_time == 0 || chrono::system_clock::now().time_since_epoch().count() > (this->send_time + this->send_interval)) {
-        //TODO: convert to enqueue once telemetry is done
-        log("Current stage: " + stage_strings.at(stage_index) + ", Current status: " + to_string(calculateStatus()));
+        Util::enqueue(this->flag, Log("response", "{\"header\": \"stage_data\", \"Stage\": " + stage_strings.at(stage_index) + ", \"Status: \"" + to_string(calculateStatus()) + "}"), LogPriority::INFO);
     }
 }
 
 void StageControl::progress() {
     double status = calculateStatus();
     if(status != 100.0) {
-        //TODO: convert to enqueue once telemetry is done
-        log("Stage progression failed, the rocket's not ready yet.");
+        Util::enqueue(this->flag, Log("response", "{\"header\": \"stage_progress\", \"Status\": \"Failure\", \"Description\": \"Stage progression failed, the rocket's not ready yet\"}"), LogPriority::CRIT);
     }
     else {
         this->stage_index++;
@@ -92,9 +90,7 @@ void StageControl::progress() {
         this->registry->put("general.stage_status", calculateStatus());
         this->start_time = chrono::system_clock::now().time_since_epoch().count();
 
-        //TODO: change to enqueue once telemetry is done
-
-        log("Stage progression successful.");
+        Util::enqueue(this->flag, Log("response", "{\"header\": \"stage_progress\", \"Status\": \"Success\", \"Description\": \"Stage progression successful\"}"), LogPriority::CRIT);
     }
 }
 

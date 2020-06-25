@@ -9,8 +9,7 @@ vector<string> Util::parse_json(initializer_list<string> args) {
     vector<string> ret;
 
     if(args.size() == 0) {
-        log("error: no arguments to parse json"); //TODO: send message to gs
-        return vector<string>();
+        throw JSON_ARGUMENT_ERROR();
     }
 
     try {
@@ -22,8 +21,7 @@ vector<string> Util::parse_json(initializer_list<string> args) {
         }
     }
     catch (...) {
-        log("error occurred while parsing json"); //TODO: send message to gs
-        return vector<string>();
+        throw JSON_PARSE_ERROR();
     }
 
     return ret;
@@ -41,8 +39,7 @@ vector<string> Util::parse_json_list(initializer_list<string> args) {
     vector<string> ret;
 
     if(args.size() == 0) {
-        log("error: no arguments to parse json"); //TODO: send message to gs
-        return vector<string>();
+        throw JSON_ARGUMENT_ERROR();
     }
 
     try {
@@ -54,8 +51,7 @@ vector<string> Util::parse_json_list(initializer_list<string> args) {
         }
     }
     catch (...) {
-        log("error occurred while parsing json"); //TODO: send message to gs
-        return vector<string>();
+        throw JSON_PARSE_ERROR();
     }
 
     return ret;
@@ -68,8 +64,7 @@ string Util::parse_json_value(initializer_list<string> args) {
     string ret = "";
 
     if(args.size() == 0) {
-        log("error: no arguments to parse json"); //TODO: send message to gs
-        return "";
+        throw JSON_ARGUMENT_ERROR();
     }
 
     try {
@@ -79,8 +74,7 @@ string Util::parse_json_value(initializer_list<string> args) {
         ret = root.get<string>(path.substr(0, path.length() - 1));
     }
     catch (...) {
-        log("error occurred while parsing json"); //TODO: send message to gs
-        return "";
+        throw JSON_PARSE_ERROR();
     }
 
     return ret;

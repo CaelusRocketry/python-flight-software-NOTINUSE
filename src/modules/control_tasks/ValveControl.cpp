@@ -40,13 +40,18 @@ vector<string> ValveControl::build_valves() {
 }
 
 void ValveControl::send_valve_data() {
+    string message = "{";
+
     for(string &valve : valves) {
         SolenoidState state = registry->get<SolenoidState>("valve." + valve);
         ActuationType actuation = registry->get<ActuationType>("valve_actuation_type." + valve);
 
-        //TODO: replace with enqueue once telemetry is done
-        log(valve + " - state: " + solenoid_state_names.at(int(state)) + ", actuation type: " + actuation_type_names.at(int(actuation)));
+        message += "\"" + valve + "\": {";
+        message += "\"state\": \"" + solenoid_state_names.at(int(state)) + "\", \"actuation_type\": \"" + actuation_type_names.at(int(actuation)) + "\"";
+        message += "}, ";
     }
+
+    Util::enqueue(this->flag, Log("valve_data", message), LogPriority::INFO);
 }
 
 void ValveControl::abort() {

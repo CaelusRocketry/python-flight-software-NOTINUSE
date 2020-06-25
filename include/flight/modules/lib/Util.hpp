@@ -8,6 +8,7 @@
 #include <flight/modules/lib/Log.hpp>
 #include <flight/modules/lib/Enums.hpp>
 #include <flight/modules/lib/Packet.hpp>
+#include <flight/modules/lib/Errors.hpp>
 
 using namespace std;
 

@@ -71,19 +71,18 @@ void SensorControl::boundary_check() {
         if(crits.empty()) {
            if(soft) { //undo soft abort
                registry->put("general.soft_abort", false);
-               log("Sensors have returned to normal"); //TODO: change to enqueue once telemetry is done
+               Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Sensors have returned to normal\"}"), LogPriority::CRIT);
            }
         }
         else if(!soft){ //one or more of the sensors are critical, soft abort if we haven't already done so
             registry->put("general.soft_abort", true);
-
-            //TODO: change to enqueue once telemetry is done
-
-            log("Soft aborting because the following sensors have reached critical levels:");
+            string message = "Soft aborting because the following sensors have reached critical levels- ";
 
             for(string &x : crits) {
-                log("\t" + x);
+                message += x + ", ";
             }
+            message = message.substr(0, message.length() - 2);
+            Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"" + message + "\"}"), LogPriority::CRIT);
         }
     }
 }
@@ -129,15 +128,19 @@ vector<string> SensorControl::build_sensors() {
 }
 
 void SensorControl::send_sensor_data() {
+    string message = "{";
+
     for(string &sensor : sensors) {
         double value = registry->get<double>("sensor_measured." + sensor);
         double kalman_value = registry->get<double>("sensor_normalized." + sensor);
 
         SensorStatus status = registry->get<SensorStatus>("sensor_status." + sensor);
 
-        //TODO: replace with enqueue once telemetry is done
-
-        log(sensor + " - normal: " + to_string(value) + " kalman: " + to_string(kalman_value) + " status: " + sensor_status_names.at(int(status)));
+        message += "\"" + sensor + "\": {";
+        message += "\"measured\": " + to_string(value) + ", \"kalman\": " + to_string(kalman_value) + ", \"status\": " + sensor_status_names.at(int(status));
+        message += "}, ";
     }
+
+    Util::enqueue(this->flag, Log("sensor_data", message), LogPriority::INFO);
 }
 

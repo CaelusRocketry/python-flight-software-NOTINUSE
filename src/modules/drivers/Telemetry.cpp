@@ -2,6 +2,7 @@
 #include <Logger/logger_util.h>
 #include <flight/modules/drivers/Telemetry.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <flight/modules/lib/Errors.hpp>
 
 Telemetry::Telemetry(){
     IP = Util::parse_json_value({"telemetry", "GS_IP"});
@@ -53,10 +54,8 @@ void Telemetry::recv_loop(){
             this_thread::sleep_for(chrono::seconds(DELAY_LISTEN));
         }
         catch (...){
-            //TODO: throw exception
-            log("Encountered exception, terminating socket");
             end();
-            break;
+            throw SOCKET_READ_ERROR();
         }
     }
 }
@@ -76,26 +75,22 @@ bool Telemetry::connect(){
     sock = 0;
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        //TODO: throw errors for all of these logs
-        log("\n Socket creation error \n");
         connection = false;
-        return false;
+        throw SOCKET_CREATION_ERROR();
     }
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
     if(inet_pton(AF_INET, IP.c_str(), &serv_addr.sin_addr)<=0)
     {
-        log("\nInvalid address/ Address not supported \n");
         connection = false;
-        return false;
+        throw INVALID_ADDRESS_ERROR();
     }
 
     if (::connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
-        log("\nConnection Failed \n");
         connection = false;
-        return false;
+        throw SOCKET_CONNECTION_ERROR();
     }
 
     thread t(&Telemetry::recv_loop, this);

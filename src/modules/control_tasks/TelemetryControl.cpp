@@ -5,6 +5,7 @@
 #include <flight/modules/control_tasks/TelemetryControl.hpp>
 #include <flight/modules/lib/Packet.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <flight/modules/lib/Errors.hpp>
 #include <queue>
 
 //TODO: add custom packet enqueuing interface to gs???
@@ -59,7 +60,7 @@ void TelemetryControl::ingest(Log log) {
         vector<string> param_values;
 
         if(arguments.size() != params.size()) {
-            //TODO: throw error or smth
+            throw PACKET_ARGUMENT_ERROR();
         }
 
         auto x = arguments.at(header);
@@ -80,7 +81,7 @@ void TelemetryControl::ingest(Log log) {
         (this->*function)(param_values);
     }
     else {
-        //TODO: throw error, invalid header
+        throw INVALID_HEADER_ERROR();
     }
 }
 void TelemetryControl::heartbeat(vector<string> args) {
@@ -103,12 +104,12 @@ void TelemetryControl::solenoid_actuate(vector<string> args) {
     }
     catch(...) {
         Util::enqueue(this->flag, Log("Valve actuation", "{\"header\": \"Valve actuation\", \"Status\": \"Failure\", \"Description\": \"Unable to find actuatable solenoid\", \"Valve location\": \"" + args[0] + "\"}"), LogPriority::CRIT);
-        //TODO: throw error
+        throw INVALID_SOLENOID_ERROR();
     }
 
     if(int(valve_priority_map[args[2]]) < current_priority) {
         Util::enqueue(this->flag, Log("Valve actuation", "{\"header\": \"Valve actuation\", \"Status\": \"Failure\", \"Description\": \"Too little priority to actuate solenoid\", \"Valve location\": \"" + args[0] + "\", \"Actuation type\": \"" + args[1] + "\", \"Priority\": \"" + args[2] + "\"}"), LogPriority::CRIT);
-        //TODO: throw error
+        throw INSUFFICIENT_PRIORITY_SOLENOID_ERROR();
     }
 
     log("Actuating solenoid at " + args[0] + " with actuation type " + args[1]);
@@ -120,10 +121,10 @@ void TelemetryControl::solenoid_actuate(vector<string> args) {
     }
     catch(...) {
         Util::enqueue(this->flag, Log("Valve actuation", "{\"header\": \"Valve actuation\", \"Status\": \"Failure\", \"Description\": \"Wrong packet message\", \"Valve location\": \"" + args[0] + "\", \"Actuation type\": \"" + args[1] + "\", \"Priority\": \"" + args[2] + "\"}"), LogPriority::CRIT);
-        //TODO: throw error
+        throw INVALID_PACKET_MESSAGE_ERROR();
     }
 
-    Util::enqueue(this->flag, Log("Valve actuation", "{\"header\": \"Valve actuation\", \"Status\": \"Success\", \"Description\": \"Successfully actuated solenoid\"}"), LogPriority::CRIT);
+    Util::enqueue(this->flag, Log("Valve actuation", "{\"header\": \"Valve actuation\", \"Status\": \"Success\", \"Description\": \"Successfully actuated solenoid\"}"), LogPriority::INFO);
 }
 void TelemetryControl::sensor_request(vector<string> args) {
     double value;
@@ -136,9 +137,9 @@ void TelemetryControl::sensor_request(vector<string> args) {
     }
     catch(...) {
         Util::enqueue(this->flag, Log("response", "{\"header\": \"Sensor data\", \"Status\": \"Failure\", \"Description\": \"Unable to find sensor\", \"Type\": \"" + args[0] + ", \"Location\": \"" + args[1] + "}"), LogPriority::CRIT);
-        //TODO: throw error
+        throw INVALID_SENSOR_LOCATION_ERROR();
     }
-    Util::enqueue(this->flag, Log("response", "{\"header\": \"Sensor data\", \"Status\": \"Success\", \"Sensor type\": \"" +
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"sensor_data_request\", \"Status\": \"Success\", \"Sensor type\": \"" +
         args[0] + "\", \"Sensor location\": \"" + args[1] + ", \"Measured value\": \"" + to_string(value) +
         ", \"Normalized value\": \"" + to_string(kalman_value) + ", \"Sensor status\": \"" + sensor_status +
         ", \"Last updated\": \"" + to_string(std::chrono::system_clock::now().time_since_epoch().count()) + "}"), LogPriority::CRIT);
@@ -153,11 +154,11 @@ void TelemetryControl::valve_request(vector<string> args) {
         actuation_priority = valve_priority_inverse_map.at(this->registry->get<ValvePriority>("valve_actuation_priority." + args[0] + "." + args[1]));
     }
     catch(...) {
-        Util::enqueue(this->flag, Log("response", "{\"header\": \"Valve data request\", \"Status\": \"Failure\", \"Description\": \"Unable to find valve\", \"Valve type\": \"" + args[0] + ", \"Valve location\": \"" + args[1] + "}"), LogPriority::CRIT);
-        //TODO: throw error
+        Util::enqueue(this->flag, Log("response", "{\"header\": \"valve_data_request\", \"Status\": \"Failure\", \"Description\": \"Unable to find valve\", \"Valve type\": \"" + args[0] + ", \"Valve location\": \"" + args[1] + "}"), LogPriority::CRIT);
+        throw INVALID_VALVE_LOCATION_ERROR();
     }
 
-    Util::enqueue(this->flag, Log("response", "{\"header\": \"Valve data request\", \"Status\": \"Success\", "
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"valve_data_request\", \"Status\": \"Success\", "
         "\"Type\": \"" + args[0] + "\", \"Location\": \"" + args[1] + ", \"State\": \"" + value + ", \"Actuation type\": \"" +
         actuation_type + ", \"Actuation priority\": \"" + actuation_priority + ", \"Last actuated\": \"" +
         to_string(std::chrono::system_clock::now().time_since_epoch().count()) + "}"), LogPriority::CRIT);

@@ -6,6 +6,8 @@
 #include <flight/modules/tasks/ValveTask.hpp>
 #include <flight/modules/lib/Util.hpp>
 
+//TODO: wrap everything in a try catch to make sure that execution doesn't stop when an error gets thrown?
+
 Supervisor::Supervisor(){
     log("Creating registry and flag");
     registry = new Registry();

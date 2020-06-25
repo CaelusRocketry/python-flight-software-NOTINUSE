@@ -32,7 +32,7 @@ void ControlTask::begin() {
     for(auto &ctrl : this->controls) {
         ctrl.get()->begin();
     }
-    log("Control Tasks started"); //TODO: change this to enqueue
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Control Tasks started\"}"), LogPriority::CRIT);
 }
 
 void ControlTask::control() {

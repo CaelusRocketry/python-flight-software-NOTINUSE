@@ -68,14 +68,14 @@ void ValveTask::actuate_solenoids() {
 
             if(int(actuation_priority) >= int(current_priority)) {
                 if(actuation_type == ActuationType::NONE) {
-                    log("Allowing others to actuate"); //TODO: change to enqueue
+                    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Allowing other valves to actuate\"}"), LogPriority::INFO);
                     ret[1] = int(ActuationType::NONE);
                     this->registry->put("valve_actuation_type.solenoid." + loc, actuation_type);
                     this->registry->put("valve_actuation_priority.solenoid." + loc, ValvePriority::NONE);
                 }
                 else {
                     ret[1] = int(actuation_type);
-                    log("Actuating..."); //TODO: change to enqueue
+                    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Actuating solenoid." + loc + "...\"}"), LogPriority::INFO);
                     this->registry->put("valve_actuation_type.solenoid." + loc, actuation_type);
                     this->registry->put("valve_actuation_priority.solenoid." + loc, actuation_priority);
                 }

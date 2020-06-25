@@ -48,10 +48,7 @@ public:
             return val;
         }
         log("Dynamic casting no work");
-        // TODO: Can't assert in the final version, need to somehow return an error?
-        assert(false);
-        T val = field->getVal();
-        return val;
+        throw DYNAMIC_CAST_ERROR();
     }
 
 
