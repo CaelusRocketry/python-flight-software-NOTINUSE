@@ -10,9 +10,9 @@
 #include <string>
 
 ValveControl::ValveControl(Registry *registry, Flag *flag) {
-    log("Valve Control started");
     this->registry = registry;
     this->flag = flag;
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Valve Control started\"}"), LogPriority::INFO);
 }
 
 void ValveControl::begin() {

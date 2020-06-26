@@ -13,9 +13,9 @@
 typedef priority_queue<Packet, vector<Packet>, Packet::compareTo> PacketQueue;
 
 TelemetryControl::TelemetryControl(Registry *registry, Flag *flag) {
-    log("Telemetry Control started");
     this->registry = registry;
     this->flag = flag;
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Telemetry Control started\"}"), LogPriority::INFO);
 }
 void TelemetryControl::makeFunctions() {
     this->functions.emplace("heartbeat", &TelemetryControl::heartbeat);

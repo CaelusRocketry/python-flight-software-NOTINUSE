@@ -94,7 +94,7 @@
   },
   "task_config": {
     "tasks": ["sensor", "telemetry", "valve"],
-    "control_tasks": ["sensor", "telemetry", "valve", "stage"]
+    "control_tasks": ["sensor", "telemetry", "valve", "stage", "pressure"]
   },
   "stages": {
     "list": ["propellant_loading", "leak_testing_1", "pressurant_loading", "leak_testing_2", "pre_ignition", "disconnection"],

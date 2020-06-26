@@ -24,10 +24,10 @@ unordered_map<string, pair<double, double>> SensorControl::build_boundaries() {
 }
 
 SensorControl::SensorControl(Registry *registry, Flag *flag) {
-    log("Sensor Control started");
     this->registry = registry;
     this->flag = flag;
     this->last_send_time = 0;
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Sensor Control started\"}"), LogPriority::INFO);
 }
 
 void SensorControl::begin() {

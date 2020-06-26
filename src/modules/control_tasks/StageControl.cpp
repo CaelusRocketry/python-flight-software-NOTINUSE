@@ -6,13 +6,13 @@
 #include <chrono>
 
 StageControl::StageControl(Registry *registry, Flag *flag) {
-    log("Stage Control started");
     this->registry = registry;
     this->flag = flag;
     this->request_interval = stod(Util::parse_json_value({"stages", "request_interval"}));
     this->start_time = chrono::system_clock::now().time_since_epoch().count();
     this->send_interval = stod(Util::parse_json_value({"stages", "send_interval"}));
     this->stage_index = 0;
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Stage Control started\"}"), LogPriority::INFO);
 }
 
 

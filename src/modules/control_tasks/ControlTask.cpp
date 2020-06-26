@@ -7,6 +7,7 @@
 #include <flight/modules/control_tasks/SensorControl.hpp>
 #include <flight/modules/control_tasks/StageControl.hpp>
 #include <flight/modules/control_tasks/ValveControl.hpp>
+#include <flight/modules/control_tasks/PressureControl.hpp>
 
 
 ControlTask::ControlTask(Registry *registry, Flag *flag, unordered_map<string, bool> config) {
@@ -26,13 +27,16 @@ ControlTask::ControlTask(Registry *registry, Flag *flag, unordered_map<string, b
     if(config.at("stage")) {
         controls.push_back(unique_ptr<Control>(new StageControl(registry, flag)));
     }
+    if(config.at("pressure")) {
+        controls.push_back(unique_ptr<Control>(new PressureControl(registry, flag)));
+    }
+    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Control Tasks started\"}"), LogPriority::INFO);
 }
 
 void ControlTask::begin() {
     for(auto &ctrl : this->controls) {
         ctrl.get()->begin();
     }
-    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Control Tasks started\"}"), LogPriority::CRIT);
 }
 
 void ControlTask::control() {
