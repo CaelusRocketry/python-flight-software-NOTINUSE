@@ -70,6 +70,38 @@ class ValveArduino {
       times[i] = millis() + PULSE_TIME;
     }
 
+    void ingestLaunchbox(int cmd, int data){
+      if(cmd == DATA){
+        if(data == OVERRIDE){
+          override = true;
+        }
+        else if(data == OVERRIDE_UNDO){
+          override = false;
+        }
+        else{
+          error();
+        }
+        return;
+      }
+      if(!override){
+        return;
+      }
+      switch(cmd){
+        case CLOSE_VENT:
+          close(data);
+          break;
+        case OPEN_VENT:
+          open(data);
+          break;
+        case PULSE:
+          pulse(data);
+          break;
+        default:
+          error();
+          break;
+      }
+    }
+
   public:
     ValveArduino::ValveArduino() {
       Wire.begin(SLAVE_ADDRESS);
@@ -159,71 +191,36 @@ class ValveArduino {
       Wire.write(buf, 4);
     }
 
-/**EVERYTHING BELOW STILL NEEDS TO BE ORGANIZED
------------------------------------------------**/
-
-void launchBox(){
-  while(Serial.available() > 0){
-    int cmd = Serial.read();
-    int data = Serial.read();
-    ingestLaunchbox(cmd, data);
-  }
-}
-
-void ingestLaunchbox(int cmd, int data){
-  if(cmd == DATA){
-    if(data == OVERRIDE){
-      override = true;
+    void launchBox(){
+      while(Serial.available() > 0){
+        int cmd = Serial.read();
+        int data = Serial.read();
+        ingestLaunchbox(cmd, data);
+      }
     }
-    else if(data == OVERRIDE_UNDO){
-      override = false;
-    }
-    else{
-      error();
-    }
-    return;
-  }
-  if(!override){
-    return;
-  }
-  switch(cmd){
-    case CLOSE_VENT:
-      close(data);
-      break;
-    case OPEN_VENT:
-      open(data);
-      break;
-    case PULSE:
-      pulse(data);
-      break;
-    default:
-      error();
-      break;
-  }
-}
 
-void actuate(int loc_idx, int actuation_idx){
-  int valve_pin = VALVE_ORDER[loc_idx];
-  switch(actuation_idx){
-    case 0:
-      // Pulse
-      pulse(valve_pin);
-      break;
-    case 1:
-      // Open vent
-      open(valve_pin);
-      break;
-    case 2:
-      // Close vent
-      close(valve_pin);
-      break;
-    case 3:
-      // None
-      //TODO: Implement this
-      break;
-    default:
-      error();
-      break;
-  }
-
+    void actuate(int loc_idx, int actuation_idx){
+      int valve_pin = VALVE_ORDER[loc_idx];
+      switch(actuation_idx){
+        case 0:
+          // Pulse
+          pulse(valve_pin);
+          break;
+        case 1:
+          // Open vent
+          open(valve_pin);
+          break;
+        case 2:
+          // Close vent
+          close(valve_pin);
+          break;
+        case 3:
+          // None
+          //TODO: Implement this
+          break;
+        default:
+          error();
+          break;
+      }
+    }
 }
