@@ -1,4 +1,3 @@
-#include <vector>
 #include <Adafruit_MAX31856.h>
 
 #ifndef THERMOCOUPLE_HPP
@@ -8,10 +7,10 @@ class Thermocouple {
     private:
         Adafruit_MAX31856 *maxthermo;
     public:
-        vector<int> pins;
-        Thermocouple::Thermocouple(vector<int> pins);
-        Thermocouple::~Thermocouple();
-        std::pair<float, bool> getTemp(); 
+        int *pins;
+        Thermocouple(int pin1, int pin2, int pin3, int pin4);
+        ~Thermocouple();
+        float getTemp(); 
 };
 
 #endif

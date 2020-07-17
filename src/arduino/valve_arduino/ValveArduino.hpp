@@ -1,7 +1,8 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <Arduino.h>
-#include <cstdint>
+#include <ArduinoSTL.h>
+#include <stdint.h>
 #include <map>
 #include <Solenoid.hpp>
 
@@ -18,7 +19,7 @@
 #define NO_DRAIN 7
 #define NO_VENT 8
 #define NO_MPV 9
-#define NUM_VALVES 8;
+#define NUM_VALVES 8
 
 
 class ValveArduino {

@@ -1,13 +1,19 @@
 #include "Thermocouple.hpp"
 
-Thermocouple::Thermocouple(vector<int> pins) {
-    this->pins = pins;
-    maxthermo = new Adafruit_MAX31856(pins[0], pins[1], pins[2], pins[3]);
+Thermocouple::Thermocouple(int pin1, int pin2, int pin3, int pin4) {
+    this->pins = new int[4];
+    this->pins[0] = pin1;
+    this->pins[1] = pin2;
+    this->pins[2] = pin3;
+    this->pins[3] = pin4;
+
+    maxthermo = new Adafruit_MAX31856(this->pins[0], this->pins[1], this->pins[2], this->pins[3]);
     maxthermo->begin();
 }
 
 Thermocouple::~Thermocouple() {
     delete maxthermo;
+    delete[] pins;
 }
 
 float getTemp() {
