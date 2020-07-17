@@ -32,7 +32,7 @@ class SensorTask(Task):
                 self.pins[pin] = (s_type, loc)
             elif s_type == SensorType.THERMOCOUPLE:
                 to_send.append(0)
-                pins = self.sensor_config[s_type][loc]["pin"]
+                pins = self.sensor_config[s_type][loc]["pins"]
                 for pin in pins:
                     to_send.append(pin)
                 self.pins[pins[0]] = (s_type, loc)
@@ -47,12 +47,15 @@ class SensorTask(Task):
 
 
     def read(self):
-        data = self.arduino.read(self.num_sensors * 4)
-        assert(len(data) == self.num_sensors * 4)
+        data = self.arduino.read(self.num_sensors * 5)
+        assert(len(data) == self.num_sensors * 5)
 
         for i in range(self.num_sensors):
-            sensor_type, sensor_location = self.sensor_list[i]
-            byte_value = data[i*4:(i+1)*4]
+            temp = data[i*5: (i + 1)*5] # Isolate the block of data for that sensor
+            pin = temp[0]
+            assert(pin in self.pins)
+            sensor_type, sensor_location = self.pins[pin]
+            byte_value = temp[1:]
             float_value = self.get_float(byte_value)
             assert(isinstance(float_value, float))
             self.registry.put(("sensor_measured", sensor_type, sensor_location), float_value)

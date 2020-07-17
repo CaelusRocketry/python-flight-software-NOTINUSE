@@ -8,7 +8,7 @@ SensorArduino::SensorArduino() {
     registerSensors();
 
     Wire.onReceive(receiveData);
-    Wire.onRequest(sendData);
+    Wire.onRequest(read);
     Serial.begin(9600);
     pinMode(13, OUTPUT);
 }

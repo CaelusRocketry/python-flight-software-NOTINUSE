@@ -15,18 +15,19 @@ class SensorControl():
 
     def begin(self, config: dict):
         self.config = config
-        sensor_config = config["sensors"]
+        sensor_config = config["sensors"]["list"]
 
         self.sensors = {}
         self.boundaries = {}
         self.kalman_args = {}
         for sensor_type in sensor_config:
             self.sensors[sensor_type] = []
+            self.boundaries[sensor_type] = {}
+            self.kalman_args[sensor_type] = {}
             for sensor_loc in sensor_config[sensor_type]:
-                self.boundaries[sensor_type][sensor_loc] = sensor_config[sensor_type][sensor_loc]["boundaries"]
                 self.sensors[sensor_type].append(sensor_loc)
+                self.boundaries[sensor_type][sensor_loc] = sensor_config[sensor_type][sensor_loc]["boundaries"]
                 self.kalman_args[sensor_type][sensor_loc] =  sensor_config[sensor_type][sensor_loc]["kalman_args"]
-        self.valves = config["valves"]["list"]
         self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
         self.init_kalman(config)

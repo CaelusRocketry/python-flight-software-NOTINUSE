@@ -14,8 +14,9 @@ class PseudoSensor():
         print("CREATING PSEUDO SENSOR")
         self.config = config
         self.has_written = False
-        self.sensor_config = config["sensor"]
-        self.sensor_list = [(s_type, loc) for s_type in sensor_config for loc in sensor_config[s_type]]
+        self.config = config
+        self.sensor_config = config["list"]
+        self.sensor_list = [(s_type, loc) for s_type in self.sensor_config for loc in self.sensor_config[s_type]]
         self.num_sensors = len(self.sensor_list)
         self.sensors = {i: random.randint(100, 200) for i in self.sensor_list}
 
@@ -36,13 +37,14 @@ class PseudoSensor():
     def register_sensors(self, msg):
         self.num_sensors = msg[0]
         idx = 1
-        self.pins = {}
+        self.pins, self.inv_pins = {}, {}
         while idx < len(msg):
             if msg[idx] == 1:
                 pin = msg[idx + 1]
                 for loc in self.sensor_config[SensorType.PRESSURE]:
                     if self.sensor_config[SensorType.PRESSURE][loc]["pin"] == pin:
                         self.pins[pin] = (SensorType.PRESSURE, loc)
+                        self.inv_pins[(SensorType.PRESSURE, loc)] = pin
                 idx += 2
             elif msg[idx] == 0:
                 pin = msg[idx + 1]
@@ -50,6 +52,7 @@ class PseudoSensor():
                 for loc in self.sensor_config[SensorType.THERMOCOUPLE]:
                     if self.sensor_config[SensorType.THERMOCOUPLE][loc]["pins"] == pins:
                         self.pins[pins[0]] = (SensorType.THERMOCOUPLE, loc)
+                        self.inv_pins[(SensorType.THERMOCOUPLE, loc)] = pins[0]
                 idx += 5
             else:
                 raise Exception("Unknown sensor being registered in PseudoSensor")
@@ -60,11 +63,14 @@ class PseudoSensor():
         self.set_sensor_values()
         ret = bytes()
         for key in self.sensors:
+            ret += bytes([self.inv_pins[key]])
             ret += struct.pack('f', self.sensors[key])
+        assert(len(ret) == self.num_sensors * 5)
         return ret
     
+
     def write(self, msg):
-        if not self.has_written:
+        if not self.has_written: # Only register sensors on the first message that is recieved
             self.register_sensors(msg)
             self.has_written = True
 
