@@ -2,7 +2,7 @@
 #include "Thermocouple.hpp"
 #include "PressureSensor.hpp"
 #include <stdint.h>
-#include <Wire>
+#include <Wire.h>
 
 #ifndef SENSOR_ARDUINO_HPP
 #define SENSOR_ARDUINO_HPP
@@ -20,15 +20,16 @@ class SensorArduino {
     // send data to pi every 50 milliseconds
     const int SEND_DELAY = 50;
 
-    void receiveData();
     void registerSensors();
     int recvI2CByte();
 
   public:
     SensorArduino();
     ~SensorArduino();
+    void receiveData();
     void read();
-    void sendData();
+    void update();
+    void sendData(int pin, float val);
     void error();
 };
 

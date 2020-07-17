@@ -1,14 +1,8 @@
-#include <SensorArduino.hpp>
-
-#define SLAVE_ADDRESS 0x04
+#include "SensorArduino.hpp"
 
 SensorArduino::SensorArduino() {
     // I2C initialization
-    Wire.begin(SLAVE_ADDRESS);
     registerSensors();
-
-    Wire.onReceive(receiveData);
-    Wire.onRequest(read);
     Serial.begin(9600);
     pinMode(13, OUTPUT);
 }
@@ -35,8 +29,8 @@ void SensorArduino::registerSensors() {
     int thermocouple_len = 0;
     int pressure_len = 0;
 
-    this->thermocouples = new Thermocouple[this->num_thermocouples];
-    this->pressure_sensors = new PressureSensor[this->num_pressures];
+    this->thermocouples[num_thermocouples];
+    this->pressure_sensors[num_pressures];
 
     for(int i = 0; i < num_sensors; i++) {
         int sensor_type = recvI2CByte();
@@ -46,7 +40,11 @@ void SensorArduino::registerSensors() {
             pressure_len++;
         }
         else if(sensor_type == 0) {
-            this->thermocouples[thermocouple_len] = Thermocouple(recvI2CByte(), recvI2CByte(), recvI2CByte(), recvI2CByte());
+            int pins[4];
+            for(int i = 0; i < 4; i++){
+                pins[i] = recvI2CByte();
+            }
+            this->thermocouples[thermocouple_len] = Thermocouple(pins);
             thermocouple_len++;
         }
         else {
@@ -55,18 +53,24 @@ void SensorArduino::registerSensors() {
     }
 }
 
-void SensorArduino::read() {
+void SensorArduino::update(){
     for(int i = 0; i < this->num_thermocouples; i++) {
-        float thermo_val = thermocouples[i].getThermo();
-        sendData(thermocouples[i].pins[0], thermo_val);
+        thermocouples[i].updateTemp();
     }
 
     for(int i = 0; i < this->num_pressures; i++) {
-        float pressure_val = this->pressure_sensors[i].getPressure();
-        sendData(this->pressure_sensors[i].pin, pressure_val);
+        this->pressure_sensors[i].updatePressure();
+    }
+}
+
+void SensorArduino::read() {
+    for(int i = 0; i < this->num_thermocouples; i++) {
+        sendData(thermocouples[i].pins[0], thermocouples[i].temp);
     }
 
-    delay(SEND_DELAY);
+    for(int i = 0; i < this->num_pressures; i++) {
+        sendData(this->pressure_sensors[i].pin, pressure_sensors[i].pressure);
+    }
 }
 
 void SensorArduino::sendData(int pin, float val) {

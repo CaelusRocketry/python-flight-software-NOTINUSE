@@ -1,14 +1,13 @@
 #include "Thermocouple.hpp"
 
-Thermocouple::Thermocouple(int pin1, int pin2, int pin3, int pin4) {
-    this->pins = new int[4];
-    this->pins[0] = pin1;
-    this->pins[1] = pin2;
-    this->pins[2] = pin3;
-    this->pins[3] = pin4;
+Thermocouple::Thermocouple(int *pins) {
+    for(int i = 0; i < 4; i++){
+        this->pins[i] = pins[i];
+    }
 
-    maxthermo = new Adafruit_MAX31856(this->pins[0], this->pins[1], this->pins[2], this->pins[3]);
+    maxthermo = new Adafruit_MAX31856(pins[0], pins[1], pins[2], pins[3]);
     maxthermo->begin();
+    temp = 0;
 }
 
 Thermocouple::~Thermocouple() {
@@ -16,12 +15,13 @@ Thermocouple::~Thermocouple() {
     delete[] pins;
 }
 
-float getTemp() {
-    float temp = maxthermo->readThermocoupleTemperature();
+void Thermocouple::updateTemp() {
+    float curr_temp = maxthermo->readThermocoupleTemperature();
     uint8_t fault = maxthermo->readFault();
     if(fault) {
         Serial.println("There's a fault in the thermocouple");
         digitalWrite(13, HIGH);
+        return;
     }
-    return temp;
+    temp = curr_temp;
 }

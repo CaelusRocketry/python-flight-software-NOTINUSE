@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include <Adafruit_MAX31856.h>
 
 #ifndef THERMOCOUPLE_HPP
@@ -8,9 +9,10 @@ class Thermocouple {
         Adafruit_MAX31856 *maxthermo;
     public:
         int *pins;
-        Thermocouple(int pin1, int pin2, int pin3, int pin4);
+        float temp;
+        Thermocouple(int *pins);
         ~Thermocouple();
-        float getTemp(); 
+        void updateTemp();
 };
 
 #endif

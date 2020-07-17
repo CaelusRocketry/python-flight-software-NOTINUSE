@@ -4,6 +4,7 @@
 #define ROOM_PRESSURE 15
 
 PressureSensor::PressureSensor(int pin) {
+    pressure = 0;
     this->pin = pin;
     pinMode(pin, OUTPUT);
 }
@@ -15,9 +16,9 @@ float mapVal(float val, float lower1, float upper1, float lower2, float upper2) 
     return (val - lower1) * factor + lower2;
 }
 
-float PressureSensor::getPressure() {
-    float analog = analogRead(pressurePin);
-    float voltage = mapVal(analog, 0, 1023, 0, 5);
-    float pressure = mapVal(voltage, 0.5, 4.5, 0, MAX_PRESSURE);
-    return pressure + ROOM_PRESSURE;
+void PressureSensor::updatePressure() {
+    float pwmVal = analogRead(pin);
+    float voltage = mapVal(pwmVal, 0, 1023, 0, 5);
+    float base_pressure = mapVal(voltage, 0.5, 4.5, 0, MAX_PRESSURE);
+    pressure = base_pressure + ROOM_PRESSURE;
 }
