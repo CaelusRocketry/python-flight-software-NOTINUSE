@@ -67,6 +67,15 @@ ValveArduino::ValveArduino() {
 void ValveArduino::registerSolenoids() {
     // reads from wire and fills the solenoids map with (pin, Solenoid) pairs
     // Solenoid constructor: Solenoid(int pin, bool isSpecial, bool isNO)
+    map<int, Solenoid> SolenoidMap; 
+    while(Wire.available())   
+    {
+        int pin = Wire.read();
+        bool isSpecial = Wire.read();
+        bool isNO = Wire.read();
+        Solenoid mySolenoid = Solenoid(pin, isSpecial, isNO);    
+        SolenoidMap.insert(pair<int,Solenoid>(pin, mySolenoid));   
+    }
 }
 
 void ValveArduino::loop() {
