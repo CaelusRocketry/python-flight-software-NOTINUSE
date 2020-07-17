@@ -4,7 +4,7 @@ import random
 import struct
 import threading
 from modules.drivers.driver import Driver
-from modules.lib.enums import ActuationType, ValveType, SolenoidState
+from modules.lib.enums import ActuationType, ValveType, SolenoidState, SensorType
 """
 Pseudo arduino class to use to run code on ur own laptop!
 FIXME: The real_arduino.py class should be used on the pi!
@@ -13,8 +13,9 @@ class PseudoSensor():
     def __init__(self, config: dict):
         print("CREATING PSEUDO SENSOR")
         self.config = config
-        sensors = config["list"]
-        self.sensor_list = [(s_type, loc) for s_type in sensors for loc in sensors[s_type]]
+        self.has_written = False
+        self.sensor_config = config["sensor"]
+        self.sensor_list = [(s_type, loc) for s_type in sensor_config for loc in sensor_config[s_type]]
         self.num_sensors = len(self.sensor_list)
         self.sensors = {i: random.randint(100, 200) for i in self.sensor_list}
 
@@ -32,6 +33,29 @@ class PseudoSensor():
 #        self.sensors = {i: self.sensors[i] + random.randint(-10, 10) for i in self.sensor_list}
 
 
+    def register_sensors(self, msg):
+        self.num_sensors = msg[0]
+        idx = 1
+        self.pins = {}
+        while idx < len(msg):
+            if msg[idx] == 1:
+                pin = msg[idx + 1]
+                for loc in self.sensor_config[SensorType.PRESSURE]:
+                    if self.sensor_config[SensorType.PRESSURE][loc]["pin"] == pin:
+                        self.pins[pin] = (SensorType.PRESSURE, loc)
+                idx += 2
+            elif msg[idx] == 0:
+                pin = msg[idx + 1]
+                pins = [msg[idx + i] for i in range(1, 5)]
+                for loc in self.sensor_config[SensorType.THERMOCOUPLE]:
+                    if self.sensor_config[SensorType.THERMOCOUPLE][loc]["pins"] == pins:
+                        self.pins[pins[0]] = (SensorType.THERMOCOUPLE, loc)
+                idx += 5
+            else:
+                raise Exception("Unknown sensor being registered in PseudoSensor")
+
+
+
     def read(self):
         self.set_sensor_values()
         ret = bytes()
@@ -40,7 +64,9 @@ class PseudoSensor():
         return ret
     
     def write(self, msg):
-        pass
+        if not self.has_written:
+            self.register_sensors(msg)
+            self.has_written = True
 
 
 class PseudoValve():

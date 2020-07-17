@@ -14,18 +14,31 @@ class SensorTask(Task):
 
     def begin(self, config: dict):
         self.config = config["sensors"]
-        sensors = self.config["list"]
-        self.sensor_list = [(s_type, loc) for s_type in sensors for loc in sensors[s_type]]
+        self.sensor_config = self.config["list"]
+        self.sensor_list = [(s_type, loc) for s_type in self.sensor_config for loc in self.sensor_config[s_type]]
         self.num_sensors = len(self.sensor_list)
         self.arduino = Arduino(self.name, self.config)
         self.send_sensor_info()
 
 
     def send_sensor_info(self):
-        byts = 
+        self.pins = {}
+        to_send = [len(self.sensor_list)]
         for s_type, loc in self.sensor_list:
-            #TODO: Implement this
-            pass
+            if s_type == SensorType.PRESSURE:
+                to_send.append(1)
+                pin = self.sensor_config[s_type][loc]["pin"]
+                to_send.append(pin)
+                self.pins[pin] = (s_type, loc)
+            elif s_type == SensorType.THERMOCOUPLE:
+                to_send.append(0)
+                pins = self.sensor_config[s_type][loc]["pin"]
+                for pin in pins:
+                    to_send.append(pin)
+                self.pins[pins[0]] = (s_type, loc)
+            else:
+                raise Exception("Unknown sensor type")
+        self.arduino.write(to_send)
 
 
     def get_float(self, data):
