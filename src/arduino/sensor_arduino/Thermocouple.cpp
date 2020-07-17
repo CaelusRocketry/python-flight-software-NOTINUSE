@@ -1,6 +1,7 @@
 #include <Thermocouple.hpp>
 
-Thermocouple::Thermocouple() {
+Thermocouple::Thermocouple(vector<int> pins) {
+    maxthermo = Adafruit_MAX31856(pins[0], pins[1], pins[2], pins[3]);
     maxthermo.begin();
 }
 

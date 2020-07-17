@@ -1,6 +1,6 @@
 #include <SensorArduino.hpp>
 
-SensorArduino sensor_arduino = SensorArduino();
+SensorArduino sensor_arduino;
 
 void setup() {
 

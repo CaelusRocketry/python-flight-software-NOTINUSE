@@ -2,6 +2,8 @@
 #include <Wire.h>
 #include <Arduino.h>
 #include <cstdint>
+#include <map>
+#include <Solenoid.hpp>
 
 #ifndef VALVE_ARDUINO_HPP
 #define VALVE_ARDUINO_HPP
@@ -21,22 +23,11 @@
 
 class ValveArduino {
   private:
-    // MAKE SURE THIS MATCHES config.json order
-    const int VALVE_ORDER[8] = {NITROGEN_FILL, ETHANOL_DRAIN, ETHANOL_VENT, ETHANOL_MPV, NO_FILL, NO_DRAIN, NO_VENT, NO_MPV};
+    // maps pin numbers to the respective Solenoid
+    std::map<int, Solenoid> solenoids;
 
-    // Pin counts. MAKE SURE the order in ALL_PINS matches config.json.
-    const int ALL_PINS[8] = {NITROGEN_FILL,
-                      ETHANOL_DRAIN,
-                      ETHANOL_VENT,
-                      ETHANOL_MPV,
-                      NO_FILL,
-                      NO_DRAIN,
-                      NO_VENT,
-                      NO_MPV};
-    const int MAX_PIN = 10;
-    int states[] = new int[MAX_PIN];
-    bool actuation_on[] = new int[MAX_PIN];
-    unsigned long times[] = new unsigned long[MAX_PIN];
+    // maps pin numbers to the respective solenoid state
+    std::map<int, Solenoid> solenoid_states;
 
     // Serial/I2C definitions. MAKE SURE CLOSE_VENT, OPEN_VENT, PULSE MATCH WHATEVER'S IN valve_task.py
     const int DATA = 0;
@@ -61,8 +52,8 @@ class ValveArduino {
     void receiveData(int byteCount);
     void sendData();
     void launchBox();
-    void actuate(int loc_idx, int actuation_idx);
     void pi();
+    void registerSolenoids();
 
   public:
     ValveArduino();

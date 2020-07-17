@@ -5,21 +5,15 @@ void ValveArduino::error() {
 }
 
 void ValveArduino::close(int pin) {
-    digitalWrite(pin, LOW);
-    states[i] = CLOSE_VENT;
-    times[i] = -1;
+    solenoids[pin].close();
 }
 
 void ValveArduino::open(int pin) {
-    digitalWrite(pin, HIGH);
-    states[i] = OPEN_VENT;
-    times[i] = millis() + OPEN_CYCLE;
+    solenoids[pin].open()
 }
 
 void ValveArduino::pulse(int pin) {
-    open(pin);
-    states[i] = PULSE;
-    times[i] = millis() + PULSE_TIME;
+    solenoids[pin].pulse();
 }
 
 void ValveArduino::ingestLaunchbox(int cmd, int data) {
@@ -38,12 +32,15 @@ void ValveArduino::ingestLaunchbox(int cmd, int data) {
     }
     switch (cmd) {
     case CLOSE_VENT:
+        solenoid_states[data] = CLOSE_VENT;
         close(data);
         break;
     case OPEN_VENT:
+        solenoid_states[data] = OPEN_VENT;
         open(data);
         break;
     case PULSE:
+        solenoid_states[data] = PULSE;
         pulse(data);
         break;
     default:
@@ -54,65 +51,55 @@ void ValveArduino::ingestLaunchbox(int cmd, int data) {
 
 ValveArduino::ValveArduino() {
     Wire.begin(SLAVE_ADDRESS);
+    registerSolenoids();
+
     Wire.onReceive(receiveData);
     Wire.onRequest(sendData);
     Serial.begin(9600);
-    for (int i = 0; i < NUM_VALVES; i++) {
-        pinMode(ALL_PINS[i], OUTPUT);
-    }
-    for (int i = 0; i < MAX_PIN; i++) {
-        times[i] = -1;
-        states[i] = CLOSE_VENT;
+
+    for(auto solenoid_pair : solenoids) {
+        solenoid_states.emplace(solenoid_pair.first, NO_ACTUATION);
+        pinMode(solenoid_pair.first, OUTPUT);
     }
     pinMode(13, OUTPUT);
 }
 
+void ValveArduino::registerSolenoids() {
+    // reads from wire and fills the solenoids map with (pin, Solenoid) pairs
+    // Solenoid constructor: Solenoid(int pin, bool isSpecial, bool isNO)
+}
+
 void ValveArduino::loop() {
-    // Valve open cycle control and pulse control
-    for (int i = 0; i < NUM_STATES; i++) {
-        if (times[i] == -1) {
-            continue;
-        }
-        if (millis() > times[i]) {
-            if (states[i] == PULSE) {
-                close(i);
-            } else if (states[i] == OPEN_VENT) {
-                close(i);
-                times[i] = millis() + OPEN_CYCLE_CLOSE;
-            } else if (states[i] == CLOSE_VENT) {
-                open(i);
-            } else {
-                error();
-            }
-        }
-    }
     launchBox();
     pi();
 }
 
 void ValveArduino::receiveData(int byteCount) {
     while (Wire.available()) {
-        int loc_idx = Wire.read();
+        int pin = Wire.read();
         int actuation_type = Wire.read();
         if (override) {
-            return;
+            break;
         }
-        int valve_pin = ALL_PINS[loc_idx];
         switch (actuation_type) {
-        case NO_ACTUATION:
-            actuation_on[valve_pin] = false;
-        case CLOSE_VENT:
-            close(valve_pin);
-            actuation_on[valve_pin] = true;
-            break;
-        case OPEN_VENT:
-            open(valve_pin);
-            actuation_on[valve_pin] = true;
-            break;
-        case PULSE:
-            pulse(valve_pin);
-            actuation_on[valve_pin] = true;
-            break;
+            case NO_ACTUATION:
+                solenoid_states[pin] = NO_ACTUATION;
+                break;
+            case CLOSE_VENT:
+                solenoid_states[pin] = CLOSE_VENT;
+                close(pin);
+                break;
+            case OPEN_VENT:
+                solenoid_states[pin] = OPEN_VENT;
+                open(pin);
+                break;
+            case PULSE:
+                solenoid_states[pin] = PULSE;
+                pulse(pin);
+                break;
+            default:
+                error();
+                break;
         }
     }
 }
@@ -122,11 +109,8 @@ void ValveArduino::sendData() {
     if (override) {
         data = 1;
     }
-    for (int valve = 0; valve < NUM_VALVES; valve++) {
-        int state = states[ALL_PINS[valve]];
-        if (!actuation_on[ALL_PINS[valve]]) {
-            state = 0;
-        }
+    for (auto solenoid_pair : solenoids) {
+        int state = solenoid_states[solenoid_pair.first]
         data = data | (state << (valve * 2 + 1))
     }
     uint8_t buf[4];
@@ -142,31 +126,6 @@ void ValveArduino::launchBox() {
         int cmd = Serial.read();
         int data = Serial.read();
         ingestLaunchbox(cmd, data);
-    }
-}
-
-void ValveArduino::actuate(int loc_idx, int actuation_idx) {
-    int valve_pin = VALVE_ORDER[loc_idx];
-    switch (actuation_idx) {
-    case 0:
-        // Pulse
-        pulse(valve_pin);
-        break;
-    case 1:
-        // Open vent
-        open(valve_pin);
-        break;
-    case 2:
-        // Close vent
-        close(valve_pin);
-        break;
-    case 3:
-        // None
-        // TODO: Implement this
-        break;
-    default:
-        error();
-        break;
     }
 }
 
