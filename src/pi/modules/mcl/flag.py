@@ -4,9 +4,7 @@ from modules.lib.enums import ValveType, ValveLocation, ActuationType, ValvePrio
 class Flag:
 
     def __init__(self, config: dict):
-        self.sensors = config["sensors"]["list"]
-        self.valves = config["valves"]["list"]
-        self.solenoids = self.valves[ValveType.SOLENOID]
+        self.solenoids = config["valves"]["list"][ValveType.SOLENOID]
         self.flags = {
             "general": {
                 "progress": False

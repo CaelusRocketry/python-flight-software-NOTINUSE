@@ -35,8 +35,6 @@ class TelemetryControl():
 
     def begin(self, config: dict):
         self.config = config
-        self.sensors = config["sensors"]["list"]
-        self.valves = config["valves"]["list"]
 
 
     def execute(self) -> Error:

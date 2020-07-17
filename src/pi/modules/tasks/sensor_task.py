@@ -5,7 +5,6 @@ from modules.mcl.flag import Flag
 from modules.lib.enums import SensorType, SensorLocation
 import struct
 
-#TODO: Check w/ some boundaries file (boundaries should be part of config.json) and correspondingly update sensor statuses in registry
 class SensorTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
         self.name = "Sensor Arduino"
@@ -15,11 +14,18 @@ class SensorTask(Task):
 
     def begin(self, config: dict):
         self.config = config["sensors"]
-        #TODO: Make sure that this is the same order that the arduino returns its data in
         sensors = self.config["list"]
         self.sensor_list = [(s_type, loc) for s_type in sensors for loc in sensors[s_type]]
         self.num_sensors = len(self.sensor_list)
         self.arduino = Arduino(self.name, self.config)
+        self.send_sensor_info()
+
+
+    def send_sensor_info(self):
+        byts = 
+        for s_type, loc in self.sensor_list:
+            #TODO: Implement this
+            pass
 
 
     def get_float(self, data):
