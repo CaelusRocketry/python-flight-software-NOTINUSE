@@ -10,7 +10,8 @@ float PressureSensor::mapVal(float val, float lower1, float upper1, float lower2
     return (val - lower1) * factor + lower2;
 }
 
-PressureSensor::PressureSensor() {
+PressureSensor::PressureSensor(int pin) {
+    this->pressurePin = pin;
     pinMode(pressurePin, OUTPUT);
 }
 

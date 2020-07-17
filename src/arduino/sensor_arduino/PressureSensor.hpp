@@ -6,10 +6,10 @@
 class PressureSensor {
     private:
         float mapVal(float val, float lower1, float upper1, float lower2, float upper2);
-        const int pressurePin = A1;
+        int pressurePin;
 
     public:
-        PressureSensor();
+        PressureSensor(int pin);
         float getPressure();
 };
 

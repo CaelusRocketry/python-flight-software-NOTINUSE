@@ -64,17 +64,15 @@ ValveArduino::ValveArduino() {
     pinMode(13, OUTPUT);
 }
 
+// TODO: make sure that the format matches what the pi is sending
+
 void ValveArduino::registerSolenoids() {
-    // reads from wire and fills the solenoids map with (pin, Solenoid) pairs
-    // Solenoid constructor: Solenoid(int pin, bool isSpecial, bool isNO)
-    map<int, Solenoid> SolenoidMap; 
-    while(Wire.available())   
-    {
+    while(Wire.available()) {
         int pin = Wire.read();
         bool isSpecial = Wire.read();
         bool isNO = Wire.read();
         Solenoid mySolenoid = Solenoid(pin, isSpecial, isNO);    
-        SolenoidMap.insert(pair<int,Solenoid>(pin, mySolenoid));   
+        solenoids.insert(std::pair<int, Solenoid>(pin, mySolenoid));   
     }
 }
 

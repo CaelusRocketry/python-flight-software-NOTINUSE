@@ -1,6 +1,9 @@
 #include <Thermocouple.hpp>
 #include <PressureSensor.hpp>
+#include <map>
 #include <Wire.h>
+#include <chrono>
+#include <thread>
 #include <cstdint>
 
 #ifndef SENSOR_ARDUINO_HPP
@@ -8,28 +11,18 @@
 
 class SensorArduino {
   private:
-    // Sensor data variables
-    double thermo_val;
-    double pressure_val;
-    double load_val;
+    // these maps map the pin to its respective sensor
 
-    // Contains all three data variables
-    struct sensorVars {
-      double thermo;
-      double pressure;
-      double load;
-    };
+    std::map<int, Thermocouple> thermocouples;
+    std::map<int, PressureSensor> pressure_sensors;
 
-    // Temporary data storage
-    sensorVars buffer[1000]{};
-    int index;
+    // send data to pi every 50 milliseconds
+    const int SEND_DELAY = 50;
 
     float getThermo();
     float getPressure();
     void receiveData();
-
-    Thermocouple thermocouple;
-    PressureSensor pressure_sensor;
+    void registerSensors();
 
   public:
     SensorArduino::SensorArduino();
