@@ -79,7 +79,20 @@ void ValveArduino::registerSolenoids() {
     }
 }
 
+void ValveArduino::checkSolenoids() {
+    for(auto solenoid_pair : solenoids) {
+        Solenoid sol = solenoid_pair.second;
+        if(sol.getStatus() && sol.getSpecial()) {
+            sol.controlOpen();
+        }
+        else if(sol.getPulse()) {
+            sol.controlPulse();
+        }
+    }
+}
+
 void ValveArduino::loop() {
+    checkSolenoids();
     // TODO: Uncomment this
     // launchBox();
     pi();

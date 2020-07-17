@@ -55,6 +55,7 @@ class ValveArduino {
     void launchBox();
     void pi();
     void registerSolenoids();
+    void checkSolenoids();
 
   public:
     ValveArduino();

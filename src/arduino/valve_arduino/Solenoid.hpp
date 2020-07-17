@@ -1,9 +1,3 @@
-#include <Arduino.h>
-#include <thread>
-#include <chrono>
-#include <atomic>
-#include <mutex>
-
 #ifndef SOLENOID_HPP
 #define SOLENOID_HPP
 
@@ -13,14 +7,15 @@ class Solenoid {
         bool isSpecial;
         bool isNO;
         unsigned long last_actuation_time;
+        bool isOpen;
+        bool beingRelieved;
+        bool isPulse;
 
-        std::mutex mtx;
-        std::atomic<bool> isOpen{false};
-        const unsigned long MAX_SPECIAL_OPEN = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(4)).count();
+        const unsigned long MAX_SPECIAL_OPEN = 4000;
+        const unsigned long RELIEF_WAIT_TIME = 1000;
 
-        unsigned long getTime();
-        void controlOpen();
         void relieveSpecial();
+        void reOpenSpecial();
 
     public:
         Solenoid(int pin, bool special, bool no);
@@ -28,6 +23,10 @@ class Solenoid {
         void open();
         void pulse();
         bool getStatus();
+        bool getSpecial();
+        void controlOpen();
+        bool getPulse();
+        void controlPulse();
 };
 
 #endif
