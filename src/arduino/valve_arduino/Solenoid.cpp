@@ -8,6 +8,7 @@ Solenoid::Solenoid(int pin, bool special, bool no) {
     this->isOpen = false;
     this->isPulse = false;
     this->beingRelieved = false;
+    this->actuation = this->NO_ACTUATION;
 }
 
 void Solenoid::close() {
@@ -18,6 +19,7 @@ void Solenoid::close() {
         digitalWrite(this->pin, LOW);
     }
     this->isOpen = false;
+    this->actuation = this->CLOSE_VENT;
 }
 
 void Solenoid::open() {
@@ -30,6 +32,7 @@ void Solenoid::open() {
 
     this->last_actuation_time = millis();
     this->isOpen = true;
+    this->actuation = this->OPEN_VENT;
 }
 
 void Solenoid::pulse() {
@@ -43,6 +46,7 @@ void Solenoid::pulse() {
     }
 
     this->last_actuation_time = millis();
+    this->actuation = this->PULSE;
 }
 
 void Solenoid::controlPulse() {
@@ -111,4 +115,12 @@ bool Solenoid::getStatus() {
 
 bool Solenoid::getSpecial() {
     return this->isSpecial;
+}
+
+int Solenoid::getActuation() {
+    return this->actuation;
+}
+
+int Solenoid::getPin() {
+    return this->pin;
 }

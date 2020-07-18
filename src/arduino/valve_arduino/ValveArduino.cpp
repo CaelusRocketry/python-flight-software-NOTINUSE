@@ -62,15 +62,25 @@ void ValveArduino::ingestLaunchbox(int cmd, int data) {
     }
 }
 
+int ValveArduino::recvI2CByte() {
+    while(!Wire.available()){}
+    return Wire.read();
+}
+
 // TODO: make sure that the format matches what the pi is sending
+// format: num_solenoids, <for each solenoid> pin, isSpecial, isNO
+// ex: 4, 1, 1, 1, 2, 0, 1, 3, 0, 0, 4, 1, 0
 
 void ValveArduino::registerSolenoids() {
-    while(Wire.available()) {
-        int pin = Wire.read();
-        bool isSpecial = Wire.read();
-        bool isNO = Wire.read();
-        Solenoid mySolenoid = Solenoid(pin, isSpecial, isNO);    
-        solenoids.insert(std::pair<int, Solenoid>(pin, mySolenoid));   
+    int solenoid_count = recvI2CByte();
+    this->num_solenoids = solenoid_count;
+    this->solenoids = new Solenoid[solenoid_count];
+
+    for(int i = 0; i < solenoid_count; i++) {
+        int pin = recvI2CByte();
+        bool isSpecial = recvI2CByte();
+        bool isNO = recvI2CByte();
+        this->solenoids[i] = Solenoid(pin, isSpecial, isNO);
     }
 }
 
@@ -126,21 +136,15 @@ void ValveArduino::receiveData(int byteCount) {
     }
 }
 
+// TODO: make sure the pi is receiving this in the right format
+// format: <for each solenoid> pin, isOpen, actuation_type
+
 void ValveArduino::sendData() {
-    unsigned long data = 0;
-    if (override) {
-        data = 1;
+    for(int i = 0; i < this->num_solenoids; i++) {
+        Wire.write(this->solenoids[i].getPin());
+        Wire.write(this->solenoids[i].getStatus());
+        Wire.write(this->solenoids[i].getActuation());
     }
-    for (auto solenoid_pair : solenoids) {
-        int state = solenoid_states[solenoid_pair.first]
-        data = data | (state << (valve * 2 + 1))
-    }
-    uint8_t buf[4];
-    buf[0] = (uint8_t) data;
-    buf[1] = (uint8_t) data >> 8;
-    buf[2] = (uint8_t) data >> 16;
-    buf[3] = (uint8_t) data >> 24;
-    Wire.write(buf, 4);
 }
 
 void ValveArduino::launchBox() {
@@ -154,4 +158,8 @@ void ValveArduino::launchBox() {
 
 void ValveArduino::pi() {
     // TODO: implement this
+}
+
+ValveArduino::~ValveArduino() {
+    delete[] solenoids;
 }

@@ -1,9 +1,6 @@
 #include <Servo.h>
 #include <Wire.h>
-#include <Arduino.h>
-#include <ArduinoSTL.h>
 #include <stdint.h>
-#include <map>
 #include <Solenoid.hpp>
 
 #ifndef VALVE_ARDUINO_HPP
@@ -13,11 +10,8 @@
 
 class ValveArduino {
   private:
-    // maps pin numbers to the respective Solenoid
-    std::map<int, Solenoid> solenoids;
-
-    // maps pin numbers to the respective solenoid state
-    std::map<int, Solenoid> solenoid_states;
+    Solenoid *solenoids;
+    int num_solenoids;
 
     // Serial/I2C definitions. MAKE SURE CLOSE_VENT, OPEN_VENT, PULSE MATCH WHATEVER'S IN valve_task.py
     const int DATA = 0;
@@ -45,9 +39,11 @@ class ValveArduino {
     void pi();
     void registerSolenoids();
     void checkSolenoids();
+    int recvI2CByte();
 
   public:
     ValveArduino();
+    ~ValveArduino();
     void update();
 };
 
