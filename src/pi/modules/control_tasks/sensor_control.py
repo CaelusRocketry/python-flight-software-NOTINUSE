@@ -15,16 +15,25 @@ class SensorControl():
 
     def begin(self, config: dict):
         self.config = config
-        self.sensors = config["sensors"]["list"]
-        self.boundaries = config["boundaries"]
-        self.valves = config["valves"]["list"]
+        sensor_config = config["sensors"]["list"]
+
+        self.sensors = {}
+        self.boundaries = {}
+        self.kalman_args = {}
+        for sensor_type in sensor_config:
+            self.sensors[sensor_type] = []
+            self.boundaries[sensor_type] = {}
+            self.kalman_args[sensor_type] = {}
+            for sensor_loc in sensor_config[sensor_type]:
+                self.sensors[sensor_type].append(sensor_loc)
+                self.boundaries[sensor_type][sensor_loc] = sensor_config[sensor_type][sensor_loc]["boundaries"]
+                self.kalman_args[sensor_type][sensor_loc] =  sensor_config[sensor_type][sensor_loc]["kalman_args"]
         self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
         self.init_kalman(config)
     
 
     def init_kalman(self, config: dict):
-        self.kalman_args = config["kalman_args"]
         self.kalman_filters = {}
         for sensor_type in self.sensors:
             self.kalman_filters[sensor_type] = {}
@@ -42,10 +51,11 @@ class SensorControl():
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor_measured", sensor_type, sensor_location))
                 kalman_val = self.kalman_filters[sensor_type][sensor_location].update_kalman(val)
+                boundaries = self.boundaries[sensor_type][sensor_location]
                 self.registry.put(("sensor_normalized", sensor_type, sensor_location), kalman_val)
-                if self.boundaries[sensor_type][sensor_location]["safe"][0] <= kalman_val <= self.boundaries[sensor_type][sensor_location]["safe"][1]:
+                if boundaries["safe"][0] <= kalman_val <= boundaries["safe"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.SAFE)
-                elif self.boundaries[sensor_type][sensor_location]["warn"][0] <= kalman_val <= self.boundaries[sensor_type][sensor_location]["warn"][1]:
+                elif boundaries["warn"][0] <= kalman_val <= boundaries["warn"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.WARNING)
                 else:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.CRITICAL)

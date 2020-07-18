@@ -31,22 +31,22 @@ class Supervisor:
         for sensor in sensor_config:
             assert(sensor in sensor_dict)
             sensor = sensor_dict[sensor]
-            sensors[sensor] = []
+            sensors[sensor] = {}
             locs = sensor_config[sensor]
             for loc in locs:
                 assert(loc in sensor_loc_dict)
                 loc = sensor_loc_dict[loc]
-                sensors[sensor].append(loc)
+                sensors[sensor][loc] = sensor_config[sensor][loc]
 
         for valve in valve_config:
             assert(valve in valve_dict)
             valve = valve_dict[valve]
-            valves[valve] = []
+            valves[valve] = {}
             locs = valve_config[valve]
             for loc in locs:
                 assert(loc in valve_loc_dict)
                 loc = valve_loc_dict[loc]
-                valves[valve].append(loc)
+                valves[valve][loc] = valve_config[valve][loc]
 
         #FIXME: Currently overwriting, is this a good idea?
         self.sensors, self.valves = sensors, valves

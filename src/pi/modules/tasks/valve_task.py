@@ -11,28 +11,30 @@ class ValveTask(Task):
         self.name = "Valve Arduino"
         self.registry = registry
         self.flag = flag
-        self.actuation_dict = {0: ActuationType.NONE, 1: ActuationType.CLOSE_VENT, 2: ActuationType.OPEN_VENT, 3: ActuationType.PULSE}
-        self.inv_actuations = {self.actuation_dict[k]:k for k in self.actuation_dict}
-        self.state_dict = {0: SolenoidState.OPEN, 1: SolenoidState.CLOSED}
 
 
     def begin(self, config):
         self.config = config["valves"]
         #TODO: Make sure that this is the same order that the arduino returns its data in
-        self.valves = self.config["list"]
-        self.solenoids = [loc for loc in self.valves[ValveType.SOLENOID]]
+        self.valve_config = self.config["list"]
+        self.solenoids = [loc for loc in self.valve_config[ValveType.SOLENOID]]
         self.num_solenoids = len(self.solenoids)
         self.arduino = Arduino(self.name, self.config)
+        self.pins, self.inv_pins = {}, {}
+        self.send_valve_info()
+    
 
-
-    def get_solenoid_state(self, val):
-        assert(val in self.state_dict)
-        return self.state_dict[val]
-
-
-    def get_actuation_type(self, val):
-        assert(val in self.actuation_dict)
-        return self.actuation_dict[val]
+    def send_valve_info(self):
+        to_send = [len(self.solenoids)]
+        for valve_type in self.valve_config:
+            for loc in self.valve_config[valve_type]:
+                temp = self.valve_config[valve_type][loc]
+                to_send.append(temp["pin"])
+                to_send.append(1 if temp["special"] else 0)
+                to_send.append(1 if temp["natural"] == "OPEN" else 0)
+                self.pins[temp["pin"]] = (ValveType.SOLENOID, loc)
+                self.inv_pins[(ValveType.SOLENOID, loc)] = temp["pin"]
+        self.arduino.write(to_send)
 
 
     def get_float(self, data):
@@ -41,32 +43,21 @@ class ValveTask(Task):
 
 
     def get_command(self, loc, actuation_type):
-        # Message structure: [loc, actuation type]
-        loc_idx = self.solenoids.index(loc)
-        actuation_idx = self.inv_actuations[actuation_type]
-        return [loc_idx, actuation_idx]
+        # Message structure: [pin, actuation type]
+        pin = self.inv_pins[(ValveType.SOLENOID, loc)]
+        return [pin, actuation_type.value]
 
 
     def read(self):
-        byte_data = self.arduino.read(self.num_solenoids*2)
-        int_data = int.from_bytes(byte_data, 'big')
-
-        override = True if int_data & 0b1 else False
-        int_data = int_data >> 1
-        states = []
-        actuation_types = []
-        for loc in self.solenoids:
-            val = int_data & 0b11
-            actuation = self.get_actuation_type(val)
-            actuation_types.append(actuation)
-#            print(val, actuation)
-            states.append(SolenoidState.CLOSED if actuation == ActuationType.CLOSE_VENT or actuation == ActuationType.NONE else SolenoidState.OPEN)
-            int_data = int_data >> 2
-
-        for idx in range(self.num_solenoids):
-            valve_loc = self.solenoids[idx]
-            self.registry.put(("valve", ValveType.SOLENOID, valve_loc), states[idx])
-            self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc), actuation_types[idx])
+        byte_data = self.arduino.read(self.num_solenoids * 3)
+        for i in range(self.num_solenoids):
+            solenoid_data = byte_data[i*3:(i + 1)*3]
+            pin = solenoid_data[0]
+            state = SolenoidState(solenoid_data[1])
+            actuation = ActuationType(solenoid_data[2])
+            valve_type, loc = self.pins[pin]
+            self.registry.put(("valve", ValveType.SOLENOID, loc), state)
+            self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation)
 
 
     def actuate_solenoids(self):
@@ -88,6 +79,7 @@ class ValveTask(Task):
                         self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                         self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), actuation_priority)
 
+                    print("Sending actuation message:", command)
                     self.arduino.write(command)
                     self.flag.put(("solenoid", "actuation_type", loc), ActuationType.NONE)
                     self.flag.put(("solenoid", "actuation_priority", loc), ValvePriority.NONE)

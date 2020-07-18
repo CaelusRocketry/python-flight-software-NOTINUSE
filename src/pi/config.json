@@ -6,89 +6,96 @@
     },
     "sensors": {
         "list": {
-            "thermocouple": ["chamber", "tank"],
-            "pressure": ["chamber", "tank", "injector"],
-            "load": ["tank"]
+            "thermocouple": {
+                "chamber": {
+                    "kalman_args": {
+                        "process_variance": 0.01,
+                        "measurement_variance": 0.0075,
+                        "kalman_value": 3000    
+                    },
+                    "boundaries": {
+                        "safe": [200, 250],
+                        "warn": [100, 500]        
+                    },
+                    "pins": [4, 5, 6, 7]
+                },
+                "tank": {
+                    "kalman_args": {
+                        "process_variance": 0.01,
+                        "measurement_variance": 0.0075,
+                        "kalman_value": 200    
+                    },
+                    "boundaries": {
+                        "safe": [200, 250],
+                        "warn": [100, 500]        
+                    },
+                    "pins": [8, 9, 10, 11]
+                }
+            },
+            "pressure": {
+                "chamber": {
+                    "kalman_args": {
+                        "process_variance": 0.01,
+                        "measurement_variance": 0.02,
+                        "kalman_value": 1000
+                    },
+                    "boundaries": {
+                        "safe": [100, 150],
+                        "warn": [50, 200]
+                    },
+                    "pin": 1
+                },
+                "tank": {
+                    "kalman_args": {
+                        "process_variance": 0.01,
+                        "measurement_variance": 0.02,
+                        "kalman_value": 1000
+                    },
+                    "boundaries": {
+                        "safe": [100, 150],
+                        "warn": [50, 200]
+                    },
+                    "pin": 2
+                },
+                "injector": {
+                    "kalman_args": {
+                        "process_variance": 0.01,
+                        "measurement_variance": 0.02,
+                        "kalman_value": 1000
+                    },
+                    "boundaries": {
+                        "safe": [100, 150],
+                        "warn": [50, 200]
+                    },
+                    "pin": 3
+                }
+            }
         },
         "address": 8,
         "send_interval": 0.5
     },
-    "kalman_args": {
-        "thermocouple": {
-            "chamber": {
-                "process_variance": 0.01,
-                "measurement_variance": 0.0075,
-                "kalman_value": 3000
-            },
-            "tank": {
-                "process_variance": 0.01,
-                "measurement_variance": 0.0075,
-                "kalman_value": 200
-            }
-       },
-       "pressure": {
-            "chamber": {
-                "process_variance": 0.01,
-                "measurement_variance": 0.02,
-                "kalman_value": 1000
-            },
-            "tank": {
-                "process_variance": 0.01,
-                "measurement_variance": 0.02,
-                "kalman_value": 1000
-            },
-            "injector": {
-                "process_variance": 0.01,
-                "measurement_variance": 0.02,
-                "kalman_value": 1000
-            }
-       },
-       "load": {
-            "tank": {
-                "process_variance": 0.01,
-                "measurement_variance": 0.02,
-                "kalman_value": 50
-         }
-       }
-    },
     "valves": {
         "list": {
-            "solenoid": ["pressure_relief", "propellant_vent", "main_propellant_valve"]
+            "solenoid": {
+                "pressure_relief": {
+                    "pin": 14,
+                    "natural": "OPEN",
+                    "special": false
+                },
+                "propellant_vent": {
+                    "pin": 15,
+                    "natural": "OPEN",
+                    "special": false
+                },
+                "main_propellant_valve": {
+                    "pin": 16,
+                    "natural": "CLOSED",
+                    "special": true
+                }
+            }
         },
         "address": 4,
         "send_interval": 0.5
-    },
-    "boundaries": {
-        "thermocouple": {
-            "chamber": {
-                "safe": [200, 250],
-                "warn": [100, 500]
-            },
-            "tank": {
-                "safe": [200, 250],
-                "warn": [100, 500]
-            }
-       },
-       "pressure": {
-            "chamber": {
-                "safe": [100, 150],
-                "warn": [50, 200]
-            },
-            "tank": {
-                "safe": [100, 150],
-                "warn": [50, 200]
-            },
-            "injector": {
-                "safe": [100, 150],
-                "warn": [50, 200]
-            }
-       },
-       "load": {
-         "tank": {
-            "safe": [100, 250],
-            "warn": [50, 300]
-         }
-       }
     },
     "stages": {
         "list": ["propellant_loading",

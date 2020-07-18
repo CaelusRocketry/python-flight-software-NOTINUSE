@@ -13,9 +13,9 @@ class SensorLocation(str, Enum):
     INJECTOR = "injector"
 
 
-class SolenoidState(str, Enum):
-    OPEN = "open"
-    CLOSED = "closed"
+class SolenoidState(IntEnum):
+    OPEN = 1
+    CLOSED = 0
 
 
 class SensorStatus(IntEnum):
@@ -35,11 +35,11 @@ class ValveLocation(str, Enum):
     MAIN_PROPELLANT_VALVE = "main_propellant_valve"
 
 
-class ActuationType(str, Enum):
-    PULSE = "pulse"
-    OPEN_VENT = "open_vent"
-    CLOSE_VENT = "close_vent"
-    NONE = "none"
+class ActuationType(IntEnum):
+    PULSE = 4
+    OPEN_VENT = 3
+    CLOSE_VENT = 2
+    NONE = 1
 
 
 class ValvePriority(IntEnum):

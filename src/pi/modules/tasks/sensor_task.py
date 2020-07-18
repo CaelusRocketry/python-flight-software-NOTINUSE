@@ -5,7 +5,6 @@ from modules.mcl.flag import Flag
 from modules.lib.enums import SensorType, SensorLocation
 import struct
 
-#TODO: Check w/ some boundaries file (boundaries should be part of config.json) and correspondingly update sensor statuses in registry
 class SensorTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
         self.name = "Sensor Arduino"
@@ -15,11 +14,33 @@ class SensorTask(Task):
 
     def begin(self, config: dict):
         self.config = config["sensors"]
-        #TODO: Make sure that this is the same order that the arduino returns its data in
-        sensors = self.config["list"]
-        self.sensor_list = [(s_type, loc) for s_type in sensors for loc in sensors[s_type]]
+        self.sensor_config = self.config["list"]
+        self.sensor_list = [(s_type, loc) for s_type in self.sensor_config for loc in self.sensor_config[s_type]]
         self.num_sensors = len(self.sensor_list)
         self.arduino = Arduino(self.name, self.config)
+        self.send_sensor_info()
+
+
+    def send_sensor_info(self):
+        self.pins = {}
+        num_pressures = len(self.sensor_config[SensorType.PRESSURE])
+        num_thermos = len(self.sensor_config[SensorType.THERMOCOUPLE])
+        to_send = [len(self.sensor_list), num_thermos, num_pressures]
+        for s_type, loc in self.sensor_list:
+            if s_type == SensorType.PRESSURE:
+                to_send.append(1)
+                pin = self.sensor_config[s_type][loc]["pin"]
+                to_send.append(pin)
+                self.pins[pin] = (s_type, loc)
+            elif s_type == SensorType.THERMOCOUPLE:
+                to_send.append(0)
+                pins = self.sensor_config[s_type][loc]["pins"]
+                for pin in pins:
+                    to_send.append(pin)
+                self.pins[pins[0]] = (s_type, loc)
+            else:
+                raise Exception("Unknown sensor type")
+        self.arduino.write(to_send)
 
 
     def get_float(self, data):
@@ -28,12 +49,15 @@ class SensorTask(Task):
 
 
     def read(self):
-        data = self.arduino.read(self.num_sensors * 4)
-        assert(len(data) == self.num_sensors * 4)
+        data = self.arduino.read(self.num_sensors * 5)
+        assert(len(data) == self.num_sensors * 5)
 
         for i in range(self.num_sensors):
-            sensor_type, sensor_location = self.sensor_list[i]
-            byte_value = data[i*4:(i+1)*4]
+            temp = data[i*5: (i + 1)*5] # Isolate the block of data for that sensor
+            pin = temp[0]
+            assert(pin in self.pins)
+            sensor_type, sensor_location = self.pins[pin]
+            byte_value = temp[1:]
             float_value = self.get_float(byte_value)
             assert(isinstance(float_value, float))
             self.registry.put(("sensor_measured", sensor_type, sensor_location), float_value)
