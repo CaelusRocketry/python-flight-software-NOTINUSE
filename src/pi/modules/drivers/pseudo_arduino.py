@@ -5,10 +5,11 @@ import struct
 import threading
 from modules.drivers.driver import Driver
 from modules.lib.enums import ActuationType, ValveType, SolenoidState, SensorType
-"""
-Pseudo arduino class to use to run code on ur own laptop!
-FIXME: The real_arduino.py class should be used on the pi!
-"""
+
+PULSE_TIMER = 0.5
+SPECIAL_VENT_TIMER = 4
+RELIEF_TIMER = 1
+
 class PseudoSensor():
     def __init__(self, config: dict):
         print("CREATING PSEUDO SENSOR")
@@ -22,9 +23,6 @@ class PseudoSensor():
 
 
     def set_sensor_values(self):
-        import os
-        print("Waiting")
-        time.sleep(0.7)
         ranges = json.load(open("modules/drivers/pseudo_sensor_ranges.json"))["ranges"]
         for sensor in ranges:
             for loc in ranges[sensor]:
@@ -35,8 +33,9 @@ class PseudoSensor():
 
 
     def register_sensors(self, msg):
-        self.num_sensors = msg[0]
-        idx = 1
+        num_sensors, num_thermos, num_pressures = msg[0], msg[1], msg[2]
+        assert(num_sensors == self.num_sensors and num_thermos + num_pressures == num_sensors)
+        idx = 3
         self.pins, self.inv_pins = {}, {}
         while idx < len(msg):
             if msg[idx] == 1:
@@ -56,10 +55,10 @@ class PseudoSensor():
                 idx += 5
             else:
                 raise Exception("Unknown sensor being registered in PseudoSensor")
+        assert(len(self.pins) == len(self.inv_pins) == self.num_sensors)
 
 
-
-    def read(self):
+    def read(self, num_bytes):
         self.set_sensor_values()
         ret = bytes()
         for key in self.sensors:
@@ -75,67 +74,140 @@ class PseudoSensor():
             self.has_written = True
 
 
+class PseudoSolenoid():
+
+    def __init__(self, pin, isSpecial, isNO):
+        self.pin = pin
+        self.isSpecial = isSpecial
+        self.isNO = isNO
+        self.resting = SolenoidState.OPEN if isNO else SolenoidState.CLOSED
+        self.state = self.resting
+        self.actuation = ActuationType.NONE
+        self.command = 0
+    
+
+    def get_data(self):
+        return bytes([self.pin, self.state.value, self.actuation.value])
+
+
+    def open_vent(self):
+        self.state = SolenoidState.OPEN
+        self.actuation = ActuationType.OPEN_VENT
+        if not self.isNO and self.isSpecial:
+            thread = threading.Thread(target=self.relief_thread, args=(SolenoidState.OPEN, SolenoidState.CLOSED, self.command))
+            thread.daemon = True
+            thread.start()        
+
+    
+    def close_vent(self):
+        self.state = SolenoidState.CLOSED
+        self.actuation = ActuationType.CLOSE_VENT
+        if self.isNO and self.isSpecial:
+            thread = threading.Thread(target=self.relief_thread, args=(SolenoidState.CLOSED, SolenoidState.OPEN, self.command))
+            thread.daemon = True
+            thread.start()        
+
+
+    def relief_thread(self, current_state, relief_state, cmd):
+        relieving = False
+        while True:
+            if cmd != self.command:
+                return
+            if relieving:
+                self.state = relief_state
+                time.sleep(RELIEF_TIMER)
+            else:
+                self.state = current_state
+                time.sleep(SPECIAL_VENT_TIMER)
+            relieving = not relieving
+
+
+    def pulse_thread(self, cmd):
+        self.state = SolenoidState.OPEN
+        self.actuation = ActuationType.PULSE
+        time.sleep(PULSE_TIMER)
+        if self.command != cmd:
+            return
+        self.state = SolenoidState.CLOSED
+        self.actuation = ActuationType.NONE
+
+
+    def actuate(self, actuation_type):
+        self.command += 1
+        if actuation_type == ActuationType.OPEN_VENT:
+            self.open_vent()
+        elif actuation_type == ActuationType.CLOSE_VENT:
+            self.close_vent()
+        elif actuation_type == ActuationType.NONE:
+            if self.actuation == ActuationType.PULSE: # Kill the pulse, return to closed state
+                self.close_vent()
+            self.actuation = ActuationType.NONE
+        elif actuation_type == ActuationType.PULSE:
+            thread = threading.Thread(target=self.pulse_thread, args=(self.command,))
+            thread.daemon = True
+            thread.start()
+
+
 class PseudoValve():
     def __init__(self, config: dict):
         print("CREATING PSEUDO VALVE")
         self.config = config
-        valves = self.config["list"]
-        self.solenoid_locs = [loc for loc in valves[ValveType.SOLENOID]]
-        self.valve_states = {(ValveType.SOLENOID, loc): SolenoidState.CLOSED for loc in self.solenoid_locs}
-        self.valve_actuations = {(ValveType.SOLENOID, loc): ActuationType.NONE for loc in self.solenoid_locs}
-        self.state_dict = {SolenoidState.CLOSED: 0, SolenoidState.OPEN: 1}
-        self.actuation_dict = {ActuationType.NONE: 0, ActuationType.CLOSE_VENT: 1, ActuationType.OPEN_VENT: 2, ActuationType.PULSE: 3}
-        self.inv_actuations = {self.actuation_dict[k]:k for k in self.actuation_dict}
+        self.valve_config = self.config["list"]
+        self.solenoid_locs = [loc for loc in self.valve_config[ValveType.SOLENOID]]
+        self.num_solenoids = len(self.solenoid_locs)
+        
+        self.has_written = False
+        self.pins, self.solenoids = {}, []
 
 
-    def read(self):
-#        print(self.valve_actuations)
-#        print(self.valve_states.values(), self.valve_actuations.values())
-#        time.sleep(0.5)
-        data = 0
-        for idx, loc in enumerate(self.solenoid_locs):
-            state = self.actuation_dict[self.valve_actuations[(ValveType.SOLENOID, loc)]]
-            data = data | (state << (idx * 2 + 1))
-        return int.to_bytes(data, 4, 'big')
+    def read(self, num_bytes):
+        assert(num_bytes == self.num_solenoids * 3)
+        to_ret = bytes()
+        for solenoid in self.solenoids:
+            to_ret += solenoid.get_data()
+        return to_ret
     
 
-    def actuate(self, valve, state1, timer, state2):
-        self.valve_states[valve] = state1
-        if timer != -1:
-            time.sleep(timer)
-        self.valve_states[valve] = state2
-        print("Done actuating boi")
-        if timer != -1:
-            print("Setting valve actuation type to none")
-            self.valve_actuations[valve] = ActuationType.NONE
+    def write_actuation(self, msg):
+        # Message structure: [loc, actuation type]
+        print("Got actuation msg:", msg)
+        pin = msg[0]
+        actuation_int = msg[1]
+        solenoid = self.pins[pin]
+        actuation_type = ActuationType(actuation_int)
+        solenoid.actuate(actuation_type)
+
+
+    def find_loc(self, pin):
+        for loc in self.valve_config[ValveType.SOLENOID]:
+            if self.valve_config[ValveType.SOLENOID][loc]["pin"] == pin:
+                return loc
+        assert(False)
+
+
+    def register_solenoids(self, msg):
+        assert(self.num_solenoids == msg[0])
+        assert(len(msg) == self.num_solenoids * 3 + 1)
+        idx = 1
+        while idx < len(msg):
+            pin = msg[idx]
+            isSpecial = bool(msg[idx + 1])
+            isNO = bool(msg[idx + 2])
+            loc = self.find_loc(pin)
+            sol = PseudoSolenoid(pin, isSpecial, isNO)
+            self.solenoids.append(sol)
+            self.pins[pin] = sol
+            idx += 3
+        assert(len(self.pins) == len(self.solenoids) == self.num_solenoids)
 
 
     def write(self, msg):
-        # Message structure: [loc, actuation type]
-        loc_idx = msg[0]
-        actuation_idx = msg[1]
-        valve = (ValveType.SOLENOID, self.solenoid_locs[loc_idx])
-        actuation_type = self.inv_actuations[actuation_idx]
-#        print("Actuating:", valve, actuation_type)
-        # Switch statement
-        if actuation_type == ActuationType.OPEN_VENT:
-            state1 = SolenoidState.OPEN
-            timer = -1
-            state2 = SolenoidState.OPEN
-        elif actuation_type == ActuationType.CLOSE_VENT or actuation_type == ActuationType.NONE:
-            state1 = SolenoidState.CLOSED
-            timer = -1
-            state2 = SolenoidState.CLOSED
-        elif actuation_type == ActuationType.PULSE:
-            state1 = SolenoidState.OPEN
-            #TODO: Change the timer to the actual pulse timer
-            timer = 2.0
-            state2 = SolenoidState.CLOSED
-
-        self.valve_actuations[valve] = actuation_type
-        thread = threading.Thread(target=self.actuate, args=(valve, state1, timer, state2))
-        thread.daemon = True
-        thread.start()
+        if not self.has_written: # Only register sensors on the first message that is recieved
+            self.register_solenoids(msg)
+            self.has_written = True
+            return
+        
+        self.write_actuation(msg)
 
 
 class Arduino(Driver):
@@ -177,7 +249,7 @@ class Arduino(Driver):
     Ex. [10, 20, 0, 0, 15, 0, 0, 0, 14, 12, 74, 129]
     """
     def read(self, num_bytes: int) -> bytes:
-        return self.arduino.read()
+        return self.arduino.read(num_bytes)
 
     """
     Write data to the Arduino and return True if the write was successful else False

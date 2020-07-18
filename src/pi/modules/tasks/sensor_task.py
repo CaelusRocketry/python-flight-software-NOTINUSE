@@ -23,7 +23,9 @@ class SensorTask(Task):
 
     def send_sensor_info(self):
         self.pins = {}
-        to_send = [len(self.sensor_list)]
+        num_pressures = len(self.sensor_config[SensorType.PRESSURE])
+        num_thermos = len(self.sensor_config[SensorType.THERMOCOUPLE])
+        to_send = [len(self.sensor_list), num_thermos, num_pressures]
         for s_type, loc in self.sensor_list:
             if s_type == SensorType.PRESSURE:
                 to_send.append(1)

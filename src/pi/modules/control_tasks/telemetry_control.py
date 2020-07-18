@@ -70,6 +70,7 @@ class TelemetryControl():
                     return Error.INVALID_ARGUMENT_ERROR
                 if issubclass(arg_type, enum.Enum):
                     print([x.value for x in arg_type])
+                    print(log.message[arg_name])
                     if log.message[arg_name] not in [x.value for x in arg_type]:
                         print("Invalid argument", arg_name, arg_type)
                         log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Received argument type": str(type(log.message[arg_name])), "Expected argument type (enum)": str(arg_type)})
@@ -81,6 +82,7 @@ class TelemetryControl():
                     enqueue(self.flag, log, LogPriority.CRIT)
                     return Error.INVALID_ARGUMENT_ERROR
                 args.append(arg_type(log.message[arg_name]))
+            print("Running command (via telemetry):", header, *args)
             func(*args)
             return Error.NONE
         else:

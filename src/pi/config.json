@@ -79,15 +79,18 @@
             "solenoid": {
                 "pressure_relief": {
                     "pin": 14,
-                    "natural": "OPEN"
+                    "natural": "OPEN",
+                    "special": false
                 },
                 "propellant_vent": {
                     "pin": 15,
-                    "natural": "OPEN"
+                    "natural": "OPEN",
+                    "special": false
                 },
                 "main_propellant_valve": {
                     "pin": 16,
-                    "natural": "OPEN"
+                    "natural": "CLOSED",
+                    "special": true
                 }
             }
         },
