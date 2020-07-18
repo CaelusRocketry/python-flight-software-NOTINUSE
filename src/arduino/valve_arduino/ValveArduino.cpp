@@ -2,12 +2,7 @@
 
 
 ValveArduino::ValveArduino() {
-    Wire.begin(SLAVE_ADDRESS);
     registerSolenoids();
-
-    Wire.onReceive(receiveData);
-    Wire.onRequest(sendData);
-    Serial.begin(9600);
 
     for(auto solenoid_pair : solenoids) {
         solenoid_states.emplace(solenoid_pair.first, NO_ACTUATION);
@@ -91,7 +86,7 @@ void ValveArduino::checkSolenoids() {
     }
 }
 
-void ValveArduino::loop() {
+void ValveArduino::update() {
     checkSolenoids();
     // TODO: Uncomment this
     // launchBox();

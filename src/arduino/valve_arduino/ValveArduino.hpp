@@ -9,18 +9,7 @@
 #ifndef VALVE_ARDUINO_HPP
 #define VALVE_ARDUINO_HPP
 
-#define SLAVE_ADDRESS 0x08
 // Pin definitions
-#define NITROGEN_FILL 2
-#define ETHANOL_DRAIN 3
-#define ETHANOL_VENT 4
-#define ETHANOL_MPV 5
-#define NO_FILL 6
-#define NO_DRAIN 7
-#define NO_VENT 8
-#define NO_MPV 9
-#define NUM_VALVES 8
-
 
 class ValveArduino {
   private:
@@ -59,7 +48,7 @@ class ValveArduino {
 
   public:
     ValveArduino();
-    void loop();
+    void update();
 };
 
 #endif
