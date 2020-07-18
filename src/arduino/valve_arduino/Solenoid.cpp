@@ -1,4 +1,4 @@
-#include <Solenoid.hpp>
+#include "Solenoid.hpp"
 
 Solenoid::Solenoid(int pin, bool special, bool no) {
     this->pin = pin;
@@ -22,21 +22,21 @@ Solenoid::Solenoid(int pin, bool special, bool no) {
 void Solenoid::close() {
     digitalWrite(pin, closeSignal);
     this->currSignal = closeSignal;
-    this->actuation = this->CLOSE_VENT;
+    this->actuation = CLOSE_VENT;
     this->lastActuationTime = millis();
 }
 
 void Solenoid::open() {
     digitalWrite(pin, openSignal);
     this->currSignal = openSignal;
-    this->actuation = this->OPEN_VENT;
+    this->actuation = OPEN_VENT;
     this->lastActuationTime = millis();
 }
 
 void Solenoid::pulse() {
     digitalWrite(pin, openSignal);
     this->currSignal = openSignal;
-    this->actuation = this->PULSE;
+    this->actuation = PULSE;
     this->lastActuationTime = millis();
 }
 
@@ -67,7 +67,7 @@ void Solenoid::controlPulse() {
     if(!this->actuation == PULSE){ // Ignore this method if it's not pulsing
         return;
     }
-    if(millis() - this->lastActuationTime >= PULSE_TIME) {
+    if(millis() - this->lastActuationTime >= PULSE_WAIT_TIME) {
         close();
         this->actuation = NO_ACTUATION;
     }
@@ -92,21 +92,21 @@ void Solenoid::controlSpecial() {
 }
 
 void Solenoid::actuate(int actuationType){
-    switch (actuationType) {
-        case NO_ACTUATION:
-            break;
-        case CLOSE_VENT:
-            close();
-            break;
-        case OPEN_VENT:
-            open();
-            break;
-        case PULSE:
-            pulse();
-            break;
-        default:
-            error("Unknown actuation type");
-            break;
+    if(actuationType == NO_ACTUATION){
+        // Do nothing
+    }
+    else if(actuationType == CLOSE_VENT){
+        close();
+    }
+    else if(actuationType == OPEN_VENT){
+        open();
+    }
+    else if(actuationType == PULSE){
+        pulse();
+    }
+    else{
+        error("Unknown actuation type");
+        return;
     }
     this->actuation = actuationType;
 }
@@ -117,4 +117,9 @@ int Solenoid::getState(){
         return 1;
     }
     return 0;
+}
+
+void Solenoid::error(String msg){
+    digitalWrite(13, HIGH);
+    Serial.println(msg);
 }

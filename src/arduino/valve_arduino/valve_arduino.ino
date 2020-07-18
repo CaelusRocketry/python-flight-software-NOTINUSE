@@ -1,6 +1,7 @@
 #include "ValveArduino.hpp"
 
 #define SLAVE_ADDRESS 0x08
+
 ValveArduino valve_arduino;
 
 void setup() {
@@ -14,8 +15,8 @@ void loop() {
   valve_arduino.update();
 }
 
-void receiveData(){
-  valve_arduino.receiveData();
+void receiveData(int byteCount){
+  valve_arduino.receiveData(byteCount);
 }
 
 void sendData(){

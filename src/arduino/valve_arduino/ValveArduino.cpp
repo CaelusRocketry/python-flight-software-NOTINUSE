@@ -1,4 +1,4 @@
-#include <ValveArduino.hpp>
+#include "ValveArduino.hpp"
 
 
 ValveArduino::ValveArduino() {
@@ -52,18 +52,14 @@ void ValveArduino::update() {
     // launchBox();
 }
 
-Solenoid ValveArduino::getSolenoidFromPin(int pin){
+void ValveArduino::actuate(int pin, int actuationType){
     for(int i = 0; i < this->numSolenoids; i++){
         if(this->solenoids[i].pin == pin){
-            return this->solenoids[i];
+            this->solenoids[i].actuate(actuationType);
+            return;
         }
     }
-    return NULL;
-}
-
-void ValveArduino::actuate(int pin, int actuationType){
-    Solenoid solenoid = getSolenoidFromPin(pin);
-    solenoid.actuate(actuationType);
+    this->error("Could not find the indicated solenoid for pin " + pin);
 }
 
 void ValveArduino::receiveData(int byteCount) {
@@ -82,8 +78,8 @@ void ValveArduino::receiveData(int byteCount) {
 
 void ValveArduino::sendData() {
     for(int i = 0; i < this->numSolenoids; i++) {
-        Wire.write(this->solenoids[i].pin;
-        Wire.write(this->solenoids[i].getStatus());
+        Wire.write(this->solenoids[i].pin);
+        Wire.write(this->solenoids[i].getState());
         Wire.write(this->solenoids[i].actuation);
     }
 }
