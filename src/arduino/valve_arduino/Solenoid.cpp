@@ -4,123 +4,117 @@ Solenoid::Solenoid(int pin, bool special, bool no) {
     this->pin = pin;
     this->isSpecial = special;
     this->isNO = no;
-    this->last_actuation_time = 0;
-    this->isOpen = false;
-    this->isPulse = false;
+    if(no){
+        this->openSignal = LOW;
+        this->closeSignal = HIGH;
+    }
+    else{
+        this->openSignal = HIGH;
+        this->closeSignal = LOW;
+    }
+    this->lastActuationTime = 0;
     this->beingRelieved = false;
-    this->actuation = this->NO_ACTUATION;
+    this->actuation = NO_ACTUATION;
+    pinMode(this->pin, OUTPUT);
+    setLow();
 }
 
 void Solenoid::close() {
-    if(this->isNO) {
-        digitalWrite(this->pin, HIGH);
-    }
-    else {
-        digitalWrite(this->pin, LOW);
-    }
-    this->isOpen = false;
+    digitalWrite(pin, closeSignal);
+    this->currSignal = closeSignal;
     this->actuation = this->CLOSE_VENT;
+    this->lastActuationTime = millis();
 }
 
 void Solenoid::open() {
-    if(this->isNO) {
-        digitalWrite(this->pin, LOW);
-    }
-    else {
-        digitalWrite(this->pin, HIGH);
-    }
-
-    this->last_actuation_time = millis();
-    this->isOpen = true;
+    digitalWrite(pin, openSignal);
+    this->currSignal = openSignal;
     this->actuation = this->OPEN_VENT;
+    this->lastActuationTime = millis();
 }
 
 void Solenoid::pulse() {
-    this->isPulse = true;
-
-    if(this->isNO) {
-        digitalWrite(this->pin, LOW);
-    }
-    else {
-        digitalWrite(this->pin, HIGH);
-    }
-
-    this->last_actuation_time = millis();
+    digitalWrite(pin, openSignal);
+    this->currSignal = openSignal;
     this->actuation = this->PULSE;
+    this->lastActuationTime = millis();
+}
+
+void Solenoid::setLow() {
+    if(closeSignal == LOW){
+        close();
+    }
+    else{
+        open();
+    }
+}
+
+void Solenoid::setHigh() {
+    if(closeSignal == HIGH){
+        close();
+    }
+    else{
+        open();
+    }
+}
+
+void Solenoid::control(){
+    controlPulse();
+    controlSpecial();
 }
 
 void Solenoid::controlPulse() {
-    if(millis() - this->last_actuation_time >= 500) {
-        if(this->isNO) {
-            digitalWrite(this->pin, HIGH);
-        }
-        else {
-            digitalWrite(this->pin, LOW);
-        }
-
-        this->isPulse = false;
-        this->last_actuation_time = millis();
+    if(!this->actuation == PULSE){ // Ignore this method if it's not pulsing
+        return;
+    }
+    if(millis() - this->lastActuationTime >= PULSE_TIME) {
+        close();
+        this->actuation = NO_ACTUATION;
     }
 }
 
-bool Solenoid::getPulse() {
-    return this->isPulse;
-}
-
-void Solenoid::controlOpen() {
-    if(millis() - this->last_actuation_time >= this->MAX_SPECIAL_OPEN) {
-        relieveSpecial();
+void Solenoid::controlSpecial() {
+    if(!this->isSpecial){ // This method only applies to "special" valves
+        return;
+    }
+    if(this->currSignal == HIGH){ // If it's currently using power to actuate...
+        if(millis() - this->lastActuationTime >= MAX_SPECIAL_POWER){
+            setLow(); // Relieve the valve
+            this->beingRelieved = true;
+        }
     }
     else if(this->beingRelieved) {
-        reOpenSpecial();
-    }
-}
-
-void Solenoid::relieveSpecial() {
-    // close solenoid temporarily
-
-    if(this->isNO) {
-        digitalWrite(this->pin, HIGH);
-    }
-    else {
-        digitalWrite(this->pin, LOW);
-    }
-
-    this->last_actuation_time = millis();
-    this->beingRelieved = true;
-}
-
-void Solenoid::reOpenSpecial() {
-    // open solenoid
-
-    if((millis() - this->last_actuation_time >= this->RELIEF_WAIT_TIME) && this->isOpen) {
-        if(this->isNO) {
-            digitalWrite(this->pin, LOW);
+        if(millis() - this->lastActuationTime >= RELIEF_WAIT_TIME){
+            setHigh();
+            this->beingRelieved = false;
         }
-        else {
-            digitalWrite(this->pin, HIGH);
-        }
-
-        this->last_actuation_time = millis();
-        this->beingRelieved = false;
-    }
-    else if(!this->isOpen) {
-        this->beingRelieved = false;
     }
 }
 
-bool Solenoid::getStatus() {
-    return this->isOpen;
+void Solenoid::actuate(int actuationType){
+    switch (actuationType) {
+        case NO_ACTUATION:
+            break;
+        case CLOSE_VENT:
+            close();
+            break;
+        case OPEN_VENT:
+            open();
+            break;
+        case PULSE:
+            pulse();
+            break;
+        default:
+            error("Unknown actuation type");
+            break;
+    }
+    this->actuation = actuationType;
 }
 
-bool Solenoid::getSpecial() {
-    return this->isSpecial;
-}
-
-int Solenoid::getActuation() {
-    return this->actuation;
-}
-
-int Solenoid::getPin() {
-    return this->pin;
+int Solenoid::getState(){
+    // Returns 1 if open, 0 if closed
+    if(currSignal == openSignal){
+        return 1;
+    }
+    return 0;
 }

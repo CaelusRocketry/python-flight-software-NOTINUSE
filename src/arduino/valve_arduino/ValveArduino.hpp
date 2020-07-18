@@ -1,7 +1,6 @@
-#include <Servo.h>
+#include "Arduino.h"
 #include <Wire.h>
-#include <stdint.h>
-#include <Solenoid.hpp>
+#include "Solenoid.hpp"
 
 #ifndef VALVE_ARDUINO_HPP
 #define VALVE_ARDUINO_HPP
@@ -11,7 +10,7 @@
 class ValveArduino {
   private:
     Solenoid *solenoids;
-    int num_solenoids;
+    int numSolenoids;
 
     // Serial/I2C definitions. MAKE SURE CLOSE_VENT, OPEN_VENT, PULSE MATCH WHATEVER'S IN valve_task.py
     const int DATA = 0;
@@ -26,20 +25,21 @@ class ValveArduino {
     const int OPEN_CYCLE = 4;
     const int OPEN_CYCLE_CLOSE = 2;
     const int PULSE_TIME = 1;
-    bool override = false;
+    bool override;
 
-    void error();
-    void close(int pin);
-    void open(int pin);
-    void pulse(int pin);
+    void launchBox();
     void ingestLaunchbox(int cmd, int data);
+
     void receiveData(int byteCount);
     void sendData();
-    void launchBox();
-    void pi();
-    void registerSolenoids();
-    void checkSolenoids();
     int recvI2CByte();
+    void registerSolenoids();
+
+    Solenoid getSolenoidFromPin(int pin);
+    void actuate();
+    void checkSolenoids();
+
+    void error();
 
   public:
     ValveArduino();
