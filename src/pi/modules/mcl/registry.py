@@ -32,7 +32,8 @@ class Registry:
 				"hard_abort": False,
 				"soft_abort": False,
 				"stage": None,
-				"stage_status": 0
+				"stage_status": 0,
+				"mcl_start_time": None
 			}
 		}
 
@@ -56,7 +57,8 @@ class Registry:
 				"hard_abort": bool,
 				"soft_abort": bool,
 				"stage": Stage,
-				"stage_status": float
+				"stage_status": float,
+				"mcl_start_time": float
 			}
 		}
 
@@ -78,7 +80,8 @@ class Registry:
 				"hard_abort": None,
 				"soft_abort": None,
 				"stage": None,
-				"stage_status": None
+				"stage_status": None,
+				"mcl_start_time": None
 			}
 		}
 
