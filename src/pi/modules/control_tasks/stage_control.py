@@ -29,17 +29,12 @@ class StageControl:
 
     def calculate_status(self) -> float:
         #TODO: Implement actual calculations for this kinda stuff
-        if self.curr_stage == Stage.PROPELLANT_LOADING:
+        if self.curr_stage == Stage.WAITING:
+            self.registry.put(("general", "stage_status"), 100.0)
+            self.send_progression_request()
+        elif self.curr_stage == Stage.AUTOSEQUENCE:
             pass
-        elif self.curr_stage == Stage.LEAK_TESTING_1:
-            pass
-        elif self.curr_stage == Stage.PRESSURANT_LOADING:
-            pass
-        elif self.curr_stage == Stage.LEAK_TESTING_2:
-            pass
-        elif self.curr_stage == Stage.PRE_IGNITION:
-            pass
-        elif self.curr_stage == Stage.DISCONNECTION:
+        elif self.curr_stage == Stage.POSTSEQUENCE:
             pass
 
         return min((time.time() - self.start_time) * 5, 100.0)
@@ -76,21 +71,17 @@ class StageControl:
         log = Log(header="response", message={"header": "Stage progression successful", "description": "Stage progression was successful", "Stage": self.curr_stage, "Status": self.status})
         enqueue(self.flag, log, LogPriority.CRIT)
 
-
+    # flags
+    # valve actuations
     def stage_valve_control(self):
         # TODO: Actuate valves based on current stage and make sure they're actuated properly
-        if self.curr_stage == Stage.PROPELLANT_LOADING:
+        if self.curr_stage == Stage.WAITING:
             pass
-        elif self.curr_stage == Stage.LEAK_TESTING_1:
+        elif self.curr_stage == Stage.AUTOSEQUENCE:
             pass
-        elif self.curr_stage == Stage.PRESSURANT_LOADING:
+        elif self.curr_stage == Stage.POSTSEQUENCE:
             pass
-        elif self.curr_stage == Stage.LEAK_TESTING_2:
-            pass
-        elif self.curr_stage == Stage.PRE_IGNITION:
-            pass
-        elif self.curr_stage == Stage.DISCONNECTION:
-            pass
+        
 
 
     def execute(self):
