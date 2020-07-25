@@ -106,5 +106,8 @@
                 "disconnection"],
         "request_interval": 10,
         "send_interval": 2
+    },
+    "timer": {
+        "delay": 0.5
     }
 }
