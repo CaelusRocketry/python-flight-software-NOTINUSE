@@ -20,13 +20,14 @@ class SensorArduino {
     // send data to pi every 50 milliseconds
     const int SEND_DELAY = 50;
 
-    void registerSensors();
+    void registerSensors(int num_bytes);
     int recvI2CByte();
+    bool registered = false;
 
   public:
     SensorArduino();
     ~SensorArduino();
-    void receiveData();
+    void receiveData(int num_bytes);
     void read();
     void update();
     void sendData(int pin, float val);

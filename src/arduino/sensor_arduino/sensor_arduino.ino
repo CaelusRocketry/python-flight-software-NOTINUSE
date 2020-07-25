@@ -4,7 +4,7 @@
 
 #define SLAVE_ADDRESS 0x04
 
-SensorArduino sensor_arduino();
+SensorArduino sensor_arduino;
 
 void setup() {
   Serial.begin(9600);
@@ -14,11 +14,13 @@ void setup() {
 }
 
 void loop() {
+  Serial.println("HIII");
   sensor_arduino.update();
+  delay(100);
 }
 
 void receiveData(int num_bytes){
-  sensor_arduino.receiveData();
+  sensor_arduino.receiveData(num_bytes);
 }
 
 void read(){

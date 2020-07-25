@@ -2,12 +2,17 @@
 
 SensorArduino::SensorArduino() {
     // I2C initialization
-    Serial.println("HI")
+    Serial.println("HI");
     pinMode(13, OUTPUT);
+    registered = false;
 }
 
-void SensorArduino::receiveData() {
-    registerSensors();
+void SensorArduino::receiveData(int num_bytes) {
+    if(!registered){
+        Serial.println("Registering!!!");
+        registerSensors(num_bytes);
+        registered = true;
+    }
 }
 
 // TODO: make sure that the format matches what the pi is sending
@@ -23,10 +28,13 @@ int SensorArduino::recvI2CByte(){
     return Wire.read();
 }
 
-void SensorArduino::registerSensors() {
+void SensorArduino::registerSensors(int num_bytes) {
+    Serial.print("Num bytes: ");
+    Serial.println(num_bytes);
     int num_sensors = recvI2CByte();
     this->num_thermocouples = recvI2CByte();
     this->num_pressures = recvI2CByte();
+
 
     int thermocouple_len = 0;
     int pressure_len = 0;
@@ -36,8 +44,11 @@ void SensorArduino::registerSensors() {
 
     for(int i = 0; i < num_sensors; i++) {
         int sensor_type = recvI2CByte();
+        Serial.print("Sensor type: ");
+        Serial.println(sensor_type);
         if(sensor_type == 1) {
             int pin = recvI2CByte();
+            Serial.println(pin);
             this->pressure_sensors[pressure_len] = PressureSensor(pin);
             pressure_len++;
         }
@@ -56,6 +67,9 @@ void SensorArduino::registerSensors() {
 }
 
 void SensorArduino::update(){
+    if(!registered){
+        return;
+    }
     for(int i = 0; i < this->num_thermocouples; i++) {
         thermocouples[i].updateTemp();
     }
