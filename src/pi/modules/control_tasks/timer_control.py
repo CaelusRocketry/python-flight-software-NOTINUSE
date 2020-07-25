@@ -13,8 +13,8 @@ class TimerControl:
     def busy_wait(self, target):  
         current_time = time.time()
         while (time.time() <= current_time + target):
-            print("Waiting")
-        print("Finished")
+            pass
+        print(time.time() - current_time)
 
     def execute(self):
         self.busy_wait(self.delay)
