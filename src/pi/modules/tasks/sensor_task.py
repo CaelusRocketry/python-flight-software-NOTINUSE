@@ -49,11 +49,13 @@ class SensorTask(Task):
 
 
     def read(self):
+        print(self.pins)
         data = self.arduino.read(self.num_sensors * 5)
         assert(len(data) == self.num_sensors * 5)
 
         for i in range(self.num_sensors):
             temp = data[i*5: (i + 1)*5] # Isolate the block of data for that sensor
+            print(temp)
             pin = temp[0]
             assert(pin in self.pins)
             sensor_type, sensor_location = self.pins[pin]

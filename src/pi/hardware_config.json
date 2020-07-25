@@ -6,6 +6,8 @@
     },
     "sensors": {
         "list": {
+            "thermocouple": {
+            },
             "pressure": {
                 "tank": {
                     "kalman_args": {
@@ -17,11 +19,11 @@
                         "safe": [100, 150],
                         "warn": [50, 200]
                     },
-                    "pin": 2
+                    "pin": 14
                 }
             }
         },
-        "address": 8,
+        "address": 4,
         "send_interval": 0.5
     },
     "valves": {
@@ -34,7 +36,7 @@
                 }
             }
         },
-        "address": 4,
+        "address": 8,
         "send_interval": 0.5
     },
     "stages": {
@@ -48,6 +50,6 @@
         "send_interval": 2
     },
     "timer": {
-        "delay": 0.5
+        "delay": 1
     }
 }

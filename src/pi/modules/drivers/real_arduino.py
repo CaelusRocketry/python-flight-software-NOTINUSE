@@ -4,9 +4,11 @@ import struct
 
 class Arduino(Driver):
 
-    def __init__(self, name: "str", address: hex):
+    def __init__(self, name: "str", config: dict):
         super().__init__(name)
-        self.address = address
+        self.config = config
+        self.address = config['address']
+        print(self.address)
         self.bus = smbus.SMBus(1)
     
     """
@@ -35,6 +37,7 @@ class Arduino(Driver):
     """
     def read(self, num_bytes: int) -> bytes:
         data = self.bus.read_i2c_block_data(self.address, 0, num_bytes)
+        print(data)
         byte_array = bytes(data)
         # return struct.unpack('f', byte_array)[0]
         return byte_array
