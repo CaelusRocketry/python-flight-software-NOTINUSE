@@ -2,11 +2,11 @@
 
 #define SLAVE_ADDRESS 0x08
 
-ValveArduino valve_arduino;
+ValveArduino valve_arduino();
 
 void setup() {
-    Wire.begin(SLAVE_ADDRESS);
     Serial.begin(9600);
+    Wire.begin(SLAVE_ADDRESS);
     Wire.onReceive(receiveData);
     Wire.onRequest(sendData);
 }

@@ -7,14 +7,16 @@
 SensorArduino sensor_arduino();
 
 void setup() {
-  Serial.begin(9600);
-  Wire.onReceive(receiveData);
-  Wire.onRequest(read);
-  Wire.begin(SLAVE_ADDRESS);
+    Serial.begin(9600);
+    Wire.onReceive(receiveData);
+    Wire.onRequest(read);
+    Wire.begin(SLAVE_ADDRESS);
 }
 
 void loop() {
-  sensor_arduino.update();
+    Serial.println("HI");
+    sensor_arduino.update();
+    delay(100);
 }
 
 void receiveData(int num_bytes){

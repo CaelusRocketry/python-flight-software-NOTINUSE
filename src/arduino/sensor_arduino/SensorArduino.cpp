@@ -2,19 +2,21 @@
 
 SensorArduino::SensorArduino() {
     // I2C initialization
-    registerSensors();
-    Serial.begin(9600);
+    Serial.println("HI")
     pinMode(13, OUTPUT);
 }
 
 void SensorArduino::receiveData() {
-    
+    registerSensors();
 }
 
 // TODO: make sure that the format matches what the pi is sending
 // format: num_sensors, num_thermocouples, num_pressures, <for each sensor> 0 if thermocouple 1 if pressure, pin (or all four pins if its a thermocouple)
 // example: 5, 2, 3, 1, 1, 1, 2, 1, 3, 0, 4, 5, 6, 7, 0, 8, 9, 10, 11
     // the first 3 pins are pressures, 4-7 is a thermocouple, 8-11 is a thermocouple
+
+// 
+
 
 int SensorArduino::recvI2CByte(){
     while(!Wire.available()){}
