@@ -91,7 +91,6 @@ class Supervisor:
     def run(self):
         self.initialize()
         while True:
-            self.registry.put(("general", "mcl_start_time"), time.time())
             self.read()
             self.control()
             self.actuate()
