@@ -13,8 +13,8 @@ class Arduino(Driver):
         self.name = '/dev/ttyACM0' # TODO: find out what the name is on our pi https://roboticsbackend.com/raspberry-pi-arduino-serial-communication/
         self.baud = 9600
         print(self.address)
-        self.ser = serial.Serial(name, baud)
-        ser.flush()
+        self.ser = serial.Serial(self.name, self.baud)
+        self.ser.flush()
     
     """
     Return whether or not the i2c connection is alive
@@ -42,7 +42,7 @@ class Arduino(Driver):
     """
     def read(self, num_bytes: int) -> bytes:
         # TODO: ser.read() waits until the number of bytes requested is received, is this not good?
-        data = ser.read(num_bytes)
+        data = self.ser.read(num_bytes)
         
         byte_array = bytes(data)
         # return struct.unpack('f', byte_array)[0]
@@ -54,7 +54,7 @@ class Arduino(Driver):
     def write(self, msg: bytes) -> bool:
         # converts string to bytes : msg = [ord(b) for b in src]
         try:
-            x = ser.write(msg) # x: the number of bytes that were written
+            x = self.ser.write(msg) # x: the number of bytes that were written
             if x < len(msg):
                 return False
             return True
