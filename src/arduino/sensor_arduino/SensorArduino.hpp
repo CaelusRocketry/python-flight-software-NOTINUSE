@@ -2,7 +2,6 @@
 #include "Thermocouple.hpp"
 #include "PressureSensor.hpp"
 #include <stdint.h>
-#include <Wire.h>
 
 #ifndef SENSOR_ARDUINO_HPP
 #define SENSOR_ARDUINO_HPP

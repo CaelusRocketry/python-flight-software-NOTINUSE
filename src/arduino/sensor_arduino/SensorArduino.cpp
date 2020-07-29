@@ -2,14 +2,14 @@
 
 SensorArduino::SensorArduino() {
     // I2C initialization
-    Serial.println("HI");
+    // Serial.println("HI");
     pinMode(13, OUTPUT);
     registered = false;
 }
 
 void SensorArduino::receiveData(int num_bytes) {
     if(!registered){
-        Serial.println("Registering!!!");
+        // Serial.println("Registering!!!");
         registerSensors(num_bytes);
         registered = true;
     }
@@ -24,13 +24,12 @@ void SensorArduino::receiveData(int num_bytes) {
 
 
 int SensorArduino::recvI2CByte(){
-    while(!Wire.available()){}
-    return Wire.read();
+    return Serial.read();
 }
 
 void SensorArduino::registerSensors(int num_bytes) {
-    Serial.print("Num bytes: ");
-    Serial.println(num_bytes);
+    // Serial.print("Num bytes: ");
+    // Serial.println(num_bytes);
     int num_sensors = recvI2CByte();
     this->num_thermocouples = recvI2CByte();
     this->num_pressures = recvI2CByte();
@@ -44,11 +43,11 @@ void SensorArduino::registerSensors(int num_bytes) {
 
     for(int i = 0; i < num_sensors; i++) {
         int sensor_type = recvI2CByte();
-        Serial.print("Sensor type: ");
-        Serial.println(sensor_type);
+        // Serial.print("Sensor type: ");
+        // Serial.println(sensor_type);
         if(sensor_type == 1) {
             int pin = recvI2CByte();
-            Serial.println(pin);
+            // Serial.println(pin);
             this->pressure_sensors[pressure_len] = PressureSensor(pin);
             pressure_len++;
         }
@@ -96,14 +95,14 @@ void SensorArduino::sendData(int pin, float val) {
     } x;
     x.val = val;
 
-    Wire.write(pin);
-    Wire.write(x.byte_array, 4);
+    Serial.print(pin);
+    Serial.print(x.byte_array, 4);
 }
 
 // Visual error for testing, turns LED on pin 13 on if there's an error
 void SensorArduino::error(){
     digitalWrite(13, HIGH);
-    Serial.println("Error");
+    // Serial.println("Error");
 }
 
 SensorArduino::~SensorArduino() {

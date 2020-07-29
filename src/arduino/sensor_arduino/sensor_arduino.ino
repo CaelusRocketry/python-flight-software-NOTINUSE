@@ -1,6 +1,6 @@
 #include "Arduino.h"
 #include "SensorArduino.hpp"
-#include <Wire.h>
+// #include <Wire.h>
 
 #define SLAVE_ADDRESS 0x04
 
@@ -8,13 +8,13 @@ SensorArduino sensor_arduino;
 
 void setup() {
   Serial.begin(9600);
-  Wire.onReceive(receiveData);
-  Wire.onRequest(read);
-  Wire.begin(SLAVE_ADDRESS);
+  // Wire.onReceive(receiveData);
+  // Wire.onRequest(read);
+  // Wire.begin(SLAVE_ADDRESS);
 }
 
 void loop() {
-  Serial.println("HIII");
+  // Serial.println("HIII");
   sensor_arduino.update();
   delay(100);
 }

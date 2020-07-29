@@ -12,8 +12,7 @@ ValveArduino::~ValveArduino() {
 }
 
 int ValveArduino::recvI2CByte() {
-    while(!Wire.available()){}
-    return Wire.read();
+    return Serial.read();
 }
 
 // TODO: make sure that the format matches what the pi is sending
@@ -78,9 +77,9 @@ void ValveArduino::receiveData(int byteCount) {
 
 void ValveArduino::sendData() {
     for(int i = 0; i < this->numSolenoids; i++) {
-        Wire.write(this->solenoids[i].pin);
-        Wire.write(this->solenoids[i].getState());
-        Wire.write(this->solenoids[i].actuation);
+        Serial.print(this->solenoids[i].pin);
+        Serial.print(this->solenoids[i].getState());
+        Serial.print(this->solenoids[i].actuation);
     }
 }
 
@@ -113,5 +112,5 @@ void ValveArduino::ingestLaunchbox(int cmd, int data) {
 
 void ValveArduino::error(String error) {
     digitalWrite(13, HIGH);
-    Serial.println(error);
+    // Serial.println(error);
 }

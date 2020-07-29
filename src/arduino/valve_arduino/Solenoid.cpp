@@ -121,5 +121,5 @@ int Solenoid::getState(){
 
 void Solenoid::error(String msg){
     digitalWrite(13, HIGH);
-    Serial.println(msg);
+    // Serial.println(msg);
 }

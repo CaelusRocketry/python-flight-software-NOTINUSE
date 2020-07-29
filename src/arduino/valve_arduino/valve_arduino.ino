@@ -6,9 +6,9 @@ ValveArduino valve_arduino();
 
 void setup() {
     Serial.begin(9600);
-    Wire.begin(SLAVE_ADDRESS);
-    Wire.onReceive(receiveData);
-    Wire.onRequest(sendData);
+    // Wire.begin(SLAVE_ADDRESS);
+    // Wire.onReceive(receiveData);
+    // Wire.onRequest(sendData);
 }
 
 void loop() {

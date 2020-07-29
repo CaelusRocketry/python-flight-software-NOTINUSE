@@ -20,8 +20,8 @@ const int OVERRIDE = 0;
 const int OVERRIDE_UNDO = 1;
 
 // Local variables
-boolean override = false;
-boolean aborted = false;
+bool override = false;
+bool aborted = false;
 
 int switchPins[] = {NITROGEN_FILL, ETHANOL_DRAIN, ETHANOL_VENT, ETHANOL_MPV, NO_FILL, NO_DRAIN, NO_VENT, NO_MPV};
 int pulsePins[] = {ETHANOL_VENT_PULSE, NO_VENT_PULSE};
