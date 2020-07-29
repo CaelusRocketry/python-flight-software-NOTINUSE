@@ -19,7 +19,6 @@ void Thermocouple::updateTemp() {
     float curr_temp = maxthermo->readThermocoupleTemperature();
     uint8_t fault = maxthermo->readFault();
     if(fault) {
-        // Serial.println("There's a fault in the thermocouple");
         digitalWrite(13, HIGH);
         return;
     }

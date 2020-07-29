@@ -11,7 +11,6 @@ class SensorArduino {
     // these maps map the pin to its respective sensor
 
     Thermocouple *thermocouples;
-    PressureSensor *pressure_sensors;
 
     int num_thermocouples;
     int num_pressures;
@@ -19,14 +18,14 @@ class SensorArduino {
     // send data to pi every 50 milliseconds
     const int SEND_DELAY = 50;
 
-    void registerSensors(int num_bytes);
-    int recvI2CByte();
+    int recvSerialByte();
     bool registered = false;
 
   public:
     SensorArduino();
     ~SensorArduino();
-    void receiveData(int num_bytes);
+    PressureSensor *pressure_sensors;
+    void registerSensors();
     void read();
     void update();
     void sendData(int pin, float val);

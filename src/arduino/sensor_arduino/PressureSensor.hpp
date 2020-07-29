@@ -4,11 +4,14 @@
 #define PRESSURE_SENSOR_HPP
 
 class PressureSensor {
+    private:
+        uint8_t pin;
+        int *pin2;
     public:
-        int pin;
         float pressure;
         PressureSensor(int pin);
         void updatePressure();
+        int getPin();
 };
 
 #endif
