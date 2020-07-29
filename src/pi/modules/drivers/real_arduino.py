@@ -1,5 +1,7 @@
 from .driver import Driver
-import smbus2 as smbus
+# import smbus2 as smbus
+import serial
+import time
 import struct
 
 class Arduino(Driver):
@@ -8,8 +10,11 @@ class Arduino(Driver):
         super().__init__(name)
         self.config = config
         self.address = config['address']
+        self.name = '/dev/ttyACM0' # TODO: find out what the name is on our pi https://roboticsbackend.com/raspberry-pi-arduino-serial-communication/
+        self.baud = 9600
         print(self.address)
-        self.bus = smbus.SMBus(1)
+        self.ser = serial.Serial(name, baud)
+        ser.flush()
     
     """
     Return whether or not the i2c connection is alive
@@ -36,8 +41,9 @@ class Arduino(Driver):
     Ex. [10, 20, 0, 0, 15, 0, 0, 0, 14, 12, 74, 129]
     """
     def read(self, num_bytes: int) -> bytes:
-        data = self.bus.read_i2c_block_data(self.address, 0, num_bytes)
-        print(data)
+        # TODO: ser.read() waits until the number of bytes requested is received, is this not good?
+        data = ser.read(num_bytes)
+        
         byte_array = bytes(data)
         # return struct.unpack('f', byte_array)[0]
         return byte_array
@@ -48,9 +54,11 @@ class Arduino(Driver):
     def write(self, msg: bytes) -> bool:
         # converts string to bytes : msg = [ord(b) for b in src]
         try:
-            self.bus.write_i2c_block_data(self.address, 0x01, msg)
+            x = ser.write(msg) # x: the number of bytes that were written
+            if x < len(msg):
+                return False
             return True
         except:
             return False
-        pass
+        return False
     

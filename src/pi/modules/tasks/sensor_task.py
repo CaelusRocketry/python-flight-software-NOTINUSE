@@ -40,7 +40,7 @@ class SensorTask(Task):
                 self.pins[pins[0]] = (s_type, loc)
             else:
                 raise Exception("Unknown sensor type")
-        self.arduino.write(to_send)
+        self.arduino.write(bytes(to_send))
 
 
     def get_float(self, data):

@@ -34,7 +34,7 @@ class ValveTask(Task):
                 to_send.append(1 if temp["natural"] == "OPEN" else 0)
                 self.pins[temp["pin"]] = (ValveType.SOLENOID, loc)
                 self.inv_pins[(ValveType.SOLENOID, loc)] = temp["pin"]
-        self.arduino.write(to_send)
+        self.arduino.write(bytes(to_send))
 
 
     def get_float(self, data):

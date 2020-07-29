@@ -20,9 +20,6 @@ void SensorArduino::receiveData(int num_bytes) {
 // example: 5, 2, 3, 1, 1, 1, 2, 1, 3, 0, 4, 5, 6, 7, 0, 8, 9, 10, 11
     // the first 3 pins are pressures, 4-7 is a thermocouple, 8-11 is a thermocouple
 
-// 
-
-
 int SensorArduino::recvI2CByte(){
     return Serial.read();
 }
@@ -96,7 +93,7 @@ void SensorArduino::sendData(int pin, float val) {
     x.val = val;
 
     Serial.print(pin);
-    Serial.print(x.byte_array, 4);
+    Serial.print(x.byte_array);
 }
 
 // Visual error for testing, turns LED on pin 13 on if there's an error
