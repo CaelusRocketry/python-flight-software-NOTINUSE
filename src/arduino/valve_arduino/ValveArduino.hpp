@@ -27,7 +27,6 @@ class ValveArduino {
     ValveArduino();
     ~ValveArduino();
     void update();
-    void receiveData(int byteCount);
     void sendData();
 };
 

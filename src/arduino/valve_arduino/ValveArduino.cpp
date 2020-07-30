@@ -40,6 +40,14 @@ void ValveArduino::registerSolenoids() {
 }
 
 void ValveArduino::checkSolenoids() {
+  while(Serial.available() > 0) {
+        int pin = recvI2CByte();
+        int actuationType = recvI2CByte();
+        if (override) {
+            break;
+        }
+        actuate(pin, actuationType);
+    }
     for(int i = 0; i < numSolenoids; i++) {
         solenoids[i].control();
     }
@@ -59,17 +67,6 @@ void ValveArduino::actuate(int pin, int actuationType){
         }
     }
     this->error("Could not find the indicated solenoid for pin " + pin);
-}
-
-void ValveArduino::receiveData(int byteCount) {
-    while (Wire.available()) {
-        int pin = Wire.read();
-        int actuationType = Wire.read();
-        if (override) {
-            break;
-        }
-        actuate(pin, actuationType);
-    }
 }
 
 // TODO: make sure the pi is receiving this in the right format
