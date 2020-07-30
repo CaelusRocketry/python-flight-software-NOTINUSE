@@ -23,7 +23,8 @@
                 }
             }
         },
-        "address": 4,
+        "address": "COM4",
+        "baud": 19200,
         "send_interval": 0.5
     },
     "valves": {

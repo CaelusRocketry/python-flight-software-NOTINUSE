@@ -10,11 +10,12 @@ class Arduino(Driver):
         super().__init__(name)
         self.config = config
         self.address = config['address']
-        self.name = '/dev/ttyACM0' # TODO: find out what the name is on our pi https://roboticsbackend.com/raspberry-pi-arduino-serial-communication/
-        self.baud = 9600
-        print(self.address)
-        self.ser = serial.Serial(self.name, self.baud)
-        self.ser.flush()
+        self.baud = config['baud']
+        print(self.address, self.baud)
+        self.name = name
+        self.ser = serial.Serial(self.address, self.baud)
+        self.reset()
+        time.sleep(0.5)
     
     """
     Return whether or not the i2c connection is alive
@@ -34,7 +35,16 @@ class Arduino(Driver):
     Powercycle the arduino
     """
     def reset(self) -> bool:
-        pass
+        # Reset the arduino just like the serial monitor does: https://stackoverflow.com/questions/21073086/wait-on-arduino-auto-reset-using-pyserial
+        self.ser.setDTR(False)
+        time.sleep(1)
+        self.ser.flush()
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
+        self.ser.setDTR(True)
+        # Wait for arduino to reset
+        time.sleep(3)
+
 
     """
     Read data from the Arduino and return it
@@ -42,19 +52,23 @@ class Arduino(Driver):
     """
     def read(self, num_bytes: int) -> bytes:
         # TODO: ser.read() waits until the number of bytes requested is received, is this not good?
-        data = self.ser.read(num_bytes)
-        
-        byte_array = bytes(data)
-        # return struct.unpack('f', byte_array)[0]
-        return byte_array
+        print("Reading")
+        data = bytearray()
+        while len(data) < num_bytes:
+            if self.ser.in_waiting:
+                byt = self.ser.read()
+                val = int.from_bytes(byt, 'big')
+                data.append(val)
+        return bytes(data)
 
     """
     Write data to the Arduino and return True if the write was successful else False
     """
     def write(self, msg: bytes) -> bool:
-        # converts string to bytes : msg = [ord(b) for b in src]
+        print("Writing:", msg)
         try:
             x = self.ser.write(msg) # x: the number of bytes that were written
+            print(x)
             if x < len(msg):
                 return False
             return True

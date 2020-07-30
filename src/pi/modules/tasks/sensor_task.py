@@ -5,6 +5,8 @@ from modules.mcl.flag import Flag
 from modules.lib.enums import SensorType, SensorLocation
 import struct
 
+SEND_DATA_CMD = 255
+
 class SensorTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
         self.name = "Sensor Arduino"
@@ -41,6 +43,7 @@ class SensorTask(Task):
             else:
                 raise Exception("Unknown sensor type")
         self.arduino.write(bytes(to_send))
+        print(self.arduino.read(1))
 
 
     def get_float(self, data):
@@ -50,6 +53,7 @@ class SensorTask(Task):
 
     def read(self):
         print(self.pins)
+        self.arduino.write([SEND_DATA_CMD])
         data = self.arduino.read(self.num_sensors * 5)
         assert(len(data) == self.num_sensors * 5)
 
