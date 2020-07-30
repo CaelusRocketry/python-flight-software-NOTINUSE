@@ -13,7 +13,6 @@ SensorArduino::SensorArduino() {
 int SensorArduino::recvSerialByte(){
     while(!Serial.available()){}
     int ret = Serial.read();
-    Serial.write(ret);
     return ret;
 }
 
@@ -22,13 +21,11 @@ void SensorArduino::registerSensors() {
     this->num_thermocouples = recvSerialByte();
     this->num_pressures = recvSerialByte();
 
-    Serial.println(num_sensors);
-
     int thermocouple_len = 0;
     int pressure_len = 0;
 
-    this->thermocouples[num_thermocouples];
-    this->pressure_sensors[num_pressures];
+    this->thermocouples = new Thermocouple[num_thermocouples];
+    this->pressure_sensors = new PressureSensor[num_pressures];
 
     for(int i = 0; i < num_sensors; i++) {
         int sensor_type = recvSerialByte();
@@ -49,13 +46,12 @@ void SensorArduino::registerSensors() {
             error();
         }
     }
-    Serial.println(pressure_sensors[0].getPin());
     registered = true;
+    // Return signal saying that all the sensors were successfully registered
+    Serial.write(255);
 }
 
 void SensorArduino::update(){
-    Serial.println("Updating");
-    Serial.println(pressure_sensors[0].getPin());
     if(!registered){
         return;
     }
@@ -70,11 +66,11 @@ void SensorArduino::update(){
 
 void SensorArduino::read() {
     for(int i = 0; i < this->num_thermocouples; i++) {
-        sendData(thermocouples[i].pins[0], thermocouples[i].temp);
+        sendData(thermocouples[i].pins[0], thermocouples[i].getTemp());
     }
 
     for(int i = 0; i < this->num_pressures; i++) {
-        sendData(this->pressure_sensors[i].getPin(), pressure_sensors[i].pressure);
+        sendData(this->pressure_sensors[i].getPin(), pressure_sensors[i].getPressure());
     }
 }
 
@@ -85,9 +81,10 @@ void SensorArduino::sendData(int pin, float val) {
     } x;
     x.val = val;
 
-    Serial.println(pin);
     Serial.write(pin);
-    // Serial.print(x.byte_array);
+    for(int i = 0; i < 4; i++){
+        Serial.write(x.byte_array[i]);
+    }
 }
 
 // Visual error for testing, turns LED on pin 13 on if there's an error

@@ -7,12 +7,14 @@
 class Thermocouple {
     private:
         Adafruit_MAX31856 *maxthermo;
+        float temp;
     public:
         int *pins;
-        float temp;
+        Thermocouple(){};
         Thermocouple(int *pins);
         ~Thermocouple();
         void updateTemp();
+        float getTemp();
 };
 
 #endif

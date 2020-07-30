@@ -24,3 +24,7 @@ void Thermocouple::updateTemp() {
     }
     temp = curr_temp;
 }
+
+float Thermocouple::getTemp(){
+    return this->temp;
+}

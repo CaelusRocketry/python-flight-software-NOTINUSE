@@ -11,8 +11,6 @@ SensorArduino sensor_arduino;
 void setup() {
   Serial.begin(BAUD);
   sensor_arduino.registerSensors();
-  Serial.println("HI");
-  Serial.println(sensor_arduino.pressure_sensors[0].getPin());
 }
 
 void loop() {
