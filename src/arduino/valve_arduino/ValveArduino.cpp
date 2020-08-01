@@ -44,6 +44,8 @@ void ValveArduino::registerSolenoids() {
         this->solenoids[i] = Solenoid(pin, isSpecial, isNO);
     }
 
+    Serial.write(REGISTERED_CONFIRMATION);
+
     // Serial.println("Registered");
 }
 

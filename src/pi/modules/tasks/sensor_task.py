@@ -6,6 +6,7 @@ from modules.lib.enums import SensorType, SensorLocation
 import struct
 
 SEND_DATA_CMD = 255
+CONFIRMATION = 253
 
 class SensorTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
@@ -43,7 +44,7 @@ class SensorTask(Task):
             else:
                 raise Exception("Unknown sensor type")
         self.arduino.write(bytes(to_send))
-        print(self.arduino.read(1))
+        assert(self.arduino.read(1) == bytes([CONFIRMATION]))
 
 
     def get_float(self, data):

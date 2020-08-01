@@ -8,6 +8,7 @@ from enum import Enum, auto
 
 SEND_DATA_CMD = 255
 ACTUATE_CMD = 254
+CONFIRMATION = 253
 
 class ValveTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
@@ -38,6 +39,7 @@ class ValveTask(Task):
                 self.pins[temp["pin"]] = (ValveType.SOLENOID, loc)
                 self.inv_pins[(ValveType.SOLENOID, loc)] = temp["pin"]
         self.arduino.write(bytes(to_send))
+        assert(self.arduino.read(1) == bytes([CONFIRMATION]))
 
 
     def get_float(self, data):
@@ -53,7 +55,7 @@ class ValveTask(Task):
 
     def read(self):
         print("Reading valve data")
-        self.arduino.write(SEND_DATA_CMD)
+        self.arduino.write([SEND_DATA_CMD])
         byte_data = self.arduino.read(self.num_solenoids * 3)
         for i in range(self.num_solenoids):
             solenoid_data = byte_data[i*3:(i + 1)*3]
