@@ -1,22 +1,26 @@
 #include "Arduino.h"
-// #include <Wire.h>
+#include <SoftwareSerial.h>
 #include "Constants.hpp"
 #include "Solenoid.hpp"
 
 #ifndef VALVE_ARDUINO_HPP
 #define VALVE_ARDUINO_HPP
 
+#define launchRX 2
+#define launchTX 3
+#define launchBaud 19200
+
 class ValveArduino {
   private:
     Solenoid *solenoids;
     int numSolenoids;
     bool override;
+    SoftwareSerial *launchSerial;
 
     void launchBox();
     void ingestLaunchbox(int cmd, int data);
 
-    int recvI2CByte();
-    void registerSolenoids();
+    int recvSerialByte();
 
     void actuate(int pin, int actuationType);
     void checkSolenoids();
@@ -26,6 +30,7 @@ class ValveArduino {
   public:
     ValveArduino();
     ~ValveArduino();
+    void registerSolenoids();
     void update();
     void sendData();
 };

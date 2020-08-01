@@ -28,11 +28,12 @@ class Solenoid {
         bool isNO;
 
         int actuation;
-
+        Solenoid(){};
         Solenoid(int pin, bool special, bool no);
         void actuate(int actuationType);
         void control();
         int getState();
+        int getActuation();
         void error(String error);
 };
 

@@ -2,33 +2,39 @@
 
 
 ValveArduino::ValveArduino() {
-    registerSolenoids();
     override = false;
     pinMode(13, OUTPUT);
+    launchSerial = new SoftwareSerial(launchRX, launchTX);
+    launchSerial->begin(launchBaud);
 }
 
 ValveArduino::~ValveArduino() {
     delete[] solenoids;
 }
 
-int ValveArduino::recvI2CByte() {
-    return Serial.read();
+int ValveArduino::recvSerialByte() {
+    while(!Serial.available()){}
+    int ret = Serial.read();
+    // Serial.write(ret);
+    return ret;
 }
 
 // TODO: make sure that the format matches what the pi is sending
 // format: numSolenoids, <for each solenoid> pin, isSpecial, isNO
 // ex: 4, 1, 1, 1, 2, 0, 1, 3, 0, 0, 4, 1, 0
+// ex: 1, 2, 1, 1
 
 void ValveArduino::registerSolenoids() {
-    int solenoidCount = recvI2CByte();
+    int solenoidCount = recvSerialByte();
     this->numSolenoids = solenoidCount;
-    this->solenoids[solenoidCount];
+    this->solenoids = new Solenoid[solenoidCount];
 
     for(int i = 0; i < solenoidCount; i++) {
-        int pin = recvI2CByte();
-        int special = recvI2CByte();
-        int natural = recvI2CByte();
-        bool isSpecial = true; bool isNO = true;
+        int pin = recvSerialByte();
+        int special = recvSerialByte();
+        int natural = recvSerialByte();
+        bool isSpecial = true;
+        bool isNO = true;
         if(special == 0){
             isSpecial = false;
         }
@@ -37,16 +43,26 @@ void ValveArduino::registerSolenoids() {
         }
         this->solenoids[i] = Solenoid(pin, isSpecial, isNO);
     }
+
+    // Serial.println("Registered");
 }
 
 void ValveArduino::checkSolenoids() {
-  while(Serial.available() > 0) {
-        int pin = recvI2CByte();
-        int actuationType = recvI2CByte();
-        if (override) {
-            break;
+    if(Serial.available()) {
+        int cmd = recvSerialByte();
+        if(cmd == SEND_DATA_CMD){
+            sendData();
         }
-        actuate(pin, actuationType);
+        else if(cmd == ACTUATE_CMD){
+            int pin = recvSerialByte();
+            int actuationType = recvSerialByte();
+            if (!override) {
+                actuate(pin, actuationType);
+            }
+        }
+        else{
+            error("Unknown command received");
+        }
     }
     for(int i = 0; i < numSolenoids; i++) {
         solenoids[i].control();
@@ -74,17 +90,17 @@ void ValveArduino::actuate(int pin, int actuationType){
 
 void ValveArduino::sendData() {
     for(int i = 0; i < this->numSolenoids; i++) {
-        Serial.print(this->solenoids[i].pin);
-        Serial.print(this->solenoids[i].getState());
-        Serial.print(this->solenoids[i].actuation);
+        Serial.write(this->solenoids[i].pin);
+        Serial.write(this->solenoids[i].getState()); // 1 if open else 0
+        Serial.write(this->solenoids[i].getActuation());
     }
 }
 
 void ValveArduino::launchBox() {
     // TODO: Change this to use SoftwareSerial
-    while (Serial.available() > 0) {
-        int cmd = Serial.read();
-        int data = Serial.read();
+    if(launchSerial->available()) {
+        int cmd = launchSerial->read();
+        int data = launchSerial->read();
         ingestLaunchbox(cmd, data);
     }
 }

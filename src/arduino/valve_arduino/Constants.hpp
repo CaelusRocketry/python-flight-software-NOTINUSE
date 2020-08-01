@@ -1,4 +1,7 @@
 // Serial/I2C definitions. MAKE SURE CLOSE_VENT, OPEN_VENT, PULSE MATCH WHATEVER'S IN valve_task.py
+#define SEND_DATA_CMD 255
+#define ACTUATE_CMD 254
+
 #define DATA 0
 #define NO_ACTUATION 1
 #define CLOSE_VENT 2

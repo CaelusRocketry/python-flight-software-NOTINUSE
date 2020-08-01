@@ -31,13 +31,14 @@
         "list": {
             "solenoid": {
                 "pressure_relief": {
-                    "pin": 14,
-                    "natural": "OPEN",
+                    "pin": 4,
+                    "natural": "CLOSED",
                     "special": false
                 }
             }
         },
-        "address": 8,
+        "address": "COM4",
+        "baud": 19200,
         "send_interval": 0.5
     },
     "stages": {

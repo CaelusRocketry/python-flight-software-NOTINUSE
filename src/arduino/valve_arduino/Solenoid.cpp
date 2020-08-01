@@ -22,21 +22,18 @@ Solenoid::Solenoid(int pin, bool special, bool no) {
 void Solenoid::close() {
     digitalWrite(pin, closeSignal);
     this->currSignal = closeSignal;
-    this->actuation = CLOSE_VENT;
     this->lastActuationTime = millis();
 }
 
 void Solenoid::open() {
     digitalWrite(pin, openSignal);
     this->currSignal = openSignal;
-    this->actuation = OPEN_VENT;
     this->lastActuationTime = millis();
 }
 
 void Solenoid::pulse() {
     digitalWrite(pin, openSignal);
     this->currSignal = openSignal;
-    this->actuation = PULSE;
     this->lastActuationTime = millis();
 }
 
@@ -64,7 +61,7 @@ void Solenoid::control(){
 }
 
 void Solenoid::controlPulse() {
-    if(!this->actuation == PULSE){ // Ignore this method if it's not pulsing
+    if(this->actuation != PULSE){ // Ignore this method if it's not pulsing
         return;
     }
     if(millis() - this->lastActuationTime >= PULSE_WAIT_TIME) {
@@ -117,6 +114,10 @@ int Solenoid::getState(){
         return 1;
     }
     return 0;
+}
+
+int Solenoid::getActuation(){
+    return actuation;
 }
 
 void Solenoid::error(String msg){
