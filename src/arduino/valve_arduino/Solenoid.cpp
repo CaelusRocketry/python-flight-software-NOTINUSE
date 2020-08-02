@@ -20,15 +20,19 @@ Solenoid::Solenoid(int pin, bool special, bool no) {
 }
 
 void Solenoid::close() {
+    // Serial.println("Closing");
+    // Serial.println(closeSignal);
     digitalWrite(pin, closeSignal);
     this->currSignal = closeSignal;
     this->lastActuationTime = millis();
+    this->beingRelieved = false;
 }
 
 void Solenoid::open() {
     digitalWrite(pin, openSignal);
     this->currSignal = openSignal;
     this->lastActuationTime = millis();
+    this->beingRelieved = false;
 }
 
 void Solenoid::pulse() {

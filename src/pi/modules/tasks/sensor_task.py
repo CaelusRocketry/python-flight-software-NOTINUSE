@@ -6,7 +6,7 @@ from modules.lib.enums import SensorType, SensorLocation
 import struct
 
 SEND_DATA_CMD = 255
-CONFIRMATION = 253
+CONFIRMATION = 255
 
 class SensorTask(Task):
     def __init__(self, registry: Registry, flag: Flag):

@@ -31,6 +31,7 @@ void SensorArduino::registerSensors() {
         int sensor_type = recvSerialByte();
         if(sensor_type == 1) {
             int pin = recvSerialByte();
+            pinMode(pin, INPUT);
             this->pressure_sensors[pressure_len] = PressureSensor(pin);
             pressure_len++;
         }
@@ -82,6 +83,7 @@ void SensorArduino::sendData(int pin, float val) {
     x.val = val;
 
     Serial.write(pin);
+    // Serial.println(val);
     for(int i = 0; i < 4; i++){
         Serial.write(x.byte_array[i]);
     }
