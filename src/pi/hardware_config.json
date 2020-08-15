@@ -23,7 +23,7 @@
                 }
             }
         },
-        "address": "COM8",
+        "address": "/dev/cu.usbmodem142101",
         "baud": 19200,
         "send_interval": 0.5
     },
@@ -37,7 +37,7 @@
                 }
             }
         },
-        "address": "COM8",
+        "address": "/dev/cu.usbmodem14401",
         "baud": 19200,
         "send_interval": 0.5
     },
