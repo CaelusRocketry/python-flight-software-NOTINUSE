@@ -3,8 +3,11 @@ from modules.mcl.flag import Flag
 from modules.lib.packet import Log, LogPriority
 from modules.lib.errors import Error
 from modules.mcl.registry import Registry
-from modules.lib.enums import Stage
+from modules.lib.enums import Stage, ValveLocation, ActuationType, ValvePriority
 from modules.lib.helpers import enqueue
+
+AUTOSEQUENCE_DELAY = 5.0
+POSTBURN_DELAY = 10.0
 
 class StageControl:
 
@@ -14,7 +17,9 @@ class StageControl:
         self.request_time = None
         self.send_time = None
         self.start_time = time.time()
-    
+        self.actuated_autosequence = False
+        self.actuated_postburn = False
+
 
     def begin(self, config: dict):
         self.stage_names = config["stages"]["list"]
@@ -27,17 +32,21 @@ class StageControl:
         self.registry.put(("general", "stage_status"), 0.0)
     
 
+    # Returns how much of the stage has been done
     def calculate_status(self) -> float:
-        #TODO: Implement actual calculations for this kinda stuff
+        curr = time.time()
         if self.curr_stage == Stage.WAITING:
-            self.registry.put(("general", "stage_status"), 100.0)
-            self.send_progression_request()
+            return 100
         elif self.curr_stage == Stage.AUTOSEQUENCE:
-            pass
-        elif self.curr_stage == Stage.POSTSEQUENCE:
-            pass
-
-        return min((time.time() - self.start_time) * 5, 100.0)
+            # NOTE: Autosequence delay is currently set to 5s
+            if self.actuated_autosequence:
+                return 100
+            else:
+                return min(((curr - self.start_time) / AUTOSEQUENCE_DELAY) * 100.0, 100.0)
+        elif self.curr_stage == Stage.POSTBURN:
+            # NOTE: For now just assuming it'll take 10s for everything to depressurize, TODO: Actually check the pressure and wait until the pressure goes down to 0
+            return min(((curr - self.start_time) / POSTBURN_DELAY) * 100.0, 100.0)
+        raise Exception("Unknown stage: {}".format(str(self.curr_stage)))
 
 
     def send_progression_request(self):
@@ -74,14 +83,24 @@ class StageControl:
     # flags
     # valve actuations
     def stage_valve_control(self):
-        # TODO: Actuate valves based on current stage and make sure they're actuated properly
+        curr = time.time()
         if self.curr_stage == Stage.WAITING:
             pass
         elif self.curr_stage == Stage.AUTOSEQUENCE:
-            pass
-        elif self.curr_stage == Stage.POSTSEQUENCE:
-            pass
-        
+            if curr - time.time() > AUTOSEQUENCE_DELAY and not self.actuated_autosequence:
+                # Actuate valve
+                mpv = ValveLocation.MAIN_PROPELLANT_VALVE
+                self.flag.put(("solenoid", "actuation_type", mpv), ActuationType.OPEN_VENT)
+                self.flag.put(("solenoid", "actuation_priority", mpv), ValvePriority.PI_PRIORITY)
+                self.actuated_autosequence = True
+        elif self.curr_stage == Stage.POSTBURN:
+            #TODO: Make sure this actuation is correct
+            if not self.actuated_postburn:
+                # Actuate valve
+                for loc in ValveLocation:
+                    self.flag.put(("solenoid", "actuation_type", loc), ActuationType.OPEN_VENT)
+                    self.flag.put(("solenoid", "actuation_priority", loc), ValvePriority.PI_PRIORITY)
+                self.actuated_postburn = True
 
 
     def execute(self):
