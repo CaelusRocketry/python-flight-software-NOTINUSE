@@ -53,4 +53,4 @@ class ValvePriority(IntEnum):
 class Stage(str, Enum):
     WAITING = "waiting"
     AUTOSEQUENCE = "autosequence"
-    POSTSEQUENCE = "postsequence"
+    POSTBURN = "postburn"

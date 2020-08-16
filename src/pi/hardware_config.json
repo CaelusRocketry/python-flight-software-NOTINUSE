@@ -42,12 +42,9 @@
         "send_interval": 0.5
     },
     "stages": {
-        "list": ["propellant_loading",
-                "leak_testing_1",
-                "pressurant_loading",
-                "leak_testing_2",
-                "pre_ignition",
-                "disconnection"],
+        "list": ["waiting",
+                "autosequence",
+                "postburn"],
         "request_interval": 10,
         "send_interval": 2
     },
