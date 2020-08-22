@@ -19,5 +19,4 @@ void loop() {
       sensor_arduino.read();
     }
   }
-  delay(100);
 }
