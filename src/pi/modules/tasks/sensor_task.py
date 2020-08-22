@@ -44,7 +44,9 @@ class SensorTask(Task):
             else:
                 raise Exception("Unknown sensor type")
         self.arduino.write(bytes(to_send))
-        assert(self.arduino.read(1) == bytes([CONFIRMATION]))
+        var = self.arduino.read(1) 
+        print("HI", var)
+        assert(var == bytes([CONFIRMATION]))
 
 
     def get_float(self, data):
