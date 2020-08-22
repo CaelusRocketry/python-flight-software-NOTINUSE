@@ -15,14 +15,14 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 500],
-            "warn": [-50, 800]
+            "safe": [0, 60],
+            "warn": [-50, 100]
           },
           "pin": 14
         }
       }
     },
-    "address": "COM3",
+    "address": "COM8",
     "baud": 115200,
     "send_interval": 0.5
   },
@@ -46,6 +46,6 @@
     "send_interval": 2
   },
   "timer": {
-    "delay": 0.01
+    "delay": 0.001
   }
 }

@@ -14,7 +14,6 @@ class ValveArduino {
   private:
     Solenoid *solenoids;
     int numSolenoids;
-    bool override;
     SoftwareSerial *launchSerial;
 
     void launchBox();

@@ -21,7 +21,7 @@ class PressureControl():
 
     def check_pressure(self):
         #TODO: make sure that pressure relief is the right valve
-        print("PRESSURE CONTROL")
+        # print("PRESSURE CONTROL")
         for sensor_loc, valve_loc in self.matchups:
             if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["safe"][1]:
                 print("PRESSURE TOO HIGH")

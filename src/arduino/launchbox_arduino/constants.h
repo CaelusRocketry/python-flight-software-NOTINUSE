@@ -36,14 +36,8 @@ Nitrous Oxide Main Propellant Valve
 #define VALVE_NO_VENT 8
 #define VALVE_NO_MPV 9
 
-// Serial definitions
-#define DATA = 0
-#define CLOSE_VENT = 1
-#define OPEN_VENT = 2
-#define PULSE = 3
-#define ABORT = 4
-
 // Pin order and actuation types
-#define DO_NOTHING = 0
-#define OPEN_VENT = 1
-#define CLOSE_VENT = 2
+#define DO_NOTHING 1
+#define CLOSE_VENT 2
+#define OPEN_VENT 3
+#define PULSE 4

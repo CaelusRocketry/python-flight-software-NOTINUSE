@@ -52,7 +52,7 @@ class Arduino(Driver):
     """
     def read(self, num_bytes: int) -> bytes:
         # TODO: ser.read() waits until the number of bytes requested is received, is this not good?
-        print("Reading")
+        # print("Reading")
         data = bytearray()
         while len(data) < num_bytes:
             if self.ser.in_waiting:
@@ -66,10 +66,10 @@ class Arduino(Driver):
     Write data to the Arduino and return True if the write was successful else False
     """
     def write(self, msg: bytes) -> bool:
-        print("Writing:", msg)
+        # print("Writing:", msg)
         try:
             x = self.ser.write(msg) # x: the number of bytes that were written
-            print(x)
+            # print(x)
             if x < len(msg):
                 return False
             return True

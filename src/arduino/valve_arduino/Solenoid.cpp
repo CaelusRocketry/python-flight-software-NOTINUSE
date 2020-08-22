@@ -15,6 +15,7 @@ Solenoid::Solenoid(int pin, bool special, bool no) {
     this->lastActuationTime = 0;
     this->beingRelieved = false;
     this->actuation = NO_ACTUATION;
+    this->overridden = false;
     pinMode(this->pin, OUTPUT);
     setLow();
 }

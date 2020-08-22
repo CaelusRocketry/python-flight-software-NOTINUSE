@@ -34,7 +34,6 @@ boolean aborted;
 
 // Arrays that keep track of stuff
 // States: 0 means do nothing, 1 is CLOSE_VENT, and 2 is OPEN_VENT (matches the constants)
-// TODO: CHECK IF digitalRead CAN BE COMPARED TO A BOOLEAN
 pin_state states[NUM_VALVES];
 boolean pulsing[NUM_BUTTONS];
 int vent_pins[] = {NITROGEN_FILL, ETHANOL_DRAIN, ETHANOL_VENT, ETHANOL_MPV, NO_FILL, NO_DRAIN, NO_VENT, NO_MPV};
@@ -79,7 +78,6 @@ void loop(){
     }
     if(buttonRead(ABORT_PIN)){
         aborted = true;
-        send_message(DATA, ABORT);
         for(int i = 0; i < NUM_VALVES; i++){
             send_message(OPEN_VENT, PIN_MAP[vent_pins[i]]);
         }
@@ -137,7 +135,7 @@ void send_message(int cmd, int data){
 
 int checkToggleSwitch(int switchStart) {
   if(digitalRead(switchStart) == LOW) {
-    return OPEN_VENT;  
+    return OPEN_VENT;
   }  
   else if(digitalRead(switchStart + 1) == LOW) {
     return CLOSE_VENT;

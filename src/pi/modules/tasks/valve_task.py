@@ -54,7 +54,7 @@ class ValveTask(Task):
 
 
     def read(self):
-        print("Reading valve data")
+        # print("Reading valve data")
         self.arduino.write([SEND_DATA_CMD])
         byte_data = self.arduino.read(self.num_solenoids * 3)
         for i in range(self.num_solenoids):
@@ -73,13 +73,13 @@ class ValveTask(Task):
             _, actuation_priority = self.flag.get(("solenoid", "actuation_priority", loc))
             _, curr_priority, _ = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc))
             if actuation_priority != ValvePriority.NONE and actuation_priority >= curr_priority:
-                print("Actuating")
+                # print("Actuating")
                 actuation_priority = ValvePriority.NONE
                 self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
                 self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), ValvePriority.NONE)
 
                 command = self.get_command(loc, actuation_type)
-                print("Sending actuation message:", command)
+                # print("Sending actuation message:", command)
                 self.arduino.write(command)
 
                 self.flag.put(("solenoid", "actuation_type", loc), ActuationType.NONE)

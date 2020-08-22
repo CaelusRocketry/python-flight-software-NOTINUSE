@@ -1,6 +1,5 @@
 #include "ValveArduino.hpp"
 
-
 ValveArduino::ValveArduino() {
     override = false;
     pinMode(13, OUTPUT);
@@ -28,6 +27,7 @@ void ValveArduino::registerSolenoids() {
     int solenoidCount = recvSerialByte();
     this->numSolenoids = solenoidCount;
     this->solenoids = new Solenoid[solenoidCount];
+    this->overrides = new bool[solenoidCount];
 
     for(int i = 0; i < solenoidCount; i++) {
         int pin = recvSerialByte();
@@ -59,7 +59,7 @@ void ValveArduino::checkSolenoids() {
             int pin = recvSerialByte();
             int actuationType = recvSerialByte();
             if (!override) {
-                actuate(pin, actuationType);
+                actuate(pin, actuationType, false);
             }
         }
         else{
@@ -74,17 +74,24 @@ void ValveArduino::checkSolenoids() {
 void ValveArduino::update() {
     checkSolenoids();
     // TODO: Uncomment this
-    // launchBox();
+    launchBox();
 }
 
-void ValveArduino::actuate(int pin, int actuationType){
+Solenoid getSolenoid(int pin){
     for(int i = 0; i < this->numSolenoids; i++){
         if(this->solenoids[i].pin == pin){
-            this->solenoids[i].actuate(actuationType);
-            return;
+            return solenoids[i];
         }
     }
     this->error("Could not find the indicated solenoid for pin " + pin);
+    return NULL;
+}
+
+void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
+    Solenoid sol = getSolenoid(pin);
+    if(!sol.overridden || from_launchbox){
+        sol.actuate(actuationType);
+    }
 }
 
 // TODO: make sure the pi is receiving this in the right format
@@ -107,22 +114,14 @@ void ValveArduino::launchBox() {
     }
 }
 
-
 void ValveArduino::ingestLaunchbox(int cmd, int data) {
-    if (cmd == DATA) {
-        if (data == OVERRIDE) {
-            override = true;
-        } else if (data == OVERRIDE_UNDO) {
-            override = false;
-        } else {
-            error("Unknown data received via launchbox");
-        }
-        return;
+    if(cmd == L_DO_NOTHING){
+        Solenoid sol = getSolenoid(data);
+        sol.overridden = false;
     }
-    if (!override) {
-        return;
+    else{
+        actuate(data, cmd, true);
     }
-    actuate(data, cmd);
 }
 
 void ValveArduino::error(String error) {
