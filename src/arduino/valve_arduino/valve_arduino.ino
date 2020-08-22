@@ -1,11 +1,9 @@
 #include "ValveArduino.hpp"
 
-#define BAUD 19200
-
 ValveArduino valve_arduino;
 
 void setup() {
-    Serial.begin(BAUD);
+    Serial.begin(115200);
     valve_arduino.registerSolenoids();
 }
 

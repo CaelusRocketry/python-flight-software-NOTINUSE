@@ -16,15 +16,15 @@
                         "kalman_value": 1000
                     },
                     "boundaries": {
-                        "safe": [100, 150],
-                        "warn": [50, 200]
+                        "safe": [0, 500],
+                        "warn": [-50, 800]
                     },
                     "pin": 14
                 }
             }
         },
-        "address": "/dev/cu.usbmodem142101",
-        "baud": 19200,
+        "address": "COM8",
+        "baud": 115200,
         "send_interval": 0.5
     },
     "valves": {
@@ -37,8 +37,8 @@
                 }
             }
         },
-        "address": "/dev/cu.usbmodem14401",
-        "baud": 19200,
+        "address": "COM9",
+        "baud": 115200,
         "send_interval": 0.5
     },
     "stages": {
@@ -49,6 +49,6 @@
         "send_interval": 2
     },
     "timer": {
-        "delay": 1
+        "delay": 0.01
     }
 }

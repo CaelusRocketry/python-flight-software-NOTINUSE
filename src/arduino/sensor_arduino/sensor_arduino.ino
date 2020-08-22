@@ -1,15 +1,13 @@
 #include "Arduino.h"
 #include "SensorArduino.hpp"
 
-#define SLAVE_ADDRESS 0x04
-
-const int BAUD = 19200;
 const int SEND_DATA_COMMAND = 255;
 
 SensorArduino sensor_arduino;
 
 void setup() {
-  Serial.begin(BAUD);
+  Serial.setTimeout(100);
+  Serial.begin(115200);
   sensor_arduino.registerSensors();
 }
 

@@ -58,7 +58,7 @@ class Arduino(Driver):
             if self.ser.in_waiting:
                 byt = self.ser.read()
                 val = int.from_bytes(byt, 'big')
-                print(val)
+                # print(val)
                 data.append(val)
         return bytes(data)
 

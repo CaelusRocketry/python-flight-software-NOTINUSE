@@ -7,6 +7,7 @@ from modules.control_tasks.stage_control import StageControl
 from modules.control_tasks.sensor_control import SensorControl
 from modules.control_tasks.telemetry_control import TelemetryControl
 from modules.control_tasks.timer_control import TimerControl
+from modules.control_tasks.pressure_control import PressureControl
 
 class ControlTask():
     def __init__(self, registry: Registry, flag: Flag, task_config: dict):
@@ -25,6 +26,8 @@ class ControlTask():
             self.controls.append(StageControl(self.registry, self.flag))
         if "timer" in task_config:
             self.controls.append(TimerControl(self.registry, self.flag))
+        if "pressure" in task_config:
+            self.controls.append(PressureControl(self.registry, self.flag))
 
     def begin(self, config: dict):
         for ctrl in self.controls:
