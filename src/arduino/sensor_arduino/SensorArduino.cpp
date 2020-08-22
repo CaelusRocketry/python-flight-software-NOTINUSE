@@ -13,6 +13,7 @@ SensorArduino::SensorArduino() {
 int SensorArduino::recvSerialByte(){
     while(!Serial.available()){}
     int ret = Serial.read();
+
     return ret;
 }
 
@@ -50,6 +51,7 @@ void SensorArduino::registerSensors() {
     registered = true;
     // Return signal saying that all the sensors were successfully registered
     Serial.write(255);
+//    Serial.println(255);
 }
 
 void SensorArduino::update(){
