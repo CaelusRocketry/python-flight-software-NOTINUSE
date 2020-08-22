@@ -13,40 +13,15 @@ Nitrous Oxide Vent
 Nitrous Oxide Main Propellant Valve
 */
 
-// Pin definitions - each toggle switch takes up 2 pins, the pulse pins take up one pin each
-#define NITROGEN_FILL 2
-#define ETHANOL_DRAIN 4
-#define ETHANOL_VENT 6
-#define ETHANOL_MPV 8
-#define NO_FILL 10
-#define NO_DRAIN 12
-#define NO_VENT 14
-#define NO_MPV 16
-#define ETHANOL_VENT_PULSE 18
-#define NO_VENT_PULSE 19
-#define ABORT_PIN 20
-#define OVERRIDE_PIN 21
+#include "constants.h"
 
-// Valve arduino pin definitions - MAKE SURE THESE MATCH VALVE ARDUINO
-#define VALVE_NITROGEN_FILL 2
-#define VALVE_ETHANOL_DRAIN 3
-#define VALVE_ETHANOL_VENT 4
-#define VALVE_ETHANOL_MPV 5
-#define VALVE_NO_FILL 6
-#define VALVE_NO_DRAIN 7
-#define VALVE_NO_VENT 8
-#define VALVE_NO_MPV 9
+enum pin_state = {
+    DO_NOTHING,
+    OPEN_VENT,
+    CLOSE_VENT
+}
 
-// Serial definitions
-const int DATA = 0;
-const int CLOSE_VENT = 1;
-const int OPEN_VENT = 2;
-const int PULSE = 3;
-const int OVERRIDE = 0;
-const int OVERRIDE_UNDO = 1;
 
-// Pin order and actuation types
-const int DO_NOTHING = 0;
 const int MAX_PIN = 21;
 int PIN_MAP[MAX_PIN];
 
@@ -55,13 +30,12 @@ const int NUM_VALVES = 8;
 const int NUM_BUTTONS = 2;
 
 // Local variables
-boolean override;
 boolean aborted;
 
 // Arrays that keep track of stuff
 // States: 0 means do nothing, 1 is CLOSE_VENT, and 2 is OPEN_VENT (matches the constants)
 // TODO: CHECK IF digitalRead CAN BE COMPARED TO A BOOLEAN
-int states[NUM_VALVES];
+pin_state states[NUM_VALVES];
 boolean pulsing[NUM_BUTTONS];
 int vent_pins[] = {NITROGEN_FILL, ETHANOL_DRAIN, ETHANOL_VENT, ETHANOL_MPV, NO_FILL, NO_DRAIN, NO_VENT, NO_MPV};
 int pulse_pins[] = {ETHANOL_VENT_PULSE, NO_VENT_PULSE};
@@ -82,11 +56,10 @@ void setup(){
         pinMode(i, INPUT_PULLUP);
     }
     Serial.begin(9600);
-    override = false;
     aborted = false;
     
     for(int i = 0; i < NUM_VALVES; i++){
-        states[i] = DO_NOTHING; 
+        pin_states[i] = DO_NOTHING; 
     }
     for(int i = 0; i < NUM_BUTTONS; i++){
         pulsing[i] = false;
@@ -98,29 +71,21 @@ void loop(){
         return;
     }
     for(int i = 0; i < NUM_VALVES; i++){
-        int current_state = checkToggleSwitch((i + 1) * 2); // (i + 1) * 2 maps from array index to pin number
+        pin_state current_state = checkToggleSwitch((i + 1) * 2); // (i + 1) * 2 maps from array index to pin number
         if(current_state != states[i]){
             states[i] = current_state;
             send_message(current_state, PIN_MAP[vent_pins[i]]);
         }
     }
-    if(digitalRead(OVERRIDE_PIN) && !override){
-        override = true;
-        send_message(DATA, OVERRIDE);
-    }
-    if(!digitalRead(OVERRIDE_PIN) && override){
-        override = false;
-        send_message(DATA, OVERRIDE_UNDO);
-    }
-    if(digitalRead(ABORT_PIN)){
+    if(buttonRead(ABORT_PIN)){
         aborted = true;
-        send_message(DATA, OVERRIDE);
+        send_message(DATA, ABORT);
         for(int i = 0; i < NUM_VALVES; i++){
             send_message(OPEN_VENT, PIN_MAP[vent_pins[i]]);
         }
     }
     for(int i = 0; i < NUM_BUTTONS; i++){
-        if(digitalRead(pulse_pins[i])){
+        if(buttonRead(pulse_pins[i])){
             if(pulsing[i]){
                 continue;
             }
@@ -131,6 +96,10 @@ void loop(){
             pulsing[i] = false;
         }
     }
+}
+
+int buttonRead(int pin){
+    return digitalRead(pin);
 }
 
 void send_message(int cmd, int data){
