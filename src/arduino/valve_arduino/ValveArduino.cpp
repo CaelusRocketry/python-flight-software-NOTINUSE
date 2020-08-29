@@ -1,7 +1,6 @@
 #include "ValveArduino.hpp"
 
 ValveArduino::ValveArduino() {
-    override = false;
     pinMode(13, OUTPUT);
     launchSerial = new SoftwareSerial(launchRX, launchTX);
     launchSerial->begin(launchBaud);
@@ -49,6 +48,16 @@ void ValveArduino::registerSolenoids() {
     // Serial.println("Registered");
 }
 
+int ValveArduino::getSolenoidPos(int pin){
+    for(int i = 0; i < this->numSolenoids; i++){
+        if(this->solenoids[i].pin == pin){
+            return i;
+        }
+    }
+    this->error("Could not find the indicated solenoid for pin " + pin);
+    return;
+}
+
 void ValveArduino::checkSolenoids() {
     if(Serial.available()) {
         int cmd = recvSerialByte();
@@ -58,7 +67,7 @@ void ValveArduino::checkSolenoids() {
         else if(cmd == ACTUATE_CMD){
             int pin = recvSerialByte();
             int actuationType = recvSerialByte();
-            if (!override) {
+            if (!overrides[getSolenoidPos(pin)]) {
                 actuate(pin, actuationType, false);
             }
         }
@@ -77,14 +86,14 @@ void ValveArduino::update() {
     launchBox();
 }
 
-Solenoid getSolenoid(int pin){
+Solenoid ValveArduino::getSolenoid(int pin){
     for(int i = 0; i < this->numSolenoids; i++){
         if(this->solenoids[i].pin == pin){
             return solenoids[i];
         }
     }
     this->error("Could not find the indicated solenoid for pin " + pin);
-    return NULL;
+    return;
 }
 
 void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
