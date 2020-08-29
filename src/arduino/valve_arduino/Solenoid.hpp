@@ -9,7 +9,6 @@ class Solenoid {
         int openSignal;
         int closeSignal;
         int currSignal;
-        bool overridden;
 
         unsigned long lastActuationTime;
         bool beingRelieved;
@@ -27,6 +26,7 @@ class Solenoid {
         int pin;
         bool isSpecial;
         bool isNO;
+        bool overridden;
 
         int actuation;
         Solenoid(){};

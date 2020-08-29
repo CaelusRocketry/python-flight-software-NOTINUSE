@@ -1,7 +1,6 @@
 #include "ValveArduino.hpp"
 
 ValveArduino::ValveArduino() {
-    override = false;
     pinMode(13, OUTPUT);
     launchSerial = new SoftwareSerial(launchRX, launchTX);
     launchSerial->begin(launchBaud);
@@ -49,6 +48,16 @@ void ValveArduino::registerSolenoids() {
     // Serial.println("Registered");
 }
 
+int ValveArduino::getSolenoidPos(int pin){
+    for(int i = 0; i < this->numSolenoids; i++){
+        if(this->solenoids[i].pin == pin){
+            return i;
+        }
+    }
+    this->error("Could not find the indicated solenoid for pin " + pin);
+    return -1;
+}
+
 void ValveArduino::checkSolenoids() {
     if(Serial.available()) {
         int cmd = recvSerialByte();
@@ -58,7 +67,8 @@ void ValveArduino::checkSolenoids() {
         else if(cmd == ACTUATE_CMD){
             int pin = recvSerialByte();
             int actuationType = recvSerialByte();
-            if (!override) {
+            int pos = getSolenoidPos(pin);
+            if (pin != -1 && !overrides[pos]) {
                 actuate(pin, actuationType, false);
             }
         }
@@ -77,19 +87,19 @@ void ValveArduino::update() {
     launchBox();
 }
 
-Solenoid getSolenoid(int pin){
+Solenoid ValveArduino::getSolenoid(int pin){
     for(int i = 0; i < this->numSolenoids; i++){
         if(this->solenoids[i].pin == pin){
             return solenoids[i];
         }
     }
     this->error("Could not find the indicated solenoid for pin " + pin);
-    return NULL;
+    return Solenoid(-1, false, false);
 }
 
 void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
     Solenoid sol = getSolenoid(pin);
-    if(!sol.overridden || from_launchbox){
+    if(sol.pin != -1 && (!sol.overridden || from_launchbox)){
         sol.actuate(actuationType);
     }
 }
@@ -117,7 +127,9 @@ void ValveArduino::launchBox() {
 void ValveArduino::ingestLaunchbox(int cmd, int data) {
     if(cmd == L_DO_NOTHING){
         Solenoid sol = getSolenoid(data);
-        sol.overridden = false;
+        if(sol.pin != -1) {
+          sol.overridden = false;
+        }
     }
     else{
         actuate(data, cmd, true);
