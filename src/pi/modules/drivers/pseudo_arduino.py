@@ -210,6 +210,7 @@ class PseudoValve():
             self.solenoids.append(sol)
             self.pins[pin] = sol
             idx += 3
+
         assert(len(self.pins) == len(self.solenoids) == self.num_solenoids)
         self.read_queue.append(253)
 

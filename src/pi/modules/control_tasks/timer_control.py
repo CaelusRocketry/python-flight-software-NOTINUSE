@@ -38,5 +38,5 @@ class TimerControl:
 #               time.sleep(start_time + self.min_mcl_run_time - current_time)
 
 
-            print(time.time() - start_time)
+            # print(time.time() - start_time)
         self.registry.put(("general", "mcl_start_time"), time.time())

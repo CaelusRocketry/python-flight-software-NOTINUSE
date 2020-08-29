@@ -3,7 +3,7 @@ from modules.mcl.flag import Flag
 from modules.lib.packet import Log, LogPriority
 from modules.lib.errors import Error
 from modules.mcl.registry import Registry
-from modules.lib.enums import Stage, ValveLocation, ActuationType, ValvePriority
+from modules.lib.enums import Stage, ValveLocation, SensorLocation, ActuationType, ValvePriority
 from modules.lib.helpers import enqueue
 
 AUTOSEQUENCE_DELAY = 5.0
@@ -36,11 +36,13 @@ class StageControl:
     def calculate_status(self) -> float:
         curr = time.time()
         if self.curr_stage == Stage.WAITING:
-            return 100
+            return 100.0
+        elif self.curr_stage == Stage.PRESSURIZATION:
+            return min(100.0, self.registry.get(("sensor_normalized", "pressure", SensorLocation.PT2))[1] / 4.9)
         elif self.curr_stage == Stage.AUTOSEQUENCE:
             # NOTE: Autosequence delay is currently set to 5s
             if self.actuated_autosequence:
-                return 100
+                return 100.0
             else:
                 return min(((curr - self.start_time) / AUTOSEQUENCE_DELAY) * 100.0, 100.0)
         elif self.curr_stage == Stage.POSTBURN:

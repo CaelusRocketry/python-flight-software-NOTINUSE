@@ -8,7 +8,7 @@
     "list": {
       "thermocouple": {},
       "pressure": {
-        "tank": {
+        "PT-1": {
           "kalman_args": {
             "process_variance": 0.01,
             "measurement_variance": 0.02,
@@ -19,6 +19,18 @@
             "warn": [-50, 100]
           },
           "pin": 14
+        },
+        "PT-2": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 60],
+            "warn": [-50, 100]
+          },
+          "pin": 15
         }
       }
     },
@@ -33,6 +45,11 @@
           "pin": 5,
           "natural": "CLOSED",
           "special": true
+        },
+        "pressurization": {
+          "pin": 15,
+          "natural": "OPEN",
+          "special": false
         }
       }
     },
@@ -41,7 +58,7 @@
     "send_interval": 0.5
   },
   "stages": {
-    "list": ["waiting", "autosequence", "postburn"],
+    "list": ["waiting", "pressurization", "autosequence", "postburn"],
     "request_interval": 10,
     "send_interval": 2
   },
