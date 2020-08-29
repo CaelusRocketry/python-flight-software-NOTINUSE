@@ -55,7 +55,7 @@ int ValveArduino::getSolenoidPos(int pin){
         }
     }
     this->error("Could not find the indicated solenoid for pin " + pin);
-    return;
+    return -1;
 }
 
 void ValveArduino::checkSolenoids() {
@@ -67,7 +67,8 @@ void ValveArduino::checkSolenoids() {
         else if(cmd == ACTUATE_CMD){
             int pin = recvSerialByte();
             int actuationType = recvSerialByte();
-            if (!overrides[getSolenoidPos(pin)]) {
+            int pos = getSolenoidPos(pin);
+            if (pin != -1 && !overrides[pos]) {
                 actuate(pin, actuationType, false);
             }
         }
@@ -93,12 +94,12 @@ Solenoid ValveArduino::getSolenoid(int pin){
         }
     }
     this->error("Could not find the indicated solenoid for pin " + pin);
-    return;
+    return Solenoid(-1, false, false);
 }
 
 void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
     Solenoid sol = getSolenoid(pin);
-    if(!sol.overridden || from_launchbox){
+    if(sol.pin != -1 && (!sol.overridden || from_launchbox)){
         sol.actuate(actuationType);
     }
 }
@@ -126,7 +127,9 @@ void ValveArduino::launchBox() {
 void ValveArduino::ingestLaunchbox(int cmd, int data) {
     if(cmd == L_DO_NOTHING){
         Solenoid sol = getSolenoid(data);
-        sol.overridden = false;
+        if(sol.pin != -1) {
+          sol.overridden = false;
+        }
     }
     else{
         actuate(data, cmd, true);
