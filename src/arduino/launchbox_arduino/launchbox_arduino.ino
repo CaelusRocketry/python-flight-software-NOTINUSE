@@ -15,11 +15,11 @@ Nitrous Oxide Main Propellant Valve
 
 #include "constants.h"
 
-enum pin_state = {
-    DO_NOTHING,
-    OPEN_VENT,
-    CLOSE_VENT
-}
+enum pin_state {
+    DO_NOTHING = 1,
+    OPEN_VENT = 2,
+    CLOSE_VENT = 3
+};
 
 
 const int MAX_PIN = 21;
@@ -58,7 +58,7 @@ void setup(){
     aborted = false;
     
     for(int i = 0; i < NUM_VALVES; i++){
-        pin_states[i] = DO_NOTHING; 
+        states[i] = DO_NOTHING; 
     }
     for(int i = 0; i < NUM_BUTTONS; i++){
         pulsing[i] = false;
@@ -101,9 +101,9 @@ int buttonRead(int pin){
 }
 
 void send_message(int cmd, int data){
-    if(!override){
-        return;
-    }
+//    if(!override){
+//        return;
+//    }
     Serial.write(cmd);
     Serial.write(data);
     delay(50);
