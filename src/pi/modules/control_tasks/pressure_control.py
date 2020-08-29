@@ -16,8 +16,6 @@ class PressureControl():
         self.sensors = config["sensors"]["list"]["pressure"]
         self.matchups = [(SensorLocation.TANK, ValveLocation.PRESSURE_RELIEF, ValveLocation.PRESSURIZATION)]
 
-        return
-
         # raise error if needed valves aren't registered
         for sensor_loc, pressure_relief_valve, pressurization_valve in self.matchups:
             if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[0] == Error.KEY_ERROR:
@@ -32,9 +30,8 @@ class PressureControl():
         self.check_pressure()
 
     def check_pressure(self):
-        return
         #TODO: make sure that pressure relief is the right valve
-        # print("PRESSURE CONTROL")
+        print("PRESSURE CONTROL")
         for sensor_loc, pressure_relief_valve, pressurization_valve in self.matchups:
             if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["warn"][1]:
                 print("PRESSURE TOO HIGH")
