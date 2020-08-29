@@ -1,4 +1,5 @@
 from modules.lib.enums import SensorStatus, ActuationType, ValvePriority, ValveLocation, SensorLocation, SolenoidState, SensorStatus, ValveType
+from modules.lib.errors import Error
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 
@@ -13,25 +14,49 @@ class PressureControl():
         self.config = config
         self.valves = config["valves"]["list"]["solenoid"]
         self.sensors = config["sensors"]["list"]["pressure"]
-        self.matchups = [(SensorLocation.TANK, ValveLocation.PRESSURE_RELIEF)]
+        self.matchups = [(SensorLocation.TANK, ValveLocation.PRESSURE_RELIEF, ValveLocation.PRESSURIZATION)]
+
+        return
+
+        # raise error if needed valves aren't registered
+        for sensor_loc, pressure_relief_valve, pressurization_valve in self.matchups:
+            if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[0] == Error.KEY_ERROR:
+                raise Exception("sensor at", sensor_loc, "not registered")
+            if self.registry.get(("valve", "solenoid", pressure_relief_valve))[0] == Error.KEY_ERROR:
+                raise Exception("pressure_relief_valve not registered")
+            if self.registry.get(("valve", "solenoid", pressurization_valve))[0] == Error.KEY_ERROR:
+                raise Exception("pressurization_valve not registered")
 
 
     def execute(self):
         self.check_pressure()
 
     def check_pressure(self):
+        return
         #TODO: make sure that pressure relief is the right valve
         # print("PRESSURE CONTROL")
-        for sensor_loc, valve_loc in self.matchups:
-            if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["safe"][1]:
+        for sensor_loc, pressure_relief_valve, pressurization_valve in self.matchups:
+            if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["warn"][1]:
                 print("PRESSURE TOO HIGH")
-                if self.registry.get(("valve", "solenoid", valve_loc))[1] == SolenoidState.CLOSED:
-                    print("OPENING")
-                    self.flag.put(("solenoid", "actuation_type", valve_loc), ActuationType.OPEN_VENT)
-                    self.flag.put(("solenoid", "actuation_priority", valve_loc), ValvePriority.PI_PRIORITY)
+                if self.registry.get(("valve", "solenoid", pressure_relief_valve))[1] == SolenoidState.CLOSED:
+                    print("OPENING PRESSURE RELIEF")
+                    self.flag.put(("solenoid", "actuation_type", pressure_relief_valve), ActuationType.OPEN_VENT)
+                    self.flag.put(("solenoid", "actuation_priority", pressure_relief_valve), ValvePriority.PI_PRIORITY)
+
+            elif self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] < self.sensors[sensor_loc]["boundaries"]["warn"][0]:
+                print("PRESSURE TOO LOW")
+                if self.registry.get(("valve", "solenoid", pressurization_valve))[1] == SolenoidState.CLOSED:
+                    print("OPENING PRESSURIZATION")
+                    self.flag.put(("solenoid", "actuation_type", pressurization_valve), ActuationType.OPEN_VENT)
+                    self.flag.put(("solenoid", "actuation_priority", pressurization_valve), ValvePriority.PI_PRIORITY)
+
 
             elif self.registry.get(("sensor_status", "pressure", sensor_loc))[1] == SensorStatus.SAFE:
-                if self.registry.get(("valve", "solenoid", valve_loc))[1] == SolenoidState.OPEN:
-                    self.flag.put(("solenoid", "actuation_type", valve_loc), ActuationType.CLOSE_VENT)
-                    self.flag.put(("solenoid", "actuation_priority", valve_loc), ValvePriority.PI_PRIORITY)
+                if self.registry.get(("valve", "solenoid", pressure_relief_valve))[1] == SolenoidState.OPEN:
+                    self.flag.put(("solenoid", "actuation_type", pressure_relief_valve), ActuationType.CLOSE_VENT)
+                    self.flag.put(("solenoid", "actuation_priority", pressure_relief_valve), ValvePriority.PI_PRIORITY)
+
+                if self.registry.get(("valve", "solenoid", pressurization_valve))[1] == SolenoidState.OPEN:
+                    self.flag.put(("solenoid", "actuation_type", pressurization_valve), ActuationType.CLOSE_VENT)
+                    self.flag.put(("solenoid", "actuation_priority", pressurization_valve), ValvePriority.PI_PRIORITY) 
             

@@ -31,7 +31,8 @@ class ValveType(str, Enum):
 
 class ValveLocation(str, Enum):
     PRESSURE_RELIEF = "pressure_relief"
-    PROPELLANT_VENT = "propellant_vent"
+    # PROPELLANT_VENT = "propellant_vent"
+    PRESSURIZATION = "pressurization"
     MAIN_PROPELLANT_VALVE = "main_propellant_valve"
 
 

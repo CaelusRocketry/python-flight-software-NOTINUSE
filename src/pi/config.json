@@ -1,113 +1,115 @@
 {
-    "telemetry": {
-        "GS_IP": "127.0.0.1",
-        "GS_PORT": 5005,
-        "DELAY": 0.1
-    },
-    "sensors": {
-        "list": {
-            "thermocouple": {
-                "chamber": {
-                    "kalman_args": {
-                        "process_variance": 0.01,
-                        "measurement_variance": 0.0075,
-                        "kalman_value": 3000    
-                    },
-                    "boundaries": {
-                        "safe": [200, 250],
-                        "warn": [100, 500]        
-                    },
-                    "pins": [4, 5, 6, 7]
-                },
-                "tank": {
-                    "kalman_args": {
-                        "process_variance": 0.01,
-                        "measurement_variance": 0.0075,
-                        "kalman_value": 200    
-                    },
-                    "boundaries": {
-                        "safe": [200, 250],
-                        "warn": [100, 500]        
-                    },
-                    "pins": [8, 9, 10, 11]
-                }
-            },
-            "pressure": {
-                "chamber": {
-                    "kalman_args": {
-                        "process_variance": 0.01,
-                        "measurement_variance": 0.02,
-                        "kalman_value": 1000
-                    },
-                    "boundaries": {
-                        "safe": [100, 150],
-                        "warn": [50, 200]
-                    },
-                    "pin": 1
-                },
-                "tank": {
-                    "kalman_args": {
-                        "process_variance": 0.01,
-                        "measurement_variance": 0.02,
-                        "kalman_value": 1000
-                    },
-                    "boundaries": {
-                        "safe": [100, 150],
-                        "warn": [50, 200]
-                    },
-                    "pin": 2
-                },
-                "injector": {
-                    "kalman_args": {
-                        "process_variance": 0.01,
-                        "measurement_variance": 0.02,
-                        "kalman_value": 1000
-                    },
-                    "boundaries": {
-                        "safe": [100, 150],
-                        "warn": [50, 200]
-                    },
-                    "pin": 3
-                }
-            }
+  "telemetry": {
+    "GS_IP": "127.0.0.1",
+    "GS_PORT": 5005,
+    "DELAY": 0.1
+  },
+  "sensors": {
+    "list": {
+      "thermocouple": {
+        "chamber": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.0075,
+            "kalman_value": 3000
+          },
+          "boundaries": {
+            "safe": [200, 250],
+            "warn": [100, 500]
+          },
+          "pins": [4, 5, 6, 7]
         },
-        "address": 8,
-        "send_interval": 0.5
-    },
-    "valves": {
-        "list": {
-            "solenoid": {
-                "pressure_relief": {
-                    "pin": 14,
-                    "natural": "OPEN",
-                    "special": false
-                },
-                "propellant_vent": {
-                    "pin": 15,
-                    "natural": "OPEN",
-                    "special": false
-                },
-                "main_propellant_valve": {
-                    "pin": 16,
-                    "natural": "CLOSED",
-                    "special": true
-                }
-            }
+        "tank": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.0075,
+            "kalman_value": 200
+          },
+          "boundaries": {
+            "safe": [200, 250],
+            "warn": [100, 500]
+          },
+          "pins": [8, 9, 10, 11]
+        }
+      },
+      "pressure": {
+        "chamber": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [100, 150],
+            "warn": [50, 200]
+          },
+          "pin": 1
         },
-        "address": 4,
-        "send_interval": 0.5
+        "tank": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [100, 150],
+            "warn": [50, 200]
+          },
+          "pin": 2
+        },
+        "injector": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [100, 150],
+            "warn": [50, 200]
+          },
+          "pin": 3
+        }
+      }
     },
-    "stages": {
-        "list": ["propellant_loading",
-                "leak_testing_1",
-                "pressurant_loading",
-                "leak_testing_2",
-                "pre_ignition",
-                "disconnection"],
-        "request_interval": 10,
-        "send_interval": 2
+    "address": 8,
+    "send_interval": 0.5
+  },
+  "valves": {
+    "list": {
+      "solenoid": {
+        "pressure_relief": {
+          "pin": 14,
+          "natural": "OPEN",
+          "special": false
+        },
+        "pressurization": {
+          "pin": 15,
+          "natural": "OPEN",
+          "special": false
+        },
+        "main_propellant_valve": {
+          "pin": 16,
+          "natural": "CLOSED",
+          "special": true
+        }
+      }
     },
-    "timer": {
-        "delay": 0.5
-    }
+    "address": 4,
+    "send_interval": 0.5
+  },
+  "stages": {
+    "list": [
+      "propellant_loading",
+      "leak_testing_1",
+      "pressurant_loading",
+      "leak_testing_2",
+      "pre_ignition",
+      "disconnection"
+    ],
+    "request_interval": 10,
+    "send_interval": 2
+  },
+  "timer": {
+    "delay": 0.5
+  }
 }

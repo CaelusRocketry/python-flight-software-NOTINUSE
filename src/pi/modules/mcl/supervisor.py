@@ -24,7 +24,7 @@ class Supervisor:
         sensor_dict = {"thermocouple": SensorType.THERMOCOUPLE, "pressure": SensorType.PRESSURE, "load": SensorType.LOAD}
         sensor_loc_dict = {"chamber": SensorLocation.CHAMBER, "tank": SensorLocation.TANK, "injector": SensorLocation.INJECTOR}
         valve_dict = {"solenoid": ValveType.SOLENOID, "ball": ValveType.BALL}
-        valve_loc_dict = {"pressure_relief": ValveLocation.PRESSURE_RELIEF, "propellant_vent": ValveLocation.PROPELLANT_VENT, "main_propellant_valve": ValveLocation.MAIN_PROPELLANT_VALVE}
+        valve_loc_dict = {"pressure_relief": ValveLocation.PRESSURE_RELIEF, "pressurization": ValveLocation.PRESSURIZATION, "main_propellant_valve": ValveLocation.MAIN_PROPELLANT_VALVE}
         sensor_config, valve_config = self.config["sensors"]["list"], self.config["valves"]["list"]
         sensors, valves = {}, {}
 
