@@ -20,6 +20,7 @@ class PseudoSensor():
         self.sensor_list = [(s_type, loc) for s_type in self.sensor_config for loc in self.sensor_config[s_type]]
         self.num_sensors = len(self.sensor_list)
         self.sensors = {i: random.randint(100, 200) for i in self.sensor_list}
+        self.read_queue = []
 
 
     def set_sensor_values(self):
@@ -27,8 +28,9 @@ class PseudoSensor():
         for sensor in ranges:
             for loc in ranges[sensor]:
                 range = ranges[sensor][loc]
-                assert((sensor, loc) in self.sensors)
-                self.sensors[(sensor, loc)] = random.randint(range[0], range[1])
+                # assert((sensor, loc) in self.sensors)
+                if (sensor, loc) in self.sensors:
+                    self.sensors[(sensor, loc)] = random.randint(range[0], range[1])
 #        self.sensors = {i: self.sensors[i] + random.randint(-10, 10) for i in self.sensor_list}
 
 
@@ -56,9 +58,14 @@ class PseudoSensor():
             else:
                 raise Exception("Unknown sensor being registered in PseudoSensor")
         assert(len(self.pins) == len(self.inv_pins) == self.num_sensors)
+        self.read_queue.append(255)
 
 
     def read(self, num_bytes):
+        if self.read_queue:
+            sub = self.read_queue[:num_bytes]
+            self.read_queue = self.read_queue[num_bytes:]
+            return bytes(sub)
         self.set_sensor_values()
         ret = bytes()
         for key in self.sensors:
@@ -158,9 +165,14 @@ class PseudoValve():
         
         self.has_written = False
         self.pins, self.solenoids = {}, []
+        self.read_queue = []
 
 
     def read(self, num_bytes):
+        if self.read_queue:
+            sub = self.read_queue[:num_bytes]
+            self.read_queue = self.read_queue[num_bytes:]
+            return bytes(sub)
         assert(num_bytes == self.num_solenoids * 3)
         to_ret = bytes()
         for solenoid in self.solenoids:
@@ -199,6 +211,7 @@ class PseudoValve():
             self.pins[pin] = sol
             idx += 3
         assert(len(self.pins) == len(self.solenoids) == self.num_solenoids)
+        self.read_queue.append(253)
 
 
     def write(self, msg):
@@ -207,8 +220,9 @@ class PseudoValve():
             self.has_written = True
             return
         
-        self.write_actuation(msg)
-
+        if msg[0] == 254:
+            self.write_actuation(msg[1:])
+    
 
 class Arduino(Driver):
 
