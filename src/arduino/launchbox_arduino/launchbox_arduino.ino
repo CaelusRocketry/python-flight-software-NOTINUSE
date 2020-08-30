@@ -51,10 +51,16 @@ void setup(){
     PIN_MAP[NO_VENT_PULSE] = VALVE_NO_VENT;
     PIN_MAP[NO_MPV] = VALVE_NO_MPV;
 
-    for(int i = 2; i <= 17; i++){
-        pinMode(i, INPUT_PULLUP);
+    for(int i = 0; i <= NUM_VALVES; i++){
+        pinMode(vent_pins[i], INPUT_PULLUP);
+        pinMode(vent_pins[i] + 1, INPUT_PULLUP);
     }
-    Serial.begin(9600);
+    for(int i = 0; i < NUM_BUTTONS; i++){
+        pinMode(pulse_pins[i], INPUT_PULLUP);
+    }
+    pinMode(ABORT_PIN, INPUT_PULLUP);
+    Serial.begin(115200);
+    Serial.println("Running launchbox");
     aborted = false;
     
     for(int i = 0; i < NUM_VALVES; i++){
@@ -66,9 +72,9 @@ void setup(){
 }
 
 void loop(){
-    if(aborted){
-        return;
-    }
+//    if(aborted){
+//        return;
+//    }
     for(int i = 0; i < NUM_VALVES; i++){
         pin_state current_state = checkToggleSwitch((i + 1) * 2); // (i + 1) * 2 maps from array index to pin number
         if(current_state != states[i]){
@@ -97,15 +103,16 @@ void loop(){
 }
 
 int buttonRead(int pin){
-    return digitalRead(pin);
+    return 1 - digitalRead(pin);
 }
 
 void send_message(int cmd, int data){
 //    if(!override){
 //        return;
 //    }
-    Serial.write(cmd);
-    Serial.write(data);
+    Serial.println("Sending");
+    Serial.println(cmd);
+    Serial.println(data);
     delay(50);
 }
 
@@ -133,7 +140,7 @@ void send_message(int cmd, int data){
  * because of how SPDT works, the opposite pin is LOW
 */
 
-int checkToggleSwitch(int switchStart) {
+pin_state checkToggleSwitch(int switchStart) {
   if(digitalRead(switchStart) == LOW) {
     return OPEN_VENT;
   }  

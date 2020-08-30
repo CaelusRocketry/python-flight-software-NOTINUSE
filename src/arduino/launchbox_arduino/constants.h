@@ -22,9 +22,9 @@ Nitrous Oxide Main Propellant Valve
 #define NO_DRAIN 12
 #define NO_VENT 14
 #define NO_MPV 16
-#define ETHANOL_VENT_PULSE 18
-#define NO_VENT_PULSE 19
-#define ABORT_PIN 20
+#define ETHANOL_VENT_PULSE 19
+#define NO_VENT_PULSE 20
+#define ABORT_PIN 21
 
 // Valve arduino pin definitions - MAKE SURE THESE MATCH VALVE ARDUINO
 #define VALVE_NITROGEN_FILL 2
