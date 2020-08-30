@@ -15,8 +15,8 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 60],
-            "warn": [-50, 100]
+            "safe": [0, 700],
+            "warn": [0, 800]
           },
           "pin": 14
         },
@@ -27,8 +27,8 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 60],
-            "warn": [-50, 100]
+            "safe": [0, 700],
+            "warn": [0, 800]
           },
           "pin": 15
         }
@@ -50,6 +50,11 @@
           "pin": 15,
           "natural": "OPEN",
           "special": false
+        },
+        "main_propellant_valve": {
+          "pin": 25,
+          "natural": "CLOSED",
+          "special": true
         }
       }
     },
@@ -64,5 +69,8 @@
   },
   "timer": {
     "delay": 0.001
+  },
+  "pressure_control": {
+    "active_stages": ["pressurization", "autosequence"]
   }
 }

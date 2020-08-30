@@ -4,6 +4,7 @@ import json
 config = json.loads(open("hardware_config.json").read())
 # controls = ["timer", "sensor", "telemetry"]
 # tasks = ["sensor", "telemetry"]
+# controls = ["timer", "sensor", "valve", "telemetry", "stage"]
 controls = ["timer", "sensor", "valve", "telemetry", "stage"]
 tasks = ["valve", "sensor", "telemetry"]
 # controls = ["timer", "telemetry"]

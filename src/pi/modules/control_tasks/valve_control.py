@@ -3,7 +3,7 @@ from modules.mcl.flag import Flag
 from modules.lib.helpers import enqueue
 from modules.mcl.registry import Registry
 from modules.lib.packet import Log, LogPriority
-from modules.lib.enums import ActuationType, ValvePriority, ValveType
+from modules.lib.enums import ActuationType, ValvePriority, ValveType, ValveLocation
 
 class ValveControl():
     def __init__(self, registry: Registry, flag: Flag):
@@ -16,6 +16,14 @@ class ValveControl():
         self.valves = self.config["valves"]["list"]
         self.send_interval = self.config["valves"]["send_interval"]
         self.last_send_time = None
+        # NOTE: Ground states are the same as abort states, meaning a valve's "natural" state (which is in the config) is the same as it's abort state
+        # This is so that if the power dies for some reason, the valves will automatically abort
+        natural_to_actuation = {"OPEN": ActuationType.OPEN_VENT, "CLOSED": ActuationType.CLOSE_VENT}
+        self.abort_actuations = {}
+        for valve_loc in self.valves["solenoid"]:
+            natural_str = self.valves["solenoid"][valve_loc]["natural"]
+            natural = natural_to_actuation[natural_str]
+            self.abort_actuations[valve_loc] = natural
 
 
     def send_valve_data(self):
@@ -33,14 +41,13 @@ class ValveControl():
         for valve_loc in self.valves["solenoid"]:
             actuation_type = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc))[1]
             actuation_priority = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_loc))[1]
-            if actuation_type != ActuationType.OPEN_VENT or actuation_priority != ValvePriority.ABORT_PRIORITY:
-                self.flag.put(("solenoid", "actuation_type", valve_loc), ActuationType.OPEN_VENT)
+            if actuation_type != self.abort_actuations[valve_loc] or actuation_priority != ValvePriority.ABORT_PRIORITY:
+                self.flag.put(("solenoid", "actuation_type", valve_loc), self.abort_actuations[valve_loc])
                 self.flag.put(("solenoid", "actuation_priority", valve_loc), ValvePriority.ABORT_PRIORITY)
 
 
     def undo_abort(self):
         for valve_loc in self.valves["solenoid"]:
-            actuation_type = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc))[1]
             actuation_priority = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_loc))[1]
             if actuation_priority == ValvePriority.ABORT_PRIORITY:
                 self.flag.put(("solenoid", "actuation_type", valve_loc), ActuationType.NONE)

@@ -73,10 +73,11 @@ class ValveTask(Task):
             _, actuation_priority = self.flag.get(("solenoid", "actuation_priority", loc))
             _, curr_priority, _ = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc))
             if actuation_priority != ValvePriority.NONE and actuation_priority >= curr_priority:
-                # print("Actuating")
-                actuation_priority = ValvePriority.NONE
+                print("Actuating", loc, actuation_type, actuation_priority)
+                if actuation_type == ActuationType.NONE:
+                    actuation_priority = ValvePriority.NONE
                 self.registry.put(("valve_actuation", "actuation_type", ValveType.SOLENOID, loc), actuation_type)
-                self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), ValvePriority.NONE)
+                self.registry.put(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc), actuation_priority)
 
                 command = self.get_command(loc, actuation_type)
                 # print("Sending actuation message:", command)
@@ -87,7 +88,4 @@ class ValveTask(Task):
 
 
     def actuate(self):
-#        if self.registry.get(("general", "soft_abort"))[1] or self.registry.get(("general", "hard_abort"))[1]:
-            # Can't actuate if the rocket's been aborted
-#            return
         self.actuate_solenoids()
