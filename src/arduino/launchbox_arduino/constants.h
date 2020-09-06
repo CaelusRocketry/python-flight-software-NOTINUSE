@@ -14,17 +14,17 @@ Nitrous Oxide Main Propellant Valve
 */
 
 // Pin definitions - each toggle switch takes up 2 pins, the pulse pins take up one pin each
-#define NITROGEN_FILL 2
-#define ETHANOL_DRAIN 4
-#define ETHANOL_VENT 6
-#define ETHANOL_MPV 8
-#define NO_FILL 10
-#define NO_DRAIN 12
-#define NO_VENT 14
-#define NO_MPV 16
-#define ETHANOL_VENT_PULSE 19
-#define NO_VENT_PULSE 20
-#define ABORT_PIN 21
+#define NITROGEN_FILL 4
+#define ETHANOL_DRAIN 6
+#define ETHANOL_VENT 8
+#define ETHANOL_MPV 10
+#define NO_FILL 12
+#define NO_DRAIN 14
+#define NO_VENT 16
+#define NO_MPV 18
+#define ETHANOL_VENT_PULSE 20
+#define NO_VENT_PULSE 21
+#define ABORT_PIN 22
 
 // Valve arduino pin definitions - MAKE SURE THESE MATCH VALVE ARDUINO
 #define VALVE_NITROGEN_FILL 2

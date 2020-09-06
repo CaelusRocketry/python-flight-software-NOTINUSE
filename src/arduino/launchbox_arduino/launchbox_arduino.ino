@@ -51,7 +51,7 @@ void setup(){
     PIN_MAP[NO_VENT_PULSE] = VALVE_NO_VENT;
     PIN_MAP[NO_MPV] = VALVE_NO_MPV;
 
-    for(int i = 0; i <= NUM_VALVES; i++){
+    for(int i = 0; i < NUM_VALVES; i++){
         pinMode(vent_pins[i], INPUT_PULLUP);
         pinMode(vent_pins[i] + 1, INPUT_PULLUP);
     }
