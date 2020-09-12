@@ -10,6 +10,7 @@ class SensorType(str, Enum):
 class SensorLocation(str, Enum):
     PT1 = "PT-1"
     PT2 = "PT-2"
+    PT3 = "PT-3"
 
 
 class SolenoidState(IntEnum):
