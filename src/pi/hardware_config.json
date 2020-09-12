@@ -48,7 +48,7 @@
         }
       }
     },
-    "address": "/dev/ttyACM0",
+    "address": "COM8",
     "baud": 115200,
     "send_interval": 0.5
   },
