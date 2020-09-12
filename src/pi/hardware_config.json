@@ -18,9 +18,33 @@
           },
           "boundaries": {
             "safe": [0, 60],
-            "warn": [-1050, 10000]
+            "warn": [-500, 10000]
           },
           "pin": 14
+        },
+        "PT-2": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 700],
+            "warn": [-500, 800]
+          },
+          "pin": 15
+        },
+        "PT-3": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 700],
+            "warn": [-500, 800]
+          },
+          "pin": 16
         }
       }
     },
