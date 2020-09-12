@@ -34,19 +34,6 @@
           },
           "pin": 15
         },
-        "PT-3": {
-          "kalman_args": {
-            "process_variance": 0.01,
-            "measurement_variance": 0.02,
-            "kalman_value": 1000
-          },
-          "boundaries": {
-            "safe": [0, 700],
-            "warn": [-500, 800]
-          },
-          "pin": 16
-        }
-      }
     },
     "address": "/dev/ttyACM0",
     "baud": 115200,
