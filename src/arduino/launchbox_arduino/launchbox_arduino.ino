@@ -22,7 +22,7 @@ enum pin_state {
 };
 
 
-const int MAX_PIN = 21;
+const int MAX_PIN = 25;
 int PIN_MAP[MAX_PIN];
 
 // Pin counts
@@ -72,11 +72,11 @@ void setup(){
 }
 
 void loop(){
-//    if(aborted){
-//        return;
-//    }
+    if(aborted){
+        return;
+    }
     for(int i = 0; i < NUM_VALVES; i++){
-        pin_state current_state = checkToggleSwitch((i + 1) * 2); // (i + 1) * 2 maps from array index to pin number
+        pin_state current_state = checkToggleSwitch(vent_pins[i]); // (i + 1) * 2 maps from array index to pin number
         if(current_state != states[i]){
             states[i] = current_state;
             send_message(current_state, PIN_MAP[vent_pins[i]]);
@@ -95,11 +95,14 @@ void loop(){
             }
             pulsing[i] = true;
             send_message(PULSE, PIN_MAP[pulse_pins[i]]);
+//            Serial.println(pulse_pins[i]);
+//            Serial.println(PIN_MAP[pulse_pins[i]]);
         }
         else{
             pulsing[i] = false;
         }
     }
+//    delay(500);
 }
 
 int buttonRead(int pin){
@@ -110,7 +113,7 @@ void send_message(int cmd, int data){
 //    if(!override){
 //        return;
 //    }
-    Serial.println("Sending");
+//    Serial.println("Sending");
     Serial.println(cmd);
     Serial.println(data);
     delay(50);
