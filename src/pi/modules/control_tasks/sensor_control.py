@@ -15,16 +15,25 @@ class SensorControl():
 
     def begin(self, config: dict):
         self.config = config
-        self.sensors = config["sensors"]["list"]
-        self.boundaries = config["boundaries"]
-        self.valves = config["valves"]["list"]
+        sensor_config = config["sensors"]["list"]
+
+        self.sensors = {}
+        self.boundaries = {}
+        self.kalman_args = {}
+        for sensor_type in sensor_config:
+            self.sensors[sensor_type] = []
+            self.boundaries[sensor_type] = {}
+            self.kalman_args[sensor_type] = {}
+            for sensor_loc in sensor_config[sensor_type]:
+                self.sensors[sensor_type].append(sensor_loc)
+                self.boundaries[sensor_type][sensor_loc] = sensor_config[sensor_type][sensor_loc]["boundaries"]
+                self.kalman_args[sensor_type][sensor_loc] =  sensor_config[sensor_type][sensor_loc]["kalman_args"]
         self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
         self.init_kalman(config)
     
 
     def init_kalman(self, config: dict):
-        self.kalman_args = config["kalman_args"]
         self.kalman_filters = {}
         for sensor_type in self.sensors:
             self.kalman_filters[sensor_type] = {}
@@ -42,33 +51,32 @@ class SensorControl():
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor_measured", sensor_type, sensor_location))
                 kalman_val = self.kalman_filters[sensor_type][sensor_location].update_kalman(val)
+                boundaries = self.boundaries[sensor_type][sensor_location]
                 self.registry.put(("sensor_normalized", sensor_type, sensor_location), kalman_val)
-                if self.boundaries[sensor_type][sensor_location]["safe"][0] <= kalman_val <= self.boundaries[sensor_type][sensor_location]["safe"][1]:
+                if boundaries["safe"][0] <= kalman_val <= boundaries["safe"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.SAFE)
-                elif self.boundaries[sensor_type][sensor_location]["warn"][0] <= kalman_val <= self.boundaries[sensor_type][sensor_location]["warn"][1]:
+                elif boundaries["warn"][0] <= kalman_val <= boundaries["warn"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.WARNING)
                 else:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.CRITICAL)
                     crits.append([sensor_type, sensor_location])
 
         hard = self.registry.get(("general", "hard_abort"))[1]
+        soft = self.registry.get(("general", "soft_abort"))[1]
         if not hard:
-            if len(crits) == 0:
-                soft = self.registry.get(("general", "soft_abort"))[1]
-                if soft:
-                    # Undo soft abort (since all sensors are back to normal)
-                    self.registry.put(("general", "soft_abort"), False)
-                    log = Log(header="response", message={"header": "Undoing soft abort", "Description": "All sensors have returned to non-critical levels"})
-                    enqueue(self.flag, log, LogPriority.CRIT)
-                    enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)
-            else:
+            if len(crits) == 0 and soft:
+                # TODO: Put hard_abort and soft_abort in flag?
+                # Undo soft abort (since all sensors are back to normal)
+                self.registry.put(("general", "soft_abort"), False)
+                log = Log(header="response", message={"header": "Undoing soft abort", "Description": "All sensors have returned to non-critical levels"})
+                enqueue(self.flag, log, LogPriority.CRIT)
+                enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)
+            elif len(crits) > 0 and not soft:
                 # soft abort if sensor status is critical and send info to GS
-                soft = self.registry.get(("general", "soft_abort"))[1]
-                if not soft:
-                    self.registry.put(("general", "soft_abort"), True)
-                    log = Log(header="response", message={"header": "Soft abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
-                    enqueue(self.flag, log, LogPriority.CRIT)
-                    enqueue(self.flag, Log(header="mode", message={"mode": "Soft abort"}), LogPriority.CRIT)
+                self.registry.put(("general", "soft_abort"), True)
+                log = Log(header="response", message={"header": "Soft abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
+                enqueue(self.flag, log, LogPriority.CRIT)
+                enqueue(self.flag, Log(header="mode", message={"mode": "Soft abort"}), LogPriority.CRIT)
 
 
     def send_sensor_data(self):

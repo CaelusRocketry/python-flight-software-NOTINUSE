@@ -22,31 +22,31 @@ class Supervisor:
     # Convert the strings in config to their respective enums (for both sensors and valves)
     def parse_config(self):
         sensor_dict = {"thermocouple": SensorType.THERMOCOUPLE, "pressure": SensorType.PRESSURE, "load": SensorType.LOAD}
-        sensor_loc_dict = {"chamber": SensorLocation.CHAMBER, "tank": SensorLocation.TANK, "injector": SensorLocation.INJECTOR}
+        sensor_loc_dict = {"PT-1": SensorLocation.PT1, "PT-2": SensorLocation.PT2}
         valve_dict = {"solenoid": ValveType.SOLENOID, "ball": ValveType.BALL}
-        valve_loc_dict = {"pressure_relief": ValveLocation.PRESSURE_RELIEF, "propellant_vent": ValveLocation.PROPELLANT_VENT, "main_propellant_valve": ValveLocation.MAIN_PROPELLANT_VALVE}
+        valve_loc_dict = {"pressure_relief": ValveLocation.PRESSURE_RELIEF, "pressurization": ValveLocation.PRESSURIZATION, "main_propellant_valve": ValveLocation.MAIN_PROPELLANT_VALVE}
         sensor_config, valve_config = self.config["sensors"]["list"], self.config["valves"]["list"]
         sensors, valves = {}, {}
 
         for sensor in sensor_config:
             assert(sensor in sensor_dict)
             sensor = sensor_dict[sensor]
-            sensors[sensor] = []
+            sensors[sensor] = {}
             locs = sensor_config[sensor]
             for loc in locs:
                 assert(loc in sensor_loc_dict)
                 loc = sensor_loc_dict[loc]
-                sensors[sensor].append(loc)
+                sensors[sensor][loc] = sensor_config[sensor][loc]
 
         for valve in valve_config:
             assert(valve in valve_dict)
             valve = valve_dict[valve]
-            valves[valve] = []
+            valves[valve] = {}
             locs = valve_config[valve]
             for loc in locs:
                 assert(loc in valve_loc_dict)
                 loc = valve_loc_dict[loc]
-                valves[valve].append(loc)
+                valves[valve][loc] = valve_config[valve][loc]
 
         #FIXME: Currently overwriting, is this a good idea?
         self.sensors, self.valves = sensors, valves

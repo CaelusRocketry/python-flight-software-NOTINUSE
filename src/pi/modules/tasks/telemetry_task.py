@@ -38,17 +38,15 @@ class TelemetryTask(Task):
         
 
     def enqueue(self, log: Log, level: LogPriority):
-        added = False
         _, send_queue = self.flag.get(("telemetry", "send_queue"))
-        for pack in send_queue:
-            if pack.level == level:
-                pack.add(log)
-                added = True
-                break
-        if not added:
-            pack = Packet(logs=[log], level=LogPriority.INFO)
+        if send_queue:
+            pack = send_queue[0]
+            pack.level = max(pack.level, level)
+            pack.add(log)
+        else:
+            pack = Packet(logs=[log], level=level)
             send_queue.append(pack)
-        self.flag.put(("telemetry", "send_queue"), send_queue)
+            self.flag.put(("telemetry", "send_queue"), send_queue)
 
 
     def actuate(self) -> Flag:
@@ -63,6 +61,7 @@ class TelemetryTask(Task):
         self.flag.put(("telemetry", "enqueue"), [])
         
         _, send_queue = self.flag.get(("telemetry", "send_queue"))
+
         for pack in send_queue:
             err = self.telemetry.write(pack)
             if err != Error.NONE:

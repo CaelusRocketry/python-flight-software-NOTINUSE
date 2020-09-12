@@ -1,0 +1,76 @@
+{
+  "telemetry": {
+    "GS_IP": "127.0.0.1",
+    "GS_PORT": 5005,
+    "DELAY": 0.1
+  },
+  "sensors": {
+    "list": {
+      "thermocouple": {},
+      "pressure": {
+        "PT-1": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 700],
+            "warn": [0, 800]
+          },
+          "pin": 14
+        },
+        "PT-2": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 700],
+            "warn": [0, 800]
+          },
+          "pin": 15
+        }
+      }
+    },
+    "address": "COM8",
+    "baud": 115200,
+    "send_interval": 0.5
+  },
+  "valves": {
+    "list": {
+      "solenoid": {
+        "pressure_relief": {
+          "pin": 5,
+          "natural": "CLOSED",
+          "special": true
+        },
+        "pressurization": {
+          "pin": 15,
+          "natural": "OPEN",
+          "special": false
+        },
+        "main_propellant_valve": {
+          "pin": 25,
+          "natural": "CLOSED",
+          "special": true
+        }
+      }
+    },
+    "address": "COM9",
+    "baud": 115200,
+    "send_interval": 0.5
+  },
+  "stages": {
+    "list": ["waiting", "pressurization", "autosequence", "postburn"],
+    "request_interval": 10,
+    "send_interval": 2
+  },
+  "timer": {
+    "delay": 0.001
+  },
+  "pressure_control": {
+    "active_stages": ["pressurization", "autosequence"]
+  }
+}
