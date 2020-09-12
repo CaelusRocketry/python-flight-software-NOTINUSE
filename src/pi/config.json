@@ -2,114 +2,69 @@
   "telemetry": {
     "GS_IP": "127.0.0.1",
     "GS_PORT": 5005,
-    "DELAY": 0.1
+    "DELAY": 0.1,
+    "SOCKETIO_HOST": "127.0.0.1",
+    "SOCKETIO_PORT": 5000
   },
   "sensors": {
     "list": {
-      "thermocouple": {
-        "chamber": {
-          "kalman_args": {
-            "process_variance": 0.01,
-            "measurement_variance": 0.0075,
-            "kalman_value": 3000
-          },
-          "boundaries": {
-            "safe": [200, 250],
-            "warn": [100, 500]
-          },
-          "pins": [4, 5, 6, 7]
-        },
-        "tank": {
-          "kalman_args": {
-            "process_variance": 0.01,
-            "measurement_variance": 0.0075,
-            "kalman_value": 200
-          },
-          "boundaries": {
-            "safe": [200, 250],
-            "warn": [100, 500]
-          },
-          "pins": [8, 9, 10, 11]
-        }
-      },
+      "thermocouple": {},
       "pressure": {
-        "chamber": {
+        "PT-1": {
           "kalman_args": {
             "process_variance": 0.01,
             "measurement_variance": 0.02,
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [100, 150],
-            "warn": [50, 200]
+            "safe": [0, 60],
+            "warn": [-50, 100]
           },
-          "pin": 1
+          "pin": 14
         },
-        "tank": {
+        "PT-2": {
           "kalman_args": {
             "process_variance": 0.01,
             "measurement_variance": 0.02,
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [100, 150],
-            "warn": [50, 200]
+            "safe": [0, 60],
+            "warn": [-50, 100]
           },
-          "pin": 2
-        },
-        "injector": {
-          "kalman_args": {
-            "process_variance": 0.01,
-            "measurement_variance": 0.02,
-            "kalman_value": 1000
-          },
-          "boundaries": {
-            "safe": [100, 150],
-            "warn": [50, 200]
-          },
-          "pin": 3
+          "pin": 15
         }
       }
     },
-    "address": 8,
+    "address": "COM8",
+    "baud": 115200,
     "send_interval": 0.5
   },
   "valves": {
     "list": {
       "solenoid": {
         "pressure_relief": {
-          "pin": 14,
-          "natural": "OPEN",
-          "special": false
+          "pin": 5,
+          "natural": "CLOSED",
+          "special": true
         },
         "pressurization": {
           "pin": 15,
           "natural": "OPEN",
           "special": false
-        },
-        "main_propellant_valve": {
-          "pin": 16,
-          "natural": "CLOSED",
-          "special": true
         }
       }
     },
-    "address": 4,
+    "address": "COM9",
+    "baud": 115200,
     "send_interval": 0.5
   },
   "stages": {
-    "list": [
-      "propellant_loading",
-      "leak_testing_1",
-      "pressurant_loading",
-      "leak_testing_2",
-      "pre_ignition",
-      "disconnection"
-    ],
+    "list": ["waiting", "pressurization", "autosequence", "postburn"],
     "request_interval": 10,
     "send_interval": 2
   },
   "timer": {
-    "delay": 0.5
+    "delay": 0.001
   }
 }
