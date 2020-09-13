@@ -2,8 +2,8 @@
 
 ValveArduino::ValveArduino() {
     pinMode(13, OUTPUT);
-    launchSerial = new SoftwareSerial(launchRX, launchTX);
-    launchSerial->begin(launchBaud);
+    launchSerial = new SoftwareSerial(2, 3);
+    launchSerial->begin(9600);
 }
 
 ValveArduino::~ValveArduino() {
@@ -84,7 +84,7 @@ void ValveArduino::checkSolenoids() {
 void ValveArduino::update() {
     checkSolenoids();
     // TODO: Uncomment this
-    launchBox();
+//    launchBox();
 }
 
 Solenoid ValveArduino::getSolenoid(int pin){

@@ -59,7 +59,8 @@ void setup(){
         pinMode(pulse_pins[i], INPUT_PULLUP);
     }
     pinMode(ABORT_PIN, INPUT_PULLUP);
-    Serial.begin(9600);
+    Serial.begin(1200);
+//    Serial.println("STUFFF");
     //Serial.println("Running launchbox");
     aborted = false;
     
@@ -72,9 +73,6 @@ void setup(){
 }
 
 void loop(){
-    if(aborted){
-        return;
-    }
     for(int i = 0; i < NUM_VALVES; i++){
         pin_state current_state = checkToggleSwitch(vent_pins[i]); // (i + 1) * 2 maps from array index to pin number
         if(current_state != states[i]){
