@@ -132,6 +132,15 @@ void ValveArduino::ingestLaunchbox(int cmd, int data) {
         }
     }
     else{
+        if(cmd == L_OPEN_VENT){
+          cmd = OPEN_VENT;
+        }
+        else if(cmd == L_CLOSE_VENT){
+          cmd = CLOSE_VENT;
+        }
+        else if(cmd == L_PULSE){
+          cmd = PULSE;
+        }
         actuate(data, cmd, true);
     }
 }
