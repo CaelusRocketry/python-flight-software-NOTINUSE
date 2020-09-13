@@ -106,7 +106,13 @@ void loop(){
 }
 
 int buttonRead(int pin){
-    return 1 - digitalRead(pin);
+    int first = digitalRead(pin);
+    delay(20);
+    int second = digitalRead(pin);
+    if(first == second) {
+      return 1 - digitalRead(pin);  
+    }
+    return 0;
 }
 
 void send_message(int cmd, int data){
