@@ -60,7 +60,7 @@ void setup(){
     }
     pinMode(ABORT_PIN, INPUT_PULLUP);
     Serial.begin(115200);
-    Serial.println("Running launchbox");
+    //Serial.println("Running launchbox");
     aborted = false;
     
     for(int i = 0; i < NUM_VALVES; i++){
@@ -120,8 +120,8 @@ void send_message(int cmd, int data){
 //        return;
 //    }
 //    Serial.println("Sending");
-    Serial.println(cmd);
-    Serial.println(data);
+    Serial.write(cmd);
+    Serial.write(data);
     delay(50);
 }
 
