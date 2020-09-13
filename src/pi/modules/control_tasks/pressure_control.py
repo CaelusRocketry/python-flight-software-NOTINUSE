@@ -15,7 +15,7 @@ class PressureControl():
         self.active_stages = config["pressure_control"]["active_stages"]
         self.valves = config["valves"]["list"]["solenoid"]
         self.sensors = config["sensors"]["list"]["pressure"]
-        self.matchups = [(SensorLocation.PT1, ValveLocation.PRESSURE_RELIEF)]
+        self.matchups = [(SensorLocation.PT2, ValveLocation.PRESSURE_RELIEF)]
 
         # raise error if needed valves aren't registered
         for sensor_loc, pressure_relief_valve in self.matchups:
