@@ -15,16 +15,14 @@ class PressureControl():
         self.active_stages = config["pressure_control"]["active_stages"]
         self.valves = config["valves"]["list"]["solenoid"]
         self.sensors = config["sensors"]["list"]["pressure"]
-        self.matchups = [(SensorLocation.PT1, ValveLocation.PRESSURE_RELIEF, ValveLocation.PRESSURIZATION)]
+        self.matchups = [(SensorLocation.PT1, ValveLocation.PRESSURE_RELIEF)]
 
         # raise error if needed valves aren't registered
-        for sensor_loc, pressure_relief_valve, pressurization_valve in self.matchups:
+        for sensor_loc, pressure_relief_valve in self.matchups:
             if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[0] == Error.KEY_ERROR:
                 raise Exception("sensor at", sensor_loc, "not registered")
             if self.registry.get(("valve", "solenoid", pressure_relief_valve))[0] == Error.KEY_ERROR:
                 raise Exception("pressure_relief_valve not registered")
-            if self.registry.get(("valve", "solenoid", pressurization_valve))[0] == Error.KEY_ERROR:
-                raise Exception("pressurization_valve not registered")
 
 
     def execute(self):
@@ -37,7 +35,7 @@ class PressureControl():
     def check_pressure(self):
         #TODO: make sure that pressure relief is the right valve
         print("PRESSURE CONTROL")
-        for sensor_loc, pressure_relief_valve, pressurization_valve in self.matchups:
+        for sensor_loc, pressure_relief_valve in self.matchups:
             if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["warn"][1]:
                 print("PRESSURE TOO HIGH")
                 if self.registry.get(("valve", "solenoid", pressure_relief_valve))[1] == SolenoidState.CLOSED:
