@@ -59,7 +59,7 @@ void setup(){
         pinMode(pulse_pins[i], INPUT_PULLUP);
     }
     pinMode(ABORT_PIN, INPUT_PULLUP);
-    Serial.begin(115200);
+    Serial.begin(9600);
     //Serial.println("Running launchbox");
     aborted = false;
     

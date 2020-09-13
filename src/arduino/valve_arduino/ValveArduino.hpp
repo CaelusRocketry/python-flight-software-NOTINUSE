@@ -8,7 +8,7 @@
 
 #define launchRX 2
 #define launchTX 3
-#define launchBaud 19200
+#define launchBaud 9600
 
 class ValveArduino {
   private:
