@@ -1,13 +1,16 @@
 #include "ValveArduino.hpp"
 
 ValveArduino::ValveArduino() {
-    pinMode(13, OUTPUT);
-    launchSerial = new SoftwareSerial(2, 3);
-    launchSerial->begin(9600);
 }
 
 ValveArduino::~ValveArduino() {
     delete[] solenoids;
+}
+
+void ValveArduino::start() {
+    pinMode(13, OUTPUT);
+    launchSerial = new SoftwareSerial(2, 3);
+    launchSerial->begin(launchBaud);
 }
 
 int ValveArduino::recvSerialByte() {
@@ -133,12 +136,19 @@ void ValveArduino::launchBox() {
     // TODO: Change this to use SoftwareSerial
     if(launchSerial->available()) {
         int cmd = launchSerial->read();
+        if(!launchSerial->available()){
+          delay(10);
+        }
         int data = launchSerial->read();
-        Serial.println("f");
-        Serial.println(cmd);
-        
-        Serial.println(data);
-        ingestLaunchbox(cmd, data);
+        if(data == -1){
+//          Serial.println("Didn't get the second byte, so ignoring the first");
+        }
+        else{
+//          Serial.println("f");
+//            Serial.println(cmd);
+//            Serial.println(data);
+            ingestLaunchbox(cmd, data);
+        }
     }
 }
 

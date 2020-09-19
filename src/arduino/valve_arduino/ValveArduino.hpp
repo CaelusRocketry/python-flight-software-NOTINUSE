@@ -31,6 +31,7 @@ class ValveArduino {
 
   public:
     ValveArduino();
+    void start();
     ~ValveArduino();
     void registerSolenoids();
     void registerLaunchboxSolenoids();
