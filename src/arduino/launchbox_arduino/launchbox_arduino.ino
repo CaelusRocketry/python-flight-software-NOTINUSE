@@ -118,8 +118,8 @@ void send_message(int cmd, int data){
 //        return;
 //    }
 //    Serial.println("Sending");
-    Serial.write(cmd);
-    Serial.write(data);
+    Serial.write(cmd); // make write instead of println
+    Serial.write(data); //make write instead of println
     delay(50);
 }
 

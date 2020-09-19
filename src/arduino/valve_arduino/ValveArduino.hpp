@@ -8,7 +8,7 @@
 
 #define launchRX 2
 #define launchTX 3
-#define launchBaud 9600
+#define launchBaud 1200
 
 class ValveArduino {
   private:
@@ -33,6 +33,7 @@ class ValveArduino {
     ValveArduino();
     ~ValveArduino();
     void registerSolenoids();
+    void registerLaunchboxSolenoids();
     void update();
     void sendData();
 };

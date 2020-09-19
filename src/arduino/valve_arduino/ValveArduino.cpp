@@ -48,6 +48,20 @@ void ValveArduino::registerSolenoids() {
     // Serial.println("Registered");
 }
 
+// Testing only method
+void ValveArduino::registerLaunchboxSolenoids() {
+    int solenoidCount = 2;
+    this->numSolenoids = solenoidCount;
+    this->solenoids = new Solenoid[solenoidCount];
+    this->overrides = new bool[solenoidCount];
+
+    this->solenoids[0] = Solenoid(4, false, true); 
+    this->solenoids[1] = Solenoid(5, true, false);
+    Serial.println("registered");
+}
+
+
+
 int ValveArduino::getSolenoidPos(int pin){
     for(int i = 0; i < this->numSolenoids; i++){
         if(this->solenoids[i].pin == pin){
@@ -82,9 +96,9 @@ void ValveArduino::checkSolenoids() {
 }
 
 void ValveArduino::update() {
-    checkSolenoids();
+//    checkSolenoids();
     // TODO: Uncomment this
-//    launchBox();
+    launchBox();
 }
 
 Solenoid ValveArduino::getSolenoid(int pin){
@@ -120,6 +134,10 @@ void ValveArduino::launchBox() {
     if(launchSerial->available()) {
         int cmd = launchSerial->read();
         int data = launchSerial->read();
+        Serial.println("f");
+        Serial.println(cmd);
+        
+        Serial.println(data);
         ingestLaunchbox(cmd, data);
     }
 }
