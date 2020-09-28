@@ -10,8 +10,8 @@
 
 // Launchbox definitions
 #define L_DO_NOTHING 1
-#define L_CLOSE_VENT 2
-#define L_OPEN_VENT 3
+#define L_OPEN_VENT 2
+#define L_CLOSE_VENT 3
 #define L_PULSE 4
 
 // Timing stuff

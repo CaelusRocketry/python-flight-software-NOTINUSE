@@ -4,7 +4,9 @@ ValveArduino valve_arduino;
 
 void setup() {
     Serial.begin(115200);
+    valve_arduino.start();
     valve_arduino.registerSolenoids();
+//    valve_arduino.registerLaunchboxSolenoids();
 }
 
 void loop() {

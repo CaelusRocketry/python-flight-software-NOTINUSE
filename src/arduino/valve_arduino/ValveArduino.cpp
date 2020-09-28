@@ -1,13 +1,16 @@
 #include "ValveArduino.hpp"
 
 ValveArduino::ValveArduino() {
-    pinMode(13, OUTPUT);
-    launchSerial = new SoftwareSerial(launchRX, launchTX);
-    launchSerial->begin(launchBaud);
 }
 
 ValveArduino::~ValveArduino() {
     delete[] solenoids;
+}
+
+void ValveArduino::start() {
+    pinMode(13, OUTPUT);
+    launchSerial = new SoftwareSerial(2, 3);
+    launchSerial->begin(launchBaud);
 }
 
 int ValveArduino::recvSerialByte() {
@@ -48,6 +51,20 @@ void ValveArduino::registerSolenoids() {
     // Serial.println("Registered");
 }
 
+// Testing only method
+void ValveArduino::registerLaunchboxSolenoids() {
+    int solenoidCount = 2;
+    this->numSolenoids = solenoidCount;
+    this->solenoids = new Solenoid[solenoidCount];
+    this->overrides = new bool[solenoidCount];
+
+    this->solenoids[0] = Solenoid(4, false, true); 
+    this->solenoids[1] = Solenoid(5, true, false);
+    Serial.println("registered");
+}
+
+
+
 int ValveArduino::getSolenoidPos(int pin){
     for(int i = 0; i < this->numSolenoids; i++){
         if(this->solenoids[i].pin == pin){
@@ -82,7 +99,7 @@ void ValveArduino::checkSolenoids() {
 }
 
 void ValveArduino::update() {
-    checkSolenoids();
+//    checkSolenoids();
     // TODO: Uncomment this
     launchBox();
 }
@@ -119,8 +136,19 @@ void ValveArduino::launchBox() {
     // TODO: Change this to use SoftwareSerial
     if(launchSerial->available()) {
         int cmd = launchSerial->read();
+        if(!launchSerial->available()){
+          delay(10);
+        }
         int data = launchSerial->read();
-        ingestLaunchbox(cmd, data);
+        if(data == -1){
+//          Serial.println("Didn't get the second byte, so ignoring the first");
+        }
+        else{
+//          Serial.println("f");
+//            Serial.println(cmd);
+//            Serial.println(data);
+            ingestLaunchbox(cmd, data);
+        }
     }
 }
 
@@ -132,6 +160,15 @@ void ValveArduino::ingestLaunchbox(int cmd, int data) {
         }
     }
     else{
+        if(cmd == L_OPEN_VENT){
+          cmd = OPEN_VENT;
+        }
+        else if(cmd == L_CLOSE_VENT){
+          cmd = CLOSE_VENT;
+        }
+        else if(cmd == L_PULSE){
+          cmd = PULSE;
+        }
         actuate(data, cmd, true);
     }
 }

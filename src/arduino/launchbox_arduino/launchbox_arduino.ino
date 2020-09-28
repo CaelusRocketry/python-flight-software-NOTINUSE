@@ -59,8 +59,9 @@ void setup(){
         pinMode(pulse_pins[i], INPUT_PULLUP);
     }
     pinMode(ABORT_PIN, INPUT_PULLUP);
-    Serial.begin(115200);
-    Serial.println("Running launchbox");
+    Serial.begin(1200);
+//    Serial.println("STUFFF");
+    //Serial.println("Running launchbox");
     aborted = false;
     
     for(int i = 0; i < NUM_VALVES; i++){
@@ -72,9 +73,6 @@ void setup(){
 }
 
 void loop(){
-    if(aborted){
-        return;
-    }
     for(int i = 0; i < NUM_VALVES; i++){
         pin_state current_state = checkToggleSwitch(vent_pins[i]); // (i + 1) * 2 maps from array index to pin number
         if(current_state != states[i]){
@@ -106,7 +104,13 @@ void loop(){
 }
 
 int buttonRead(int pin){
-    return 1 - digitalRead(pin);
+    int first = digitalRead(pin);
+    delay(20);
+    int second = digitalRead(pin);
+    if(first == second) {
+      return 1 - digitalRead(pin);  
+    }
+    return 0;
 }
 
 void send_message(int cmd, int data){
@@ -114,8 +118,8 @@ void send_message(int cmd, int data){
 //        return;
 //    }
 //    Serial.println("Sending");
-    Serial.println(cmd);
-    Serial.println(data);
+    Serial.write(cmd); // make write instead of println
+    Serial.write(data); //make write instead of println
     delay(50);
 }
 
