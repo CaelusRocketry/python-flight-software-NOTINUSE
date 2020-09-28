@@ -2,9 +2,6 @@ from modules.mcl.supervisor import Supervisor
 import json
 
 config = json.loads(open("hardware_config.json").read())
-# controls = ["timer", "sensor", "telemetry"]
-# tasks = ["sensor", "telemetry"]
-# controls = ["timer", "sensor", "valve", "telemetry", "stage"]
 # controls = ["timer", "sensor", "valve", "telemetry"]
 # tasks = ["valve", "sensor", "telemetry"]
 controls = ["timer", "telemetry"]
