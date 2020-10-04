@@ -29,7 +29,6 @@ void ValveArduino::registerSolenoids() {
     int solenoidCount = recvSerialByte();
     this->numSolenoids = solenoidCount;
     this->solenoids = new Solenoid[solenoidCount];
-    this->overrides = new bool[solenoidCount];
 
     for(int i = 0; i < solenoidCount; i++) {
         int pin = recvSerialByte();
@@ -56,7 +55,6 @@ void ValveArduino::registerLaunchboxSolenoids() {
     int solenoidCount = 2;
     this->numSolenoids = solenoidCount;
     this->solenoids = new Solenoid[solenoidCount];
-    this->overrides = new bool[solenoidCount];
 
     this->solenoids[0] = Solenoid(4, false, true); 
     this->solenoids[1] = Solenoid(5, true, false);
@@ -85,7 +83,7 @@ void ValveArduino::checkSolenoids() {
             int pin = recvSerialByte();
             int actuationType = recvSerialByte();
             int pos = getSolenoidPos(pin);
-            if (pin != -1 && !overrides[pos]) {
+            if (pin != -1) {
                 actuate(pin, actuationType, false);
             }
         }
@@ -99,9 +97,9 @@ void ValveArduino::checkSolenoids() {
 }
 
 void ValveArduino::update() {
-//    checkSolenoids();
+    checkSolenoids();
     // TODO: Uncomment this
-    launchBox();
+//    launchBox();
 }
 
 Solenoid ValveArduino::getSolenoid(int pin){
@@ -116,7 +114,13 @@ Solenoid ValveArduino::getSolenoid(int pin){
 
 void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
     Solenoid sol = getSolenoid(pin);
-    if(sol.pin != -1 && (!sol.overridden || from_launchbox)){
+    if(sol.pin != -1){
+        if(from_launchbox){
+            sol.overridden = true;
+        }
+        else if(sol.overridden){
+          return;
+        }
         sol.actuate(actuationType);
     }
 }
