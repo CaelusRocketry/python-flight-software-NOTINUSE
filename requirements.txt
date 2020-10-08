@@ -1,6 +1,4 @@
 smbus2
-struct
 adafruit_bno055
-busio
 board
 pyserial
