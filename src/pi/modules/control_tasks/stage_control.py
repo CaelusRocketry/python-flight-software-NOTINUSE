@@ -52,7 +52,8 @@ class StageControl:
             # NOTE: Assuming that "depressurization" means 20psi
             pressure = self.registry.get(("sensor_normalized", "pressure", SensorLocation.PT2))[1]
             inv = (pressure - 20.0) / 5.0
-            return min(100.0, 100.0 - inv)
+            progress = min(100.0, 100.0 - inv)
+            return max(0, progress) # makes sure that progress isnt negative
         raise Exception("Unknown stage: {}".format(str(self.curr_stage)))
 
 

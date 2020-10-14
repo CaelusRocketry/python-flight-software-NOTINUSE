@@ -44,11 +44,11 @@ class ActuationType(IntEnum):
 
 
 class ValvePriority(IntEnum):
-    NONE = 0
-    LOW_PRIORITY = 1
+    NONE = 4
+    LOW_PRIORITY = 3
     PI_PRIORITY = 2
-    MAX_TELEMETRY_PRIORITY = 3
-    ABORT_PRIORITY = 4
+    MAX_TELEMETRY_PRIORITY = 1
+    ABORT_PRIORITY = 0
 
 
 class Stage(str, Enum):
