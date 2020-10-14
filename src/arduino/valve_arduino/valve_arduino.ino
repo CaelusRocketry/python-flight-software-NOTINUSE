@@ -11,4 +11,5 @@ void setup() {
 
 void loop() {
   valve_arduino.update();
+  delay(100);
 }
