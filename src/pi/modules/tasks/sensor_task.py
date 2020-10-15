@@ -1,5 +1,4 @@
 from modules.tasks.task import Task
-from modules.drivers.arduino import Arduino
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.lib.enums import SensorType, SensorLocation
@@ -16,6 +15,12 @@ class SensorTask(Task):
 
 
     def begin(self, config: dict):
+        #TODO: fix this, it's really hacky and just a temporary workaround (let's see how long it stays though)
+        if config["arduino_type"] == "pseudo":
+            from modules.drivers.pseudo_arduino import Arduino
+        else:
+            from modules.drivers.real_arduino import Arduino
+
         self.config = config["sensors"]
         self.sensor_config = self.config["list"]
         self.sensor_list = [(s_type, loc) for s_type in self.sensor_config for loc in self.sensor_config[s_type]]

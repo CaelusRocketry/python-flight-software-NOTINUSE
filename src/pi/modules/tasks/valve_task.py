@@ -1,5 +1,4 @@
 from modules.tasks.task import Task
-from modules.drivers.arduino import Arduino
 from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.lib.enums import ValveType, SolenoidState, ActuationType, ValvePriority
@@ -18,6 +17,12 @@ class ValveTask(Task):
 
 
     def begin(self, config):
+        #TODO: fix this, it's really hacky and just a temporary workaround (let's see how long it stays though)
+        if config["arduino_type"] == "pseudo":
+            from modules.drivers.pseudo_arduino import Arduino
+        else:
+            from modules.drivers.real_arduino import Arduino
+
         self.config = config["valves"]
         #TODO: Make sure that this is the same order that the arduino returns its data in
         self.valve_config = self.config["list"]

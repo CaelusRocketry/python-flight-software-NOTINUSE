@@ -91,5 +91,5 @@
   "timer": {
     "delay": 0.001
   },
-  "arduino_type": "psuedo"
+  "arduino_type": "real"
 }
