@@ -10,15 +10,6 @@ All necessary libraries can be installed using the following command:
 pip3 install -r requirements.txt
 ```
 
-### Change the IP values in all configs to 127.0.0.1
-
-**Before running flight and ground software locally, you need to change all GS_IP/SOCKETIO_HOST values in the following locations to "127.0.0.1"**:
-- flight-software/src/pi/hardware_config.json
-- ground-software/server/config.json
-- ground-software/client/src/config.json
-
-Do **not** commit these changed values, however; this is only so that you can run this locally. **Change them back before committing.**
-
 ### Running the Flight Software local simulation
 
 Navigate to the Ground Station README and **start the Ground Station first if you haven't already**, then open a new command window, navigate to the src/pi folder, and run this command:
