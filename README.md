@@ -23,9 +23,12 @@ Do **not** commit these changed values, however; this is only so that you can ru
 
 Navigate to the Ground Station README and **start the Ground Station first if you haven't already**, then open a new command window, navigate to the src/pi folder, and run this command:
 ```
-python full_test.py
+python full_test.py --config local
 ```
-
+To see more options to run the simulation, run this command:
+```
+python full_test.py -h
+```
 
 ## Structure
 - */requirements.txt*
