@@ -16,13 +16,13 @@ def main():
     parser.add_argument('--tasks', metavar='Task', type=str, nargs='+',
             help="Space-separated list of tasks to run in the simulation.\n" + 
             "Available tasks: sensor, valve, telemetry\n" + 
-            "Example: python full_test.py --tasks sensor valve\n" + 
+            "Example: python main.py --tasks sensor valve\n" + 
             "Default: list of all available tasks")
 
     parser.add_argument('--control-tasks', metavar='ControlTask', type=str, nargs='+',
             help="Space-separated list of control tasks to run in the simulation.\n" + 
             "Available control tasks: sensor, valve, telemetry, pressure, stage, timer\n" + 
-            "Example: python full_test.py --control-tasks sensor valve telemetry\n" + 
+            "Example: python main.py --control-tasks sensor valve telemetry\n" + 
             "Default: list of all available control tasks")
 
     args = parser.parse_args()

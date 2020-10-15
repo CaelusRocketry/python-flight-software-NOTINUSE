@@ -91,5 +91,8 @@
   "timer": {
     "delay": 0.001
   },
+  "pressure_control": {
+    "active_stages": ["pressurization", "autosequence", "postburn"]
+  },
   "arduino_type": "real"
 }
