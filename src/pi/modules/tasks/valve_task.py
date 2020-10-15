@@ -77,7 +77,7 @@ class ValveTask(Task):
             _, actuation_type = self.flag.get(("solenoid", "actuation_type", loc))
             _, actuation_priority = self.flag.get(("solenoid", "actuation_priority", loc))
             _, curr_priority, _ = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, loc))
-            if actuation_priority != ValvePriority.NONE and actuation_priority >= curr_priority:
+            if actuation_priority != ValvePriority.NONE and actuation_priority <= curr_priority:
                 print("Actuating", loc, actuation_type, actuation_priority)
                 if actuation_type == ActuationType.NONE:
                     actuation_priority = ValvePriority.NONE
