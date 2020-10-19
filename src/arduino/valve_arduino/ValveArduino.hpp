@@ -12,8 +12,8 @@
 
 class ValveArduino {
   private:
-    Solenoid *solenoids;
-    bool *overrides;
+    Solenoid **solenoids;
+    bool overrides;
     int numSolenoids;
     SoftwareSerial *launchSerial;
 
@@ -22,9 +22,8 @@ class ValveArduino {
 
     int recvSerialByte();
 
-    void actuate(int pin, int actuationType, bool from_launchbox);
     void checkSolenoids();
-    Solenoid getSolenoid(int pin);
+    Solenoid* getSolenoid(int pin);
     int getSolenoidPos(int pin);
 
     void error(String error);
@@ -37,6 +36,11 @@ class ValveArduino {
     void registerLaunchboxSolenoids();
     void update();
     void sendData();
+
+    // make private after testing
+    void actuate(int pin, int actuationType, bool from_launchbox);
+
+
 };
 
 #endif

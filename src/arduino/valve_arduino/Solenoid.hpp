@@ -29,7 +29,7 @@ class Solenoid {
         bool overridden;
 
         int actuation;
-        Solenoid(){};
+        Solenoid();
         Solenoid(int pin, bool special, bool no);
         void actuate(int actuationType);
         void control();
