@@ -51,7 +51,7 @@ class Telemetry(Driver):
     It should send everything in the send_queue over the socket connection.
     """
     def write(self, pack: Packet) -> Error:
-        pack_str = pack.to_string()
+        pack_str = pack.to_string() + "END"
         pack_bytes = pack_str.encode()
         try:
             self.sock.send(pack_bytes)
@@ -75,12 +75,22 @@ class Telemetry(Driver):
                     print(str(e))
                     self.connection = False
                     return
-                packet_str = data.decode()
-                print("Received:", packet_str)
-                packet = Packet.from_string(packet_str)
-                while self.INGEST_LOCK:
-                    pass
-                heapq.heappush(self.ingest_queue, packet)
+
+                if data:
+                    packet_str = data.decode()
+                    print("Received:", packet_str, "Type:", type(packet_str))
+                    
+                    packet_strs = packet_str.split("END")
+                    if (packet_str.count("END") > 1):
+                        packets = [Packet.from_string(p_str) for p_str in packet_strs]
+                    else:
+                        packets = [Packet.from_string(packet_strs[0])]
+                        #packet = Packet.from_string(packet_str)
+                    
+                    while self.INGEST_LOCK:
+                        pass
+                    for packet in packets:
+                        heapq.heappush(self.ingest_queue, packet)
                 time.sleep(self.DELAY_LISTEN)
             else:
                 return
