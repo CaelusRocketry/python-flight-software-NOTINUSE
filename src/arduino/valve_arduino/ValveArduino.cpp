@@ -88,6 +88,8 @@ void ValveArduino::checkSolenoids() {
             error("Unknown command received");
         }
     }
+    // Serial.println("num solenoids");
+    // Serial.println(numSolenoids);
     for(int i = 0; i < numSolenoids; i++) {
         solenoids[i]->control();
     }
@@ -105,7 +107,7 @@ Solenoid* ValveArduino::getSolenoid(int pin){
             return solenoids[i];
         }
     }
-    error("Could not find the indicated solenoid for pin " + pin);
+    error("could not find the indicated solenoid for pin " + pin);
     return NULL;
 }
 
@@ -118,7 +120,10 @@ void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
         else if(sol->overridden){
           return;
         }
+        // Serial.println("R"); 
+        // Serial.println(actuationType); 
         sol->actuate(actuationType);
+        // Serial.println("O"); // actuation method
         Serial.println(sol->actuation);
     }
 }
@@ -143,7 +148,7 @@ void ValveArduino::launchBox() {
         }
         int data = launchSerial->read();
         if(data == -1){
-//          Serial.println("Didn't get the second byte, so ignoring the first");
+//          Serial.println("didn't get the second byte, so ignoring the first :D");
         }
         else{
 //          Serial.println("f");

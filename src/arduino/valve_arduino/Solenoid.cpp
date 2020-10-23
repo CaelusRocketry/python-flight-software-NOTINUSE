@@ -40,7 +40,7 @@ void Solenoid::pulse() {
     digitalWrite(pin, openSignal);
     currSignal = openSignal;
     lastActuationTime = millis();
-    Serial.println("Yam pulsing");
+    Serial.println("yam pulsing");
 }
 
 void Solenoid::setLow() {
@@ -62,7 +62,9 @@ void Solenoid::setHigh() {
 }
 
 void Solenoid::control(){
-  Serial.println(actuation);
+   // Serial.print("A"); 
+   Serial.println(actuation);
+  // Serial.println(actuation);
 //    controlPulse();
 //    controlSpecial();
 }

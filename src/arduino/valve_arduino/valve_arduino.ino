@@ -8,8 +8,8 @@ void setup() {
     valve_arduino = new ValveArduino();
 
 
-//    valve_arduino->registerSolenoids();
-    valve_arduino->registerLaunchboxSolenoids();
+    valve_arduino->registerSolenoids();
+    //valve_arduino->registerLaunchboxSolenoids();
 }
 
 void loop() {
