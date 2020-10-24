@@ -15,7 +15,6 @@ class ValveTask(Task):
         self.registry = registry
         self.flag = flag
 
-
     def begin(self, config):
         #TODO: fix this, it's really hacky and just a temporary workaround (let's see how long it stays though)
         if config["arduino_type"] == "pseudo":
@@ -43,6 +42,7 @@ class ValveTask(Task):
                 to_send.append(1 if temp["natural"] == "OPEN" else 0)
                 self.pins[temp["pin"]] = (ValveType.SOLENOID, loc)
                 self.inv_pins[(ValveType.SOLENOID, loc)] = temp["pin"]
+        print("Sending valve info:", to_send)
         self.arduino.write(bytes(to_send))
         assert(self.arduino.read(1) == bytes([CONFIRMATION]))
 
@@ -65,9 +65,9 @@ class ValveTask(Task):
         for i in range(self.num_solenoids):
             solenoid_data = byte_data[i*3:(i + 1)*3]
 
-            print("pin", solenoid_data[0])
-            print("state", solenoid_data[1])
-            print("actuation", solenoid_data[2])
+#            print("pin", solenoid_data[0])
+#            print("state", solenoid_data[1])
+#            print("actuation", solenoid_data[2])
 
             
             pin = solenoid_data[0]

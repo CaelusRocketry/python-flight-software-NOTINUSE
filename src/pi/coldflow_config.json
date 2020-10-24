@@ -1,9 +1,9 @@
 {
   "telemetry": {
-    "GS_IP": "192.168.1.6",
+    "GS_IP": "192.168.137.1",
     "GS_PORT": 5005,
     "DELAY": 0.1,
-    "SOCKETIO_HOST": "192.168.1.6",
+    "SOCKETIO_HOST": "172.20.10.10",
     "SOCKETIO_PORT": 5000
   },
   "sensors": {
@@ -17,7 +17,7 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 60],
+            "safe": [0, 700],
             "warn": [-500, 10000]
           },
           "pin": 14
@@ -30,7 +30,7 @@
           },
           "boundaries": {
             "safe": [0, 700],
-            "warn": [-500, 800]
+            "warn": [-500, 1000]
           },
           "pin": 15
         },
@@ -42,7 +42,7 @@
           },
           "boundaries": {
             "safe": [0, 700],
-            "warn": [-500, 800]
+            "warn": [-500, 1000]
           },
           "pin": 16
         },
@@ -54,7 +54,7 @@
           },
           "boundaries": {
             "safe": [0, 700],
-            "warn": [-500, 800]
+            "warn": [-500, 1000]
           },
           "pin": 17
         }
@@ -90,9 +90,5 @@
   },
   "timer": {
     "delay": 0.001
-  },
-  "pressure_control": {
-    "active_stages": ["pressurization", "autosequence", "postburn"]
-  },
-  "arduino_type": "real"
+  }
 }

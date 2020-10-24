@@ -48,8 +48,9 @@ def main():
     if args.control_tasks != None:
         control_tasks = args.control_tasks
     else:
-        control_tasks = ["sensor", "valve", "telemetry", "pressure", "stage", "timer"]
-    
+        #control_tasks = ["sensor", "valve", "telemetry", "pressure", "stage", "timer"]
+        control_tasks = ["sensor", "valve", "telemetry", "timer"]
+ 
     task_config = {"tasks": tasks, "control_tasks": control_tasks}
 
     supervisor = Supervisor(task_config=task_config, config=config)
@@ -57,3 +58,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

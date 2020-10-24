@@ -53,6 +53,7 @@ class PressureControl():
 
             elif self.registry.get(("sensor_status", "pressure", sensor_loc))[1] == SensorStatus.SAFE:
                 if self.registry.get(("valve", "solenoid", pressure_relief_valve))[1] == SolenoidState.OPEN:
+                    print("PRESSURE SAFE AND PRV OPEN SO CLOSING PRV WITH PI_PRIORITY")
                     self.flag.put(("solenoid", "actuation_type", pressure_relief_valve), ActuationType.CLOSE_VENT)
                     self.flag.put(("solenoid", "actuation_priority", pressure_relief_valve), ValvePriority.PI_PRIORITY)
 
