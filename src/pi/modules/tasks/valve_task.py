@@ -64,6 +64,12 @@ class ValveTask(Task):
         byte_data = self.arduino.read(self.num_solenoids * 3)
         for i in range(self.num_solenoids):
             solenoid_data = byte_data[i*3:(i + 1)*3]
+
+            print("pin", solenoid_data[0])
+            print("state", solenoid_data[1])
+            print("actuation", solenoid_data[2])
+
+            
             pin = solenoid_data[0]
             state = SolenoidState(solenoid_data[1])
             actuation = ActuationType(solenoid_data[2])
