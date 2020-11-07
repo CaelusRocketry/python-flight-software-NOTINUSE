@@ -48,8 +48,7 @@ def main():
     if args.control_tasks != None:
         control_tasks = args.control_tasks
     else:
-        #control_tasks = ["sensor", "valve", "telemetry", "pressure", "stage", "timer"]
-        control_tasks = ["sensor", "valve", "telemetry", "timer"]
+        control_tasks = ["sensor", "valve", "telemetry", "timer", "pressure", "stage"]
  
     task_config = {"tasks": tasks, "control_tasks": control_tasks}
 
