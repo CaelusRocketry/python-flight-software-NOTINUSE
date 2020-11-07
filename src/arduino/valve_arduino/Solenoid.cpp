@@ -1,22 +1,22 @@
 #include "Solenoid.hpp"
 
-Solenoid::Solenoid(int pin, bool special, bool no) {
-    this->pin = pin;
-    this->isSpecial = special;
-    this->isNO = no;
-    if(no){
-        this->openSignal = LOW;
-        this->closeSignal = HIGH;
+Solenoid::Solenoid(int i_pin, bool b_special, bool b_no) {
+    pin = i_pin;
+    isSpecial = b_special;
+    isNO = b_no;
+    if(isNO){
+        openSignal = LOW;
+        closeSignal = HIGH;
     }
     else{
-        this->openSignal = HIGH;
-        this->closeSignal = LOW;
+        openSignal = HIGH;
+        closeSignal = LOW;
     }
-    this->lastActuationTime = 0;
-    this->beingRelieved = false;
-    this->actuation = NO_ACTUATION;
-    this->overridden = false;
-    pinMode(this->pin, OUTPUT);
+    lastActuationTime = 0;
+    beingRelieved = false;
+    actuation = NO_ACTUATION;
+    overridden = false;
+    pinMode(pin, OUTPUT);
     setLow();
 }
 
@@ -24,22 +24,23 @@ void Solenoid::close() {
     // Serial.println("Closing");
     // Serial.println(closeSignal);
     digitalWrite(pin, closeSignal);
-    this->currSignal = closeSignal;
-    this->lastActuationTime = millis();
-    this->beingRelieved = false;
+    currSignal = closeSignal;
+    lastActuationTime = millis();
+    beingRelieved = false;
 }
 
 void Solenoid::open() {
     digitalWrite(pin, openSignal);
-    this->currSignal = openSignal;
-    this->lastActuationTime = millis();
-    this->beingRelieved = false;
+    currSignal = openSignal;
+    lastActuationTime = millis();
+    beingRelieved = false;
 }
 
 void Solenoid::pulse() {
     digitalWrite(pin, openSignal);
-    this->currSignal = openSignal;
-    this->lastActuationTime = millis();
+    currSignal = openSignal;
+    lastActuationTime = millis();
+    Serial.println("yam pulsing");
 }
 
 void Solenoid::setLow() {
@@ -61,34 +62,38 @@ void Solenoid::setHigh() {
 }
 
 void Solenoid::control(){
-    controlPulse();
-    controlSpecial();
+   // Serial.print("A"); 
+   Serial.println(actuation);
+  // Serial.println(actuation);
+//    controlPulse();
+//    controlSpecial();
 }
 
 void Solenoid::controlPulse() {
-    if(this->actuation != PULSE){ // Ignore this method if it's not pulsing
+    if(actuation != PULSE){ // Ignore this method if it's not pulsing
         return;
     }
-    if(millis() - this->lastActuationTime >= PULSE_WAIT_TIME) {
+    Serial.println("PULSING");
+    if(millis() - lastActuationTime >= PULSE_WAIT_TIME) {
         close();
-        this->actuation = NO_ACTUATION;
+        actuation = NO_ACTUATION;
     }
 }
 
 void Solenoid::controlSpecial() {
-    if(!this->isSpecial){ // This method only applies to "special" valves
+    if(!isSpecial){ // This method only applies to "special" valves
         return;
     }
-    if(this->currSignal == HIGH){ // If it's currently using power to actuate...
-        if(millis() - this->lastActuationTime >= MAX_SPECIAL_POWER){
+    if(currSignal == HIGH){ // If it's currently using power to... 
+        if(millis() - lastActuationTime >= MAX_SPECIAL_POWER){
             setLow(); // Relieve the valve
-            this->beingRelieved = true;
+            beingRelieved = true;
         }
     }
-    else if(this->beingRelieved) {
-        if(millis() - this->lastActuationTime >= RELIEF_WAIT_TIME){
+    else if(beingRelieved) {
+        if(millis() - lastActuationTime >= RELIEF_WAIT_TIME){
             setHigh();
-            this->beingRelieved = false;
+            beingRelieved = false;
         }
     }
 }
@@ -110,7 +115,15 @@ void Solenoid::actuate(int actuationType){
         error("Unknown actuation type");
         return;
     }
-    this->actuation = actuationType;
+    actuation = actuationType;
+    Serial.println("ACTUATING");
+    Serial.println(actuation);
+    printSomething();
+    Serial.println("ACTUATING");
+}
+
+void Solenoid::printSomething(){
+  Serial.println(actuation);
 }
 
 int Solenoid::getState(){

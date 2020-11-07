@@ -1,16 +1,14 @@
 #include "ValveArduino.hpp"
 
 ValveArduino::ValveArduino() {
+    pinMode(13, OUTPUT);
+    launchSerial = new SoftwareSerial(2, 3);
+    launchSerial->begin(launchBaud);
 }
 
 ValveArduino::~ValveArduino() {
     delete[] solenoids;
-}
-
-void ValveArduino::start() {
-    pinMode(13, OUTPUT);
-    launchSerial = new SoftwareSerial(2, 3);
-    launchSerial->begin(launchBaud);
+    delete launchSerial;
 }
 
 int ValveArduino::recvSerialByte() {
@@ -27,9 +25,9 @@ int ValveArduino::recvSerialByte() {
 
 void ValveArduino::registerSolenoids() {
     int solenoidCount = recvSerialByte();
-    this->numSolenoids = solenoidCount;
-    this->solenoids = new Solenoid[solenoidCount];
-
+    numSolenoids = solenoidCount;
+//    this->solenoids = new Solenoid[solenoidCount];
+    solenoids = new Solenoid*[numSolenoids]; // (Solenoid**)calloc(this->numSolenoids, sizeof(Solenoid*));
     for(int i = 0; i < solenoidCount; i++) {
         int pin = recvSerialByte();
         int special = recvSerialByte();
@@ -42,7 +40,7 @@ void ValveArduino::registerSolenoids() {
         if(natural == 0){
             isNO = false;
         }
-        this->solenoids[i] = Solenoid(pin, isSpecial, isNO);
+        solenoids[i] = new Solenoid(pin, isSpecial, isNO);
     }
 
     Serial.write(REGISTERED_CONFIRMATION);
@@ -53,23 +51,21 @@ void ValveArduino::registerSolenoids() {
 // Testing only method
 void ValveArduino::registerLaunchboxSolenoids() {
     int solenoidCount = 2;
-    this->numSolenoids = solenoidCount;
-    this->solenoids = new Solenoid[solenoidCount];
+    numSolenoids = solenoidCount;
+    solenoids = new Solenoid*[solenoidCount];
 
-    this->solenoids[0] = Solenoid(4, false, true); 
-    this->solenoids[1] = Solenoid(5, true, false);
+    solenoids[0] = new Solenoid(4, false, true); 
+    solenoids[1] = new Solenoid(5, true, false);
     Serial.println("registered");
 }
 
-
-
 int ValveArduino::getSolenoidPos(int pin){
-    for(int i = 0; i < this->numSolenoids; i++){
-        if(this->solenoids[i].pin == pin){
+    for(int i = 0; i < numSolenoids; i++){
+        if(solenoids[i]->pin == pin){
             return i;
         }
     }
-    this->error("Could not find the indicated solenoid for pin " + pin);
+    error("Could not find the indicated solenoid for pin " + pin);
     return -1;
 }
 
@@ -85,43 +81,50 @@ void ValveArduino::checkSolenoids() {
             int pos = getSolenoidPos(pin);
             if (pin != -1) {
                 actuate(pin, actuationType, false);
+                Serial.println(getSolenoid(pin)->actuation);
             }
         }
         else{
             error("Unknown command received");
         }
     }
+    // Serial.println("num solenoids");
+    // Serial.println(numSolenoids);
     for(int i = 0; i < numSolenoids; i++) {
-        solenoids[i].control();
+        solenoids[i]->control();
     }
 }
 
 void ValveArduino::update() {
     checkSolenoids();
-    // TODO: Uncomment this
+// TODO: Uncomment this
 //    launchBox();
 }
 
-Solenoid ValveArduino::getSolenoid(int pin){
-    for(int i = 0; i < this->numSolenoids; i++){
-        if(this->solenoids[i].pin == pin){
+Solenoid* ValveArduino::getSolenoid(int pin){
+    for(int i = 0; i < numSolenoids; i++){
+        if(solenoids[i]->pin == pin){
             return solenoids[i];
         }
     }
-    this->error("Could not find the indicated solenoid for pin " + pin);
-    return Solenoid(-1, false, false);
+    error("could not find the indicated solenoid for pin " + pin);
+    return NULL;
 }
 
 void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
-    Solenoid sol = getSolenoid(pin);
-    if(sol.pin != -1){
+    Solenoid* sol = getSolenoid(pin);
+    if(sol->pin != -1){
         if(from_launchbox){
-            sol.overridden = true;
+            sol->overridden = true;
         }
-        else if(sol.overridden){
+        else if(sol->overridden){
           return;
         }
-        sol.actuate(actuationType);
+        // Serial.println("R"); 
+        // Serial.println(actuationType); 
+        sol->actuate(actuationType);
+        // Serial.println("O"); // actuation method
+        Serial.println(sol->actuation);
     }
 }
 
@@ -129,10 +132,10 @@ void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
 // format: <for each solenoid> pin, isOpen, actuationType
 
 void ValveArduino::sendData() {
-    for(int i = 0; i < this->numSolenoids; i++) {
-        Serial.write(this->solenoids[i].pin);
-        Serial.write(this->solenoids[i].getState()); // 1 if open else 0
-        Serial.write(this->solenoids[i].getActuation());
+    for(int i = 0; i < numSolenoids; i++) {
+        Serial.write(solenoids[i]->pin);
+        Serial.write(solenoids[i]->getState()); // 1 if open else 0
+        Serial.write(solenoids[i]->getActuation());
     }
 }
 
@@ -145,7 +148,7 @@ void ValveArduino::launchBox() {
         }
         int data = launchSerial->read();
         if(data == -1){
-//          Serial.println("Didn't get the second byte, so ignoring the first");
+//          Serial.println("didn't get the second byte, so ignoring the first :D");
         }
         else{
 //          Serial.println("f");
@@ -158,9 +161,9 @@ void ValveArduino::launchBox() {
 
 void ValveArduino::ingestLaunchbox(int cmd, int data) {
     if(cmd == L_DO_NOTHING){
-        Solenoid sol = getSolenoid(data);
-        if(sol.pin != -1) {
-          sol.overridden = false;
+        Solenoid *sol = getSolenoid(data);
+        if(sol->pin != -1) {
+          sol->overridden = false;
         }
     }
     else{
