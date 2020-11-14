@@ -56,7 +56,7 @@ void ValveArduino::registerLaunchboxSolenoids() {
 
     solenoids[0] = new Solenoid(4, false, true); 
     solenoids[1] = new Solenoid(5, true, false);
-    Serial.println("registered");
+    // Serial.println("registered");
 }
 
 int ValveArduino::getSolenoidPos(int pin){
@@ -81,7 +81,7 @@ void ValveArduino::checkSolenoids() {
             int pos = getSolenoidPos(pin);
             if (pin != -1) {
                 actuate(pin, actuationType, false);
-                Serial.println(getSolenoid(pin)->actuation);
+                // Serial.println(getSolenoid(pin)->actuation);
             }
         }
         else{
@@ -98,7 +98,7 @@ void ValveArduino::checkSolenoids() {
 void ValveArduino::update() {
     checkSolenoids();
 // TODO: Uncomment this
-//    launchBox();
+    launchBox();
 }
 
 Solenoid* ValveArduino::getSolenoid(int pin){
@@ -124,7 +124,7 @@ void ValveArduino::actuate(int pin, int actuationType, bool from_launchbox){
         // Serial.println(actuationType); 
         sol->actuate(actuationType);
         // Serial.println("O"); // actuation method
-        Serial.println(sol->actuation);
+        // Serial.println(sol->actuation);
     }
 }
 

@@ -40,7 +40,7 @@ void Solenoid::pulse() {
     digitalWrite(pin, openSignal);
     currSignal = openSignal;
     lastActuationTime = millis();
-    Serial.println("yam pulsing");
+//    Serial.println("yam pulsing");
 }
 
 void Solenoid::setLow() {
@@ -63,17 +63,17 @@ void Solenoid::setHigh() {
 
 void Solenoid::control(){
    // Serial.print("A"); 
-   Serial.println(actuation);
+//   Serial.println(actuation);
   // Serial.println(actuation);
-//    controlPulse();
-//    controlSpecial();
+    controlPulse();
+    controlSpecial();
 }
 
 void Solenoid::controlPulse() {
     if(actuation != PULSE){ // Ignore this method if it's not pulsing
         return;
     }
-    Serial.println("PULSING");
+//    Serial.println("PULSING");
     if(millis() - lastActuationTime >= PULSE_WAIT_TIME) {
         close();
         actuation = NO_ACTUATION;
@@ -116,14 +116,14 @@ void Solenoid::actuate(int actuationType){
         return;
     }
     actuation = actuationType;
-    Serial.println("ACTUATING");
-    Serial.println(actuation);
+//    Serial.println("ACTUATING");
+//    Serial.println(actuation);
     printSomething();
-    Serial.println("ACTUATING");
+//    Serial.println("ACTUATING");
 }
 
 void Solenoid::printSomething(){
-  Serial.println(actuation);
+//  Serial.println(actuation);
 }
 
 int Solenoid::getState(){
