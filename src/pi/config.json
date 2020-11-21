@@ -17,8 +17,8 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 60],
-            "warn": [-500, 10000]
+            "safe": [0, 500],
+            "warn": [-500, 700]
           },
           "pin": 14
         },
@@ -29,8 +29,8 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 700],
-            "warn": [-500, 800]
+            "safe": [0, 500],
+            "warn": [-500, 700]
           },
           "pin": 15
         },
@@ -41,8 +41,8 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 700],
-            "warn": [-500, 800]
+            "safe": [0, 500],
+            "warn": [-500, 700]
           },
           "pin": 16
         },
@@ -53,8 +53,8 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 700],
-            "warn": [-500, 800]
+            "safe": [0, 500],
+            "warn": [-500, 700]
           },
           "pin": 17
         }

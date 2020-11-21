@@ -1,3 +1,4 @@
+
 from modules.lib.enums import SensorStatus, ActuationType, ValvePriority, ValveLocation, SensorLocation, SolenoidState, SensorStatus, ValveType
 from modules.lib.errors import Error
 from modules.mcl.registry import Registry
@@ -26,15 +27,15 @@ class PressureControl():
 
 
     def execute(self):
-        stage = self.registry.get(("general", "stage"))
-        if str(stage) not in self.active_stages:
-            return
+        #stage = self.registry.get(("general", "stage"))
+        #if str(stage) not in self.active_stages:
+        #    return
         self.check_pressure()
 
 
     def check_pressure(self):
         #TODO: make sure that pressure relief is the right valve
-        print("PRESSURE CONTROL")
+        #print("PRESSURE CONTROL")
         for sensor_loc, pressure_relief_valve in self.matchups:
             if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["safe"][1]:
                 print("PRESSURE TOO HIGH")
