@@ -182,7 +182,7 @@ class PseudoValve():
 
     def write_actuation(self, msg):
         # Message structure: [loc, actuation type]
-        print("Got actuation msg:", msg)
+        # print("Got actuation msg:", msg)
         pin = msg[0]
         actuation_int = msg[1]
         solenoid = self.pins[pin]

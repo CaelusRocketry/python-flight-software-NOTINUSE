@@ -53,7 +53,7 @@ class StageControl:
             pressure = self.registry.get(("sensor_normalized", "pressure", SensorLocation.PT2))[1]
             inv = (pressure - 20.0) / 5.0
             progress = min(100.0, 100.0 - inv)
-            return max(0, progress) # makes sure that progress isnt negative
+            return max(0.0, progress) # makes sure that progress isnt negative
         raise Exception("Unknown stage: {}".format(str(self.curr_stage)))
 
 
@@ -96,7 +96,7 @@ class StageControl:
             for valve_loc in [ValveLocation.PRESSURE_RELIEF, ValveLocation.MAIN_PROPELLANT_VALVE]:
                 actuation = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc))[1]
                 if actuation != ActuationType.CLOSE_VENT:
-                    print("CLOSING VALVE WITH PI_PRIORITY BC IN WAITING STAGE")
+                    # print("CLOSING VALVE WITH PI_PRIORITY BC IN WAITING STAGE")
                     self.flag.put(("solenoid", "actuation_type", valve_loc), ActuationType.CLOSE_VENT)
                     self.flag.put(("solenoid", "actuation_priority", valve_loc), ValvePriority.PI_PRIORITY)
         elif self.curr_stage == Stage.PRESSURIZATION:
