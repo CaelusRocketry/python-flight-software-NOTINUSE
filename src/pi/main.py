@@ -29,8 +29,8 @@ def main():
 
     if args.config == "local":
         config = json.loads(open("config.json").read())
-        config["GS_IP"] = "127.0.0.1"
-        config["SOCKETIO_HOST"] = "127.0.0.1"
+        config["telemetry"]["GS_IP"] = "127.0.0.1"
+        config["telemetry"]["SOCKETIO_HOST"] = "127.0.0.1"
         config["arduino_type"] = "pseudo"
     elif args.config != None:
         try:
