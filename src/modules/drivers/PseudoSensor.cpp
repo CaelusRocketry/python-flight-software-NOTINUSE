@@ -22,6 +22,10 @@ void PseudoSensor::set_sensor_values(){
     }
 }
 
+/*
+ * Convert double sensor values to char* and return
+ */
+
 char* PseudoSensor::read(){
     set_sensor_values();
     union Conversion {

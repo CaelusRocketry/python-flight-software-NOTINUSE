@@ -3,6 +3,8 @@
 
 using namespace std;
 
+// Parent class for PseudoSensor/PseudoValve
+
 class PseudoArduino {
 private:
 public:

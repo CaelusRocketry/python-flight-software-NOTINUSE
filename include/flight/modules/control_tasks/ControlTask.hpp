@@ -13,6 +13,8 @@ using namespace std;
 #ifndef FLIGHT_CONTROLTASK_HPP
 #define FLIGHT_CONTROLTASK_HPP
 
+// Class which runs/manages all the ControlTasks
+
 class ControlTask {
 private:
     vector<unique_ptr<Control>> controls;

@@ -15,7 +15,7 @@ Telemetry::Telemetry(){
 }
 
 queue<string> Telemetry::read(int num_messages){
-    mtx.lock();
+    mtx.lock(); // prevents anything else from a different thread from accessing the ingest_queue until we're done
     if(num_messages > ingest_queue.size() || num_messages == -1){
         num_messages = ingest_queue.size();
     }

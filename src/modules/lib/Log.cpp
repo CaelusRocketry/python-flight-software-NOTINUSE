@@ -4,6 +4,7 @@
 #include <flight/modules/lib/Log.hpp>
 #include <flight/modules/lib/Util.hpp>
 
+// Log string to black_box.txt
 void Log::save(string filename){
     ofstream file;
     file.open(filename, fstream::in | fstream::out | fstream::app);

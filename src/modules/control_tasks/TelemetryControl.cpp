@@ -17,6 +17,8 @@ TelemetryControl::TelemetryControl(Registry *registry, Flag *flag) {
     this->flag = flag;
     Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Telemetry Control started\"}"), LogPriority::INFO);
 }
+
+// Store list of all commands that GS can send as functions, add the function pointers to the map and call when necessary
 void TelemetryControl::makeFunctions() {
     this->functions.emplace("heartbeat", &TelemetryControl::heartbeat);
     this->functions.emplace("hard_abort", &TelemetryControl::hard_abort);
@@ -78,7 +80,7 @@ void TelemetryControl::ingest(Log log) {
             }
         }
 
-        (this->*function)(param_values);
+        (this->*function)(param_values); // call function which maps to the GS command sent w/ all params necessary
     }
     else {
         throw INVALID_HEADER_ERROR();

@@ -80,6 +80,7 @@ string Util::parse_json_value(initializer_list<string> args) {
     return ret;
 }
 
+// Return a string representation of a map
 string Util::map_to_string(map<string, string> data, string key_delim, string element_delim){
     string output = "";
     map<string, string>::iterator it = data.begin();
@@ -93,6 +94,7 @@ string Util::map_to_string(map<string, string> data, string key_delim, string el
     return output;
 }
 
+// Converts a stringified map back to a proper map
 
 map<string, string> Util::string_to_map(string data, string key_delim, string element_delim){
     map<string, string> output;

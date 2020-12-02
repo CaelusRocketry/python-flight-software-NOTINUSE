@@ -6,6 +6,8 @@
 
 using namespace std;
 
+// Parent class for all Tasks
+
 class Task {
     protected:
         Registry* registry;

@@ -15,7 +15,11 @@ void TelemetryTask::read(){
 
     if(status) {
         auto packets = this->telemetry.read(-1);
+
+        //get the current ingest queue from the registry
         auto ingest_queue = this->registry->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.ingest_queue");
+
+        //for packet in packets read from telemetry, push packet to ingest queue
         for(auto &packet = packets.front(); !packets.empty(); packets.pop()) {
             ingest_queue.push(Packet::fromString(packet));
         }
@@ -35,6 +39,7 @@ void TelemetryTask::actuate(){
         enqueue();
         auto send_queue = this->flag->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.send_queue");
 
+        // for each packet in the send_queue, write that packet to telemetry
         for(auto &packet = send_queue.top(); !send_queue.empty(); send_queue.pop()) {
             this->telemetry.write(packet);
         }
@@ -47,6 +52,7 @@ void TelemetryTask::enqueue() {
     auto send_queue = this->flag->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.send_queue");
     auto enqueue_queue = this->flag->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.enqueue");
 
+    // for each packet in the enqueue_queue, push that packet to the send_queue
     for(auto &packet = enqueue_queue.top(); !enqueue_queue.empty(); enqueue_queue.pop()) {
         send_queue.push(packet);
     }

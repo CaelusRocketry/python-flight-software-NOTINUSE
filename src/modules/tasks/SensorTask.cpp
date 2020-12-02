@@ -14,9 +14,9 @@ void SensorTask::initialize(){
 }
 
 void SensorTask::read(){
-    char* data = sensor->read();
+    char* data = sensor->read(); // data returned as an array of chars
 
-    // Convert bytes to doubles
+    // Convert char array to double array
     union Conversion {
         double values[NUM_SENSORS];
         char bytes[NUM_SENSORS * sizeof(double)];

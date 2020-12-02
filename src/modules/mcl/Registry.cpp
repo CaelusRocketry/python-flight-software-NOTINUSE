@@ -5,6 +5,8 @@
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/lib/Packet.hpp>
 
+// Adds all registry fields from config and general default fields
+
 Registry::Registry() {
     log("Registry created");
 

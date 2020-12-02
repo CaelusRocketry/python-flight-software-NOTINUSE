@@ -13,6 +13,13 @@ void ValveTask::initialize(){
     valve = new Arduino("PseudoValve");
 }
 
+/*
+ * Reads all actuation states from valve and updates registry
+ *
+ * Reads data from valve as char*, converts to a 32-bit int (each data point is stored as 2 bits
+ * inside this larger int), converts each data to an ActuationType and updates the registry from there.
+ *
+ */
 
 void ValveTask::read(){
     log("Reading");
@@ -53,6 +60,14 @@ void ValveTask::actuate(){
     log("Actuating valves");
     this->actuate_solenoids();
 }
+
+/*
+ * For each solenoid:
+ *  if the actuation priority attached to that solenoid is not NONE and is greater than the current priority:
+ *      allow the solenoid to be actuated
+ *  else:
+ *      deny the request to actuate this solenoid, revert back to the current actuation
+ */
 
 void ValveTask::actuate_solenoids() {
     auto locations = Util::parse_json_list({"valves", "list", "solenoid"});

@@ -8,6 +8,8 @@
 #include <boost/any.hpp>
 #include <chrono>
 
+// Reads the sensor boundaries from config and stores them in a map
+
 unordered_map<string, pair<double, double>> SensorControl::build_boundaries() {
     unordered_map<string, pair<double, double>> ret;
 
@@ -47,6 +49,10 @@ void SensorControl::execute() {
 }
 
 void SensorControl::boundary_check() {
+    /*
+     * Sensor paths in registry are stred as the following:
+     * sensor_[measured/normalized/status]
+     */
     vector<string> crits;
 
     for(string &sensor : sensors) {

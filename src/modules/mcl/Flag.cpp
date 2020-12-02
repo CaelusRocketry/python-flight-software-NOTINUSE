@@ -7,6 +7,8 @@
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/lib/Packet.hpp>
 
+// Adds all flag fields from config and general default fields
+
 Flag::Flag(){
     log("Flag created");
 

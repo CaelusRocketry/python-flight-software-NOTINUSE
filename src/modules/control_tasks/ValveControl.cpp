@@ -23,6 +23,7 @@ void ValveControl::begin() {
 
 void ValveControl::execute() {
     check_abort();
+    // chrono::system_clock::now().time_since_epoch().count(): get current time as a double
     if(last_send_time == 0 || chrono::system_clock::now().time_since_epoch().count() - last_send_time > send_interval) {
         send_valve_data();
         last_send_time = chrono::system_clock::now().time_since_epoch().count();

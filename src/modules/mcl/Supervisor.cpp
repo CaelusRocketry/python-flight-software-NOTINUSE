@@ -6,7 +6,7 @@
 #include <flight/modules/tasks/ValveTask.hpp>
 #include <flight/modules/lib/Util.hpp>
 
-//TODO: wrap everything in a try catch to make sure that execution doesn't stop when an error gets thrown?
+//TODO: wrap everything in a try catch to make sure that execution doesn't stop if/when an error gets thrown?
 
 Supervisor::Supervisor(){
     log("Creating registry and flag");
@@ -61,7 +61,7 @@ void Supervisor::run(){
         read();
         control();
         actuate();
-        this_thread::sleep_for(chrono::seconds(1));
+        this_thread::sleep_for(chrono::seconds(1)); // temp placeholder for TimerControl
     }
 }
 

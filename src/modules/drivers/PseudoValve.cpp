@@ -5,15 +5,20 @@
 #include <flight/modules/lib/Util.hpp>
 
 PseudoValve::PseudoValve(){
-    // List all solenoids
+    // List of all solenoids
     solenoid_locs = Util::parse_json_list({"valves", "list", "solenoid"});
     num_solenoids = solenoid_locs.size();
+
     // Initialize valve states to be closed and actuations to be none
     for(auto valve : solenoid_locs){
         valve_states[make_tuple("solenoid", valve)] = "closed";
         valve_actuations[make_tuple("solenoid", valve)] = "none";
     }
 }
+
+/*
+ * Convert human-readable actuation data to unreadable bytes data to simulate what we'd get from an Arduino
+ */
 
 char* PseudoValve::read(){
     uint32_t data = 0;
@@ -24,6 +29,7 @@ char* PseudoValve::read(){
         data = data | (state << (i * 2u + 1u));
     }
 
+    // Store actuation data in a byte-encoded format to simulate actual Arduino
     for (int i = 0u; i < 4; i++) {
         bytes[3 - i] = (data >> (i * 8u));
     }
