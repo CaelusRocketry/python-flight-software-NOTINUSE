@@ -21,13 +21,13 @@ class PseudoSensor():
         self.num_sensors = len(self.sensor_list)
         self.sensors = {i: random.randint(100, 200) for i in self.sensor_list}
         self.read_queue = []
+        self.ranges = json.load(open("modules/drivers/pseudo_sensor_ranges.json"))["ranges"]
 
 
     def set_sensor_values(self):
-        ranges = json.load(open("modules/drivers/pseudo_sensor_ranges.json"))["ranges"]
-        for sensor in ranges:
-            for loc in ranges[sensor]:
-                range = ranges[sensor][loc]
+        for sensor in self.ranges:
+            for loc in self.ranges[sensor]:
+                range = self.ranges[sensor][loc]
                 # assert((sensor, loc) in self.sensors)
                 if (sensor, loc) in self.sensors:
                     self.sensors[(sensor, loc)] = random.randint(range[0], range[1])
