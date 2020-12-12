@@ -36,7 +36,7 @@ Registry::Registry() {
     // General fields
     add<bool>("general.hard_abort", false);
     add<bool>("general.soft_abort", false);
-    add<Stage>("general.stage", Stage::PROPELLANT_LOADING);
+    add<Stage>("general.stage", Stage::PRESSURIZATION);
     add<double>("general.stage_status", 0.0);
     add<int>("general.stage_progress", 0);
 }

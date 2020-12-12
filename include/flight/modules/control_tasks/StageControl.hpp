@@ -22,12 +22,9 @@ private:
     double request_interval;
     double send_interval;
     int stage_index;
-    vector<Stage> stage_names {Stage::PROPELLANT_LOADING,
-                              Stage::LEAK_TESTING_1,
-                              Stage::PRESSURANT_LOADING,
-                              Stage::LEAK_TESTING_2,
-                              Stage::PRE_IGNITION,
-                              Stage::DISCONNECTION};
+    vector<Stage> stage_names {Stage::PRESSURIZATION,
+                              Stage::AUTOSEQUENCE,
+                              Stage::POSTBURN};
     vector<string> stage_strings = Util::parse_json_list({"stages", "list"});
 
     double calculateStatus();

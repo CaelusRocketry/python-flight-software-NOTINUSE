@@ -45,24 +45,16 @@ double StageControl::calculateStatus() {
 
     //maybe progress should be purely manual and based off of commands from ground station?
 
-    if(stage_index == int(Stage::PROPELLANT_LOADING)) {
+    if(stage_index == int(Stage::PRESSURIZATION)) {
 
     }
-    else if(stage_index == int(Stage::LEAK_TESTING_1)) {
+    else if(stage_index == int(Stage::AUTOSEQUENCE)) {
 
     }
-    else if(stage_index == int(Stage::PRESSURANT_LOADING)) {
+    else if(stage_index == int(Stage::POSTBURN)) {
 
     }
-    else if(stage_index == int(Stage::LEAK_TESTING_2)) {
 
-    }
-    else if(stage_index == int(Stage::PRE_IGNITION)) {
-
-    }
-    else if(stage_index == int(Stage::DISCONNECTION)) {
-
-    }
 
     return min((chrono::system_clock::now().time_since_epoch().count() - start_time) * 5, 100.0);
 }
@@ -97,22 +89,14 @@ void StageControl::progress() {
 void StageControl::stageValveControl() {
     //TODO: make this actuate valves based on the current stage
 
-    if(stage_index == int(Stage::PROPELLANT_LOADING)) {
+//    if(stage_index == int(Stage::PRESSURIZATION)) {
+//
+//    }
+//    else if(stage_index == int(Stage::AUTOSEQUENCE)) {
+//
+//    }
+//    else if(stage_index == int(Stage::POSTBURN)) {
+//
+//    }
 
-    }
-    else if(stage_index == int(Stage::LEAK_TESTING_1)) {
-
-    }
-    else if(stage_index == int(Stage::PRESSURANT_LOADING)) {
-
-    }
-    else if(stage_index == int(Stage::LEAK_TESTING_2)) {
-
-    }
-    else if(stage_index == int(Stage::PRE_IGNITION)) {
-
-    }
-    else if(stage_index == int(Stage::DISCONNECTION)) {
-
-    }
 }

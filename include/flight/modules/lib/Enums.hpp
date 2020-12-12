@@ -26,9 +26,10 @@ enum class SensorType {
 };
 
 enum class SensorLocation {
-    CHAMBER,
-    TANK,
-    INJECTOR
+    PT1,
+    PT2,
+    PT3, 
+    PT4
 };
 
 enum class SolenoidState {
@@ -110,12 +111,10 @@ static unordered_map<ValvePriority, string> valve_priority_inverse_map {
 };
 
 enum class Stage {
-    PROPELLANT_LOADING,
-    LEAK_TESTING_1,
-    PRESSURANT_LOADING,
-    LEAK_TESTING_2,
-    PRE_IGNITION,
-    DISCONNECTION
+    WAITING,
+    PRESSURIZATION,
+    AUTOSEQUENCE,
+    POSTBURN
 };
 
 #endif //FLIGHT_ENUMS_HPP
