@@ -15,19 +15,19 @@ ControlTask::ControlTask(Registry *registry, Flag *flag, unordered_map<string, b
     this->registry = registry;
     this->flag = flag;
 
-    if(config.at("sensor")) {
+    if(config["sensor"]) {
         controls.push_back(unique_ptr<Control>(new SensorControl(registry, flag)));
     }
-    if(config.at("telemetry")) {
+    if(config["telemetry"]) {
         controls.push_back(unique_ptr<Control>(new TelemetryControl(registry, flag)));
     }
-    if(config.at("valve")) {
+    if(config["valve"]) {
         controls.push_back(unique_ptr<Control>(new ValveControl(registry, flag)));
     }
-    if(config.at("stage")) {
+    if(config["stage"]) {
         controls.push_back(unique_ptr<Control>(new StageControl(registry, flag)));
     }
-    if(config.at("pressure")) {
+    if(config["pressure"]) {
         controls.push_back(unique_ptr<Control>(new PressureControl(registry, flag)));
     }
     Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Control Tasks started\"}"), LogPriority::INFO);
