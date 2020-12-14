@@ -11,10 +11,12 @@ void setup() {
 }
 
 void loop() {
+  // Updates the sensor arduino and checks if any commands were sent from the serial.
   sensor_arduino.update();
-  if(Serial.available()){
+
+  if (Serial.available()) {
     int data = Serial.read();
-    if(data == SEND_DATA_COMMAND){
+    if (data == SEND_DATA_COMMAND) {
       sensor_arduino.read();
     }
   }

@@ -1,30 +1,43 @@
 #include "Thermocouple.hpp"
 
 Thermocouple::Thermocouple(int *pins) {
-    for(int i = 0; i < 4; i++){
-        this->pins[i] = pins[i];
-    }
+	// Store the pin values
+	// We copy these by value instead of by pointer to be safe
+	this->pins = new int[4];
 
-    maxthermo = new Adafruit_MAX31856(pins[0], pins[1], pins[2], pins[3]);
-    maxthermo->begin();
-    temp = 0;
+	for(int i = 0; i < 4; i++) {
+		this->pins[i] = pins[i];
+	}
+
+	// Initialize the sensor
+	this->maxthermo = new Adafruit_MAX31856(pins[0], pins[1], pins[2], pins[3]);
+
+	// Begin making readings
+	this->maxthermo->begin();
 }
 
 Thermocouple::~Thermocouple() {
-    delete maxthermo;
-    delete[] pins;
+	delete maxthermo;
+	delete[] pins;
 }
 
 void Thermocouple::updateTemp() {
-    float curr_temp = maxthermo->readThermocoupleTemperature();
-    uint8_t fault = maxthermo->readFault();
-    if(fault) {
-        digitalWrite(13, HIGH);
-        return;
-    }
-    temp = curr_temp;
+	// Read from the sensor
+	float temperature = this->maxthermo->readThermocoupleTemperature();
+	uint8_t fault = this->maxthermo->readFault();
+
+	if (fault) {
+		this->error(); // visual error
+	} else {
+		this->temperature = temperature;
+	}
 }
 
-float Thermocouple::getTemp(){
-    return this->temp;
+float Thermocouple::getTemp() {
+	return this->temperature;
+}
+
+// Visual error for testing
+void error() {
+	digitalWrite(13, HIGH);
 }
