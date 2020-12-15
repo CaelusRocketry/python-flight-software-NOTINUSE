@@ -1,7 +1,3 @@
-//
-// Created by Srikar on 4/15/2020.
-//
-
 #ifndef FLIGHT_STAGECONTROL_HPP
 #define FLIGHT_STAGECONTROL_HPP
 
@@ -22,10 +18,14 @@ private:
     double request_interval;
     double send_interval;
     int stage_index;
-    vector<Stage> stage_names {Stage::PRESSURIZATION,
+    vector<Stage> stage_names {Stage::WAITING,
+                               Stage::PRESSURIZATION,
                               Stage::AUTOSEQUENCE,
                               Stage::POSTBURN};
     vector<string> stage_strings = Util::parse_json_list({"stages", "list"});
+
+    const double AUTOSEQUENCE_DELAY = 5.0;
+    const double POSTBURN_DELAY = 10.0;
 
     double calculateStatus();
     void sendProgressionRequest();

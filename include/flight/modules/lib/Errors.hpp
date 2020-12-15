@@ -22,7 +22,9 @@ enum class Error {
     REQUEST_ERROR,
     PRIORITY_ERROR,
 
-    TELEM_CONNECTION_ERROR
+    TELEM_CONNECTION_ERROR,
+
+    INVALID_STAGE_ERROR
 };
 
 class DYNAMIC_CAST_ERROR : public std::exception {
@@ -120,6 +122,13 @@ class JSON_PARSE_ERROR : public std::exception {
     virtual const char* what() const throw()
     {
         return "An unexpected error occurred while parsing json";
+    }
+};
+
+class INVALID_STAGE : public std::exception {
+    virtual const char* what() const throw()
+    {
+        return "Unknown stage.";
     }
 };
 

@@ -1,8 +1,6 @@
-//
-// Created by adiv413 on 4/24/2020.
-//
-
 #include <flight/modules/control_tasks/StageControl.hpp>
+#include <flight/modules/lib/Enums.hpp>
+#include <flight/modules/lib/Errors.hpp>
 #include <chrono>
 
 StageControl::StageControl(Registry *registry, Flag *flag) {
@@ -39,24 +37,31 @@ void StageControl::execute() {
 }
 
 double StageControl::calculateStatus() {
-    //TODO: implement actual calculations for this
-    //this method is supposed to calculate how far along we are in the current stage, right now
-    //all it does is return how much time is elapsed and progress is made purely off of time elapsed for now
 
-    //maybe progress should be purely manual and based off of commands from ground station?
+    Stage stage_index = this->registry->get<Stage>("general.stage");
 
-    if(stage_index == int(Stage::PRESSURIZATION)) {
-
+    if(stage_index == Stage::WAITING) {
+        return 100.0;
+    } else if(stage_index == Stage::PRESSURIZATION) {
+       double pressure = this->registry->get<double>("sensor_normalized.pressure.PT-2");
+       return std::min(100.0, pressure/4.9);
     }
-    else if(stage_index == int(Stage::AUTOSEQUENCE)) {
-
+    else if(stage_index == Stage::AUTOSEQUENCE) {
+        ActuationType mpv_actuation = this->registry->get<ActuationType>("valve_actuation_type.solenoid.main_propellant_valve");
+        if(mpv_actuation == ActuationType::OPEN_VENT) {
+            return 100.0;
+        } else {
+            return std::min(((chrono::system_clock::now().time_since_epoch().count() - this->start_time) / this->AUTOSEQUENCE_DELAY)*100, 99.0);
+        }
     }
-    else if(stage_index == int(Stage::POSTBURN)) {
-
+    else if(stage_index == Stage::POSTBURN) {
+        double pressure = this->registry->get<double>("sensor_normalized.pressure.PT-2");
+        double inv = (pressure - 20.0) / 5.0;           // Assuming that "depressurization" means 20psi
+        double progress = std::min(100.0, 100.0 - inv);
+        return std::max(0.0, progress); //  makes sure that progress isn't negative
     }
-
-
-    return min((chrono::system_clock::now().time_since_epoch().count() - start_time) * 5, 100.0);
+    
+    throw INVALID_STAGE();
 }
 
 void StageControl::sendProgressionRequest() {
@@ -88,8 +93,10 @@ void StageControl::progress() {
 
 void StageControl::stageValveControl() {
     //TODO: make this actuate valves based on the current stage
-
-//    if(stage_index == int(Stage::PRESSURIZATION)) {
+//    if(stage_index == int(Stage::WAITING)) {
+//
+//    }
+//    else if(stage_index == int(Stage::PRESSURIZATION)) {
 //
 //    }
 //    else if(stage_index == int(Stage::AUTOSEQUENCE)) {
