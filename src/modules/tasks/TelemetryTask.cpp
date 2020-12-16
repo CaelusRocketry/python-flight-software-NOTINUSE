@@ -9,7 +9,7 @@ void TelemetryTask::initialize() {
 
 
 void TelemetryTask::read(){
-    log("Reading telemetry");
+    log("Reading telemetry...");
     auto status = this->telemetry.status();
     this->registry->put("telemetry.status", status);
 

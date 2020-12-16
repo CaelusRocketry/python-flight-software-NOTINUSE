@@ -1,6 +1,7 @@
 #include <flight/modules/lib/Util.hpp>
 #include <queue>
 
+//boost is imported in Util.hpp
 namespace pt = boost::property_tree;
 vector<string> Util::parse_json(initializer_list<string> args) {
     pt::ptree root;
@@ -33,9 +34,22 @@ vector<string> Util::parse_json(initializer_list<string> args) {
  */
 
 vector<string> Util::parse_json_list(initializer_list<string> args) {
+    /**
+     * Returns list of things (strings) that are in the specified place in the config.json
+     * To specify the place, use a list of arguments
+     */
+
+    // args is just a list of arguments
+    // root is essentially a dictionary, it has key strings associated with data
     pt::ptree root;
+
+    // stores json contents in root
     pt::read_json("../src/config.json", root);
+
+    // convert item to auto so it can automatically adapt type.
     auto item = root;
+
+    // it's just a more efficient list for this use case
     vector<string> ret;
 
     if(args.size() == 0) {
@@ -43,13 +57,18 @@ vector<string> Util::parse_json_list(initializer_list<string> args) {
     }
 
     try {
+        // makes item the specified subdirectory in the json file
         for (string s : args) {
+            // index into subdirectory
             item = item.get_child(s);
         }
         for (auto &sub_item : item) {
+            // add items in subdirectory to list
             ret.push_back(sub_item.second.get_value<string>());
         }
     }
+
+    // catch if the argument (args) is not in the json file.
     catch (...) {
         throw JSON_PARSE_ERROR();
     }
@@ -58,6 +77,7 @@ vector<string> Util::parse_json_list(initializer_list<string> args) {
 }
 
 string Util::parse_json_value(initializer_list<string> args) {
+    // root is essentially a dictionary, it has key strings associated with data
     pt::ptree root;
     pt::read_json("../src/config.json", root);
     string path = "";

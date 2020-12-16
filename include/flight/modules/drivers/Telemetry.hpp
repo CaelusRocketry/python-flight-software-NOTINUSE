@@ -23,6 +23,8 @@ private:
     bool connection;
     queue<string> ingest_queue;
     queue<string> send_queue;
+
+    // lockable object used to specify when things need exclusive access.
     mutex mtx;
     thread* recv_thread = nullptr;
     bool TERMINATE_FLAG = false;

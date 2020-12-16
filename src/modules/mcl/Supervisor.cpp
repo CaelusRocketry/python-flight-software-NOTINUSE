@@ -66,8 +66,11 @@ void Supervisor::run(){
 }
 
 unordered_map<string, bool> Supervisor::parse_config() {
+    // parse_json_list automatically parses config.json
     auto task_config = Util::parse_json_list({"task_config", "tasks"});
     auto control_task_config = Util::parse_json_list({"task_config", "control_tasks"});
+
+    // unordered dict essentially
     unordered_map<string, bool> control_tasks;
 
     for(string task : task_config) {

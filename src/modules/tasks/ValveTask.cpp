@@ -22,7 +22,7 @@ void ValveTask::initialize(){
  */
 
 void ValveTask::read(){
-    log("Reading");
+    log("Reading valves...");
     char* data = valve->read();
 
     uint32_t int_data;

@@ -4,6 +4,7 @@
 #include <flight/modules/drivers/PseudoValve.hpp>
 #include <flight/modules/lib/Util.hpp>
 
+// Extends PseudoArduino
 PseudoValve::PseudoValve(){
     // List of all solenoids
     solenoid_locs = Util::parse_json_list({"valves", "list", "solenoid"});

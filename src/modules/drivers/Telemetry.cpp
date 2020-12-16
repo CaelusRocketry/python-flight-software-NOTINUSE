@@ -19,6 +19,8 @@ queue<string> Telemetry::read(int num_messages){
     if(num_messages > ingest_queue.size() || num_messages == -1){
         num_messages = ingest_queue.size();
     }
+
+    // type of list where elements are exclusively inserted from one side and removed from the other.
     queue<string> q;
     for(int i = 0; i < num_messages; i++){
         q.push(ingest_queue.front());
@@ -37,6 +39,7 @@ bool Telemetry::write(Packet packet){
     return true;
 }
 
+// This gets called in the main thread
 void Telemetry::recv_loop(){
     while(connection){
         if(TERMINATE_FLAG){
