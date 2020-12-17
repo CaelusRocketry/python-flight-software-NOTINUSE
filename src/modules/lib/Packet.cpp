@@ -24,7 +24,7 @@ string Packet::toString(){
 
 Packet Packet::fromString(string inputString){
     // Create Packet object from input string
-    map<string, string> data = Util::string_to_map(inputString, ":", "\n");
+    map<string, string> data = Util::string_to_map(inputString, ":", ",");
     long timestamp = stol(data["timestamp"]);
     LogPriority level = static_cast<LogPriority>(stoi(data["timestamp"]));
     Packet packet = Packet(level, timestamp);
