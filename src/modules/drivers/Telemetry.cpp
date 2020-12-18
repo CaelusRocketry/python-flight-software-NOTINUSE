@@ -30,7 +30,7 @@ queue<string> Telemetry::read(int num_messages){
     return q;
 }
 
-
+// This sends the packet to the GUI!
 bool Telemetry::write(Packet packet){
     string msg = packet.toString();
     log("Sending: " + msg);

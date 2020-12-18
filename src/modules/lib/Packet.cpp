@@ -1,6 +1,10 @@
 #include <map>
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/lib/Packet.hpp>
+#include <nlohmann/json.hpp>
+
+// for convenience
+using json = nlohmann::json;
 
 void Packet::add(Log log){
     logs.push_back(log);
@@ -24,13 +28,30 @@ string Packet::toString(){
 
 Packet Packet::fromString(string inputString){
     // Create Packet object from input string
-    map<string, string> data = Util::string_to_map(inputString, ":", ",");
-    long timestamp = stol(data["timestamp"]);
-    LogPriority level = static_cast<LogPriority>(stoi(data["timestamp"]));
+
+    // Convert string into json object
+    auto data = json::parse(inputString);
+
+    // print json for testing purposes
+    std::cout << data << std::endl;
+
+    // use string streams to extract values from json
+    std::ostringstream timestream;
+    timestream << "" << (data.at("timestamp"));
+
+    std::ostringstream levelstream;
+    levelstream << "" << (data.at("level"));
+
+    std::ostringstream logstream;
+    levelstream << "" << (data.at("logs"));
+
+    double timestamp = stod(timestream.str());
+
+    LogPriority level = static_cast<LogPriority>(stoi(levelstream.str()));
     Packet packet = Packet(level, timestamp);
 
     // Add all the Logs to the Packet
-    string logs_str = data["logs"];
+    string logs_str = logstream.str();
     size_t pos;
     string delim = "|";
     while((pos = logs_str.find(delim)) != string::npos){

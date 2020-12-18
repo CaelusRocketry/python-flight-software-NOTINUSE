@@ -12,13 +12,6 @@ void SensorTask::initialize(){
         }
     }
 
-    /*sensor_list.push_back(make_tuple("thermocouple", "chamber"));
-    sensor_list.push_back(make_tuple("thermocouple", "tank"));
-    sensor_list.push_back(make_tuple("pressure", "chamber"));
-    sensor_list.push_back(make_tuple("pressure", "injector"));
-    sensor_list.push_back(make_tuple("pressure", "tank"));
-    sensor_list.push_back(make_tuple("load", "tank"));*/
-
     sensor = new Arduino("PseudoSensor");
     log("Sensor task started");
 }
