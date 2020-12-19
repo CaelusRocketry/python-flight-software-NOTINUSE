@@ -2,6 +2,7 @@
 #include <Logger/logger_util.h>
 #include <flight/modules/tasks/TelemetryTask.hpp>
 #include <flight/modules/drivers/Telemetry.hpp>
+#include <boost/algorithm/string.hpp>
 
 void TelemetryTask::initialize() {
     this->telemetry.connect();
@@ -26,7 +27,14 @@ void TelemetryTask::read(){
         for(auto &packet = packets.front(); !packets.empty(); packets.pop()) {
             log("Packet: " + packet);
             // This line is broken because of Packet.cpp
-            ingest_queue.push(Packet::fromString(packet));
+
+            // strip of the "END"s off each packet string
+            vector<string> split_packets;
+            boost::split(split_packets, packet, boost::is_any_of("END"));
+
+            for(auto pack : split_packets) {
+                ingest_queue.push(Packet::fromString(pack));
+            }
         }
 
         log("After for loops...");

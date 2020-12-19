@@ -21,7 +21,7 @@ string Log::toString() {
     my_data.insert(pair<string, string>("header", header));
     my_data.insert(pair<string, string>("message", message));
     my_data.insert(pair<string, string>("timestamp", to_string(timestamp)));
-    return Util::map_to_string(my_data, ":", ",");
+    return "\"" + Util::map_to_string(my_data, ":", ",") + "\"";
 }
 
 Log Log::copy(){

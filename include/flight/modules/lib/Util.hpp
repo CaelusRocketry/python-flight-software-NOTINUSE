@@ -23,6 +23,8 @@ public:
      * This method doesn't work if you're trying to parse from a list in config.json (like
      * if you're trying to get the locations of the sensors). If you want that functionality,
      * use parse_json_list instead.
+     *
+     * This is for keys enclosed inside "{}"
     */
 
     static vector<string> parse_json(initializer_list<string> args);
@@ -30,6 +32,8 @@ public:
     /*
      * Example: to get a list of all the solenoids, do parse_json_list({"valves", "list", "solenoid"}).
      * Note that you have to specify the field "solenoid" in order to get the items from the list.
+     *
+     * This is for values enclosed inside "[]"
      */
 
     static vector<string> parse_json_list(initializer_list<string> args);
@@ -37,6 +41,8 @@ public:
     /*
      * Example: to get the value of telemetry's delay, do parse_json_value({"telemetry", "DELAY"}).
      * Note that you have to specify the field "DELAY" in order to get the items from the list.
+     *
+     * This is for singular values not enclosed in anything (found on the right side of a ":")
      */
 
     static string parse_json_value(initializer_list<string> args);

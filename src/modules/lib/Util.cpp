@@ -1,5 +1,6 @@
 #include <flight/modules/lib/Util.hpp>
 #include <queue>
+#include <boost/algorithm/string.hpp>
 
 //boost is imported in Util.hpp
 namespace pt = boost::property_tree;
@@ -100,17 +101,26 @@ string Util::parse_json_value(initializer_list<string> args) {
     return ret;
 }
 
-// Return a string representation of a map
+// Return a string representation of a 1D map
 string Util::map_to_string(map<string, string> data, string key_delim, string element_delim){
-    string output = "";
+    string output = "{";
     map<string, string>::iterator it = data.begin();
     while(it != data.end()){
         string key = it->first;
         string value = it->second;
-        output += key + key_delim + value;
+
+        // if the value is a letter, enclose it in quotes
+        if(value.size() > 0 and isalpha(value[0])) {
+            output += "\"" + key + "\"" + key_delim + "\"" + value + "\"";
+        }
+        else {
+            output += "\"" + key + "\"" + key_delim + value;
+        }
+
         output += element_delim;
         it++;
     }
+    output += "}";
     return output;
 }
 
@@ -118,17 +128,17 @@ string Util::map_to_string(map<string, string> data, string key_delim, string el
 
 map<string, string> Util::string_to_map(string data, string key_delim, string element_delim){
     map<string, string> output;
-    string temp = data;
 
-    size_t pos;
-    while((pos = temp.find(element_delim)) != string::npos){
-        string token = temp.substr(0, pos);
-        size_t split = token.find(key_delim);
-        assert(split != string::npos);
-        string key = token.substr(0, split);
-        token.erase(0, split + key_delim.length());
-        output.insert(pair<string, string>(key, token));
-        temp.erase(0, pos + element_delim.length());
+    // split each pair of values
+    vector<string> pairs;
+    boost::split(pairs, data, boost::is_any_of(element_delim));
+
+    for(string pair_string : pairs) {
+        // split into key and value
+        vector<string> key_and_value;
+        boost::split(key_and_value, pair_string, boost::is_any_of(key_delim));
+        assert(key_and_value.size() == 2);
+        output.insert(pair<string, string>(key_and_value[0], key_and_value[1]));
     }
 
     return output;
