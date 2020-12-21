@@ -144,8 +144,10 @@ void SensorControl::send_sensor_data() {
 
         message += "\"" + sensor + "\": {";
         message += "\"measured\": " + to_string(value) + ", \"kalman\": " + to_string(kalman_value) + ", \"status\": " + sensor_status_names.at(int(status));
-        message += "}, ";
+        message += "},";
     }
+
+    message[message.length() - 1] = '}';
 
     Util::enqueue(this->flag, Log("sensor_data", message), LogPriority::INFO);
 }

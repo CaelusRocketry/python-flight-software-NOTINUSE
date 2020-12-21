@@ -70,7 +70,7 @@ void StageControl::sendProgressionRequest() {
 
 void StageControl::sendData() {
     if(this->send_time == 0 || chrono::system_clock::now().time_since_epoch().count() > (this->send_time + this->send_interval)) {
-        Util::enqueue(this->flag, Log("response", "{\"header\": \"stage_data\", \"Stage\": " + stage_strings.at(stage_index) + ", \"Status: \"" + to_string(calculateStatus()) + "}"), LogPriority::INFO);
+        Util::enqueue(this->flag, Log("response", "{\"header\": \"stage_data\", \"Stage\": " + stage_strings.at(stage_index) + ", \"Status\": \"" + to_string(calculateStatus()) + "\"}"), LogPriority::INFO);
     }
 }
 

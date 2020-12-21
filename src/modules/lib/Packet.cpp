@@ -31,11 +31,14 @@ Packet Packet::fromString(string inputString){
     // example inputString:
     // {"logs": ["{\"header\": \"heartbeat\", \"message\": \"AT\", \"timestamp\": 1608410538.3439176}"], "timestamp": 1608410538.3439176, "level": 4}
 
-    auto logs = Util::parse_json_list({"logs"});
-    string message = Util::parse_json_value({"message"});
-    long timestamp = stol(Util::parse_json_value({"timestamp"}));
-    int level_int = stoi(Util::parse_json_value({"level"}));
-
+//    auto logs = Util::parse_json_list({"logs"}, inputString);
+    log("here11");
+    log("here22");
+    long timestamp = stol(Util::parse_json_value({"timestamp"}, inputString));
+    log("here33");
+    int level_int = stoi(Util::parse_json_value({"level"}, inputString));
+    log("here44");
+    auto logs = Util::parse_json_list({"logs"}, inputString);
     LogPriority level = static_cast<LogPriority>(level_int);
     Packet packet = Packet(level, timestamp);
 

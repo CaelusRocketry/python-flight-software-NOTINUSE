@@ -4,9 +4,18 @@
 
 //boost is imported in Util.hpp
 namespace pt = boost::property_tree;
-vector<string> Util::parse_json(initializer_list<string> args) {
+vector<string> Util::parse_json(initializer_list<string> args, string raw_json) {
     pt::ptree root;
-    pt::read_json("../src/config.json", root);
+
+    if(raw_json.empty()) {
+        pt::read_json("../src/config.json", root);
+    }
+    else {
+        stringstream ss;
+        ss << raw_json;
+        pt::read_json(ss, root);
+    }
+
     auto item = root;
     vector<string> ret;
 
@@ -34,7 +43,7 @@ vector<string> Util::parse_json(initializer_list<string> args) {
  * Note that you have to specify the field "solenoid" in order to get the items from the list.
  */
 
-vector<string> Util::parse_json_list(initializer_list<string> args) {
+vector<string> Util::parse_json_list(initializer_list<string> args, string raw_json) {
     /**
      * Returns list of things (strings) that are in the specified place in the config.json
      * To specify the place, use a list of arguments
@@ -45,7 +54,14 @@ vector<string> Util::parse_json_list(initializer_list<string> args) {
     pt::ptree root;
 
     // stores json contents in root
-    pt::read_json("../src/config.json", root);
+    if(raw_json.empty()) {
+        pt::read_json("../src/config.json", root);
+    }
+    else {
+        stringstream ss;
+        ss << raw_json;
+        pt::read_json(ss, root);
+    }
 
     // convert item to auto so it can automatically adapt type.
     auto item = root;
@@ -77,10 +93,19 @@ vector<string> Util::parse_json_list(initializer_list<string> args) {
     return ret;
 }
 
-string Util::parse_json_value(initializer_list<string> args) {
+string Util::parse_json_value(initializer_list<string> args, string raw_json) {
     // root is essentially a dictionary, it has key strings associated with data
     pt::ptree root;
-    pt::read_json("../src/config.json", root);
+
+    if(raw_json.empty()) {
+        pt::read_json("../src/config.json", root);
+    }
+    else {
+        stringstream ss;
+        ss << raw_json;
+        pt::read_json(ss, root);
+    }
+
     string path = "";
     string ret = "";
 
@@ -120,7 +145,7 @@ string Util::map_to_string(map<string, string> data, string key_delim, string el
         output += element_delim;
         it++;
     }
-    output += "}";
+    output[output.length() - 1] = '}';
     return output;
 }
 

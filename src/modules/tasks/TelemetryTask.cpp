@@ -10,31 +10,38 @@ void TelemetryTask::initialize() {
 
 
 void TelemetryTask::read(){
+    log("here telem read");
     auto status = this->telemetry.status();
     this->registry->put("telemetry.status", status);
 
     if(status) {
+        log("here1");
         auto packets = this->telemetry.read(-1);
+        log("here2");
 
         //get the current ingest queue from the registry
         auto ingest_queue = this->registry->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.ingest_queue");
-
+        log("here3");
         //for packet in packets read from telemetry, push packet to ingest queue
         for(auto &packet = packets.front(); !packets.empty(); packets.pop()) {
             log("Packet: " + packet);
             // This line is broken because of Packet.cpp
+
 
             // strip of the "END"s off each packet string
             vector<string> split_packets;
             boost::split(split_packets, packet, boost::is_any_of("END"));
 
             for(auto pack : split_packets) {
+                log("packet to be decoded: " + pack);
                 ingest_queue.push(Packet::fromString(pack));
             }
         }
 
         this->registry->put("telemetry.ingest_queue", ingest_queue);
     }
+
+    log("here gets here");
 
 }
 
