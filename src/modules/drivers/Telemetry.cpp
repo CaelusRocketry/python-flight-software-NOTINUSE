@@ -34,7 +34,13 @@ queue<string> Telemetry::read(int num_messages){
 bool Telemetry::write(Packet packet){
     string msg = packet.toString();
     log("Sending: " + msg);
-    send(sock, msg.c_str(), msg.length(), 0);
+    boost::system::error_code error;
+    boost::asio::write(socket, boost::asio::buffer(msg), boost::asio::transfer_all(), error);
+
+    if(error) {
+        throw boost::system::system_error(error);
+    }
+
     this_thread::sleep_for(chrono::milliseconds(DELAY_SEND));
     return true;
 }
@@ -45,18 +51,28 @@ void Telemetry::recv_loop(){
         if(TERMINATE_FLAG){
             break;
         }
-        try{
+        try {
             // Read in data from socket
-            char buffer[1024] = {0};
-            ::read(sock, buffer, 1024);
-            string msg(buffer);
+            boost::array<char, 1024> buf;
+            boost::system::error_code error;
+            size_t len = socket.read_some(boost::asio::buffer(buf), error);
+
+            if (error == boost::asio::error::eof) {
+                end();
+                break; // Connection closed cleanly by peer.
+            }
+            else if (error)
+                throw boost::system::system_error(error); // Some other error.
+
+            string msg(buf.data());
             mtx.lock();
             ingest_queue.push(msg);
             mtx.unlock();
             log("Received: " + msg);
             this_thread::sleep_for(chrono::seconds(DELAY_LISTEN));
         }
-        catch (...){
+        catch (std::exception& e){
+            log(e.what());
             end();
             throw SOCKET_READ_ERROR();
         }
@@ -75,24 +91,17 @@ void Telemetry::reset(){
 }
 
 bool Telemetry::connect(){
-    sock = 0;
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        connection = false;
-        throw SOCKET_CREATION_ERROR();
-    }
+    try {
+        socket.open(boost::asio::ip::tcp::v4());
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-    if(inet_pton(AF_INET, IP.c_str(), &serv_addr.sin_addr)<=0)
-    {
-        connection = false;
-        throw INVALID_ADDRESS_ERROR();
-    }
+        boost::asio::ip::address ip_address = boost::asio::ip::address::from_string(IP);
+        boost::asio::ip::tcp::endpoint ep(ip_address, PORT);
 
-    if (::connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-        connection = false;
+        socket.bind(ep);
+        socket.connect(ep);
+    }
+    catch(std::exception& e) {
+        log(e.what());
         throw SOCKET_CONNECTION_ERROR();
     }
 
@@ -107,7 +116,6 @@ bool Telemetry::connect(){
 
 void Telemetry::end(){
     TERMINATE_FLAG = true;
-    //TODO: Kill the socket connection
+    socket.close();
     connection = false;
-    sock = 0;
 }

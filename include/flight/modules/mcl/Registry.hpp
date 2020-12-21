@@ -24,7 +24,6 @@ private:
         if(field){
             return field;
         }
-        log("Line 25 in Registry.hpp!");
         throw DYNAMIC_CAST_ERROR();
     }
 

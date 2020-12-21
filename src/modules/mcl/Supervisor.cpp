@@ -41,16 +41,19 @@ void Supervisor::initialize(){
 }
 
 void Supervisor::read(){
+    log("Reading...");
     for(Task* task : tasks){
         task->read();
     }
 }
 
 void Supervisor::control(){
+    log("Controlling...");
     controlTask->control();
 }
 
 void Supervisor::actuate(){
+    log("Actuating...");
     for(Task* task : tasks){
         task->actuate();
     }

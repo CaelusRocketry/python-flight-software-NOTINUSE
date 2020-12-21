@@ -10,19 +10,15 @@ void TelemetryTask::initialize() {
 
 
 void TelemetryTask::read(){
-    log("Reading telemetry...");
     auto status = this->telemetry.status();
     this->registry->put("telemetry.status", status);
-    log("Before if statement...");
 
     if(status) {
         auto packets = this->telemetry.read(-1);
 
-        log("Before ingest queue...");
         //get the current ingest queue from the registry
         auto ingest_queue = this->registry->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.ingest_queue");
 
-        log("Before for loops...");
         //for packet in packets read from telemetry, push packet to ingest queue
         for(auto &packet = packets.front(); !packets.empty(); packets.pop()) {
             log("Packet: " + packet);
@@ -37,11 +33,8 @@ void TelemetryTask::read(){
             }
         }
 
-        log("After for loops...");
-
         this->registry->put("telemetry.ingest_queue", ingest_queue);
     }
-    log("Finished reading telemetry...");
 
 }
 

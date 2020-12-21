@@ -4,14 +4,15 @@
 #include <string>
 #include <queue>
 #include <stdio.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#include <boost/array.hpp>
+#include <boost/asio.hpp>
 #include <unistd.h>
 #include <mutex>
 #include <thread>
 #include <flight/modules/lib/Packet.hpp>
 
 using namespace std;
+using boost::asio::ip::tcp;
 
 class Telemetry {
 private:
@@ -29,9 +30,8 @@ private:
     thread* recv_thread = nullptr;
     bool TERMINATE_FLAG = false;
 
-    struct sockaddr_in serv_addr;
-    int sock;
-
+    boost::asio::io_context io_context;
+    tcp::socket socket = tcp::socket(io_context);
 
 public:
     Telemetry();
