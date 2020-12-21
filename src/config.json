@@ -93,7 +93,7 @@
     "control_tasks": ["sensor", "telemetry", "valve", "stage", "pressure"]
   },
   "stages": {
-    "list": ["pressurization", "autosequence", "postburn"],
+    "list": ["waiting", "pressurization", "autosequence", "postburn"],
     "request_interval": 10,
     "send_interval": 2
   }
