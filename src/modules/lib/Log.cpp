@@ -3,6 +3,9 @@
 #include <map>
 #include <flight/modules/lib/Log.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 // Log string to black_box.txt
 void Log::save(string filename){
@@ -16,12 +19,18 @@ void Log::save(string filename){
 }
 
 string Log::toString() {
-    // Create map representing Log object data
-    map<string, string> my_data;
-    my_data.insert(pair<string, string>("header", header));
-    my_data.insert(pair<string, string>("message", message));
-    my_data.insert(pair<string, string>("timestamp", to_string(timestamp)));
-    return "\"" + Util::map_to_string(my_data, ":", ",") + "\"";
+    json j;
+    j["header"] = header;
+    j["message"] = message;
+    j["timestamp"] = timestamp;
+
+    return j.dump();
+//    // Create map representing Log object data
+//    map<string, string> my_data;
+//    my_data.insert(pair<string, string>("header", Util::escape_string(header)));
+//    my_data.insert(pair<string, string>("message", Util::escape_string(message)));
+//    my_data.insert(pair<string, string>("timestamp", to_string(timestamp)));
+//    return Util::escape_string(Util::map_to_string(my_data, ":", ","));
 }
 
 Log Log::copy(){

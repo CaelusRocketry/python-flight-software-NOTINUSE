@@ -45,6 +45,11 @@ public:
     static vector<string> parse_json_list(initializer_list<string> args, string raw_json = "");
 
     /*
+     * Escapes a string so it can be used in JSON
+     */
+    static string escape_string(string str);
+
+    /*
      * Example: to get the value of telemetry's delay, do parse_json_value({"telemetry", "DELAY"}).
      * Note that you have to specify the field "DELAY" in order to get the items from the list.
      *
@@ -64,7 +69,6 @@ public:
      */
     static string map_to_string(map<string, string> data, string key_delim, string element_delim);
 
-
     /*
      * Used to convert a string to a dictionary (with string key and value).
      * Used by Log and Packet in the toString methods.
@@ -78,4 +82,8 @@ public:
 
     static void enqueue(Flag *flag, Log log, LogPriority logPriority);
 
+    /*
+     * Split a string by a delimiter
+     */
+    static vector<string> split(const string &s, const string &delim);
 };

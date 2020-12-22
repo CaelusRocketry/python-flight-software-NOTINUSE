@@ -1,7 +1,7 @@
 #ifndef FLIGHT_FIELD_HPP
 #define FLIGHT_FIELD_HPP
 
-include <flight/modules/mcl/FieldBase.hpp>
+#include <flight/modules/mcl/FieldBase.hpp>
 
 using namespace std;
 

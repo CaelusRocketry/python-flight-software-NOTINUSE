@@ -126,14 +126,43 @@ string Util::parse_json_value(initializer_list<string> args, string raw_json) {
     return ret;
 }
 
+string Util::escape_string(string message) {
+    stringstream stream;
+    stream << "\"";
+    for (char c : message) {
+        switch (c) {
+            case '\n':
+                stream << "\\n";
+                break;
+            case '\t':
+                stream << "\\t";
+                break;
+            case '\"':
+                stream << "\\\"";
+                break;
+            case '\'':
+                stream << "\\\'";
+                break;
+            default:
+                stream << c;
+        }
+    }
+    stream << "\"";
+
+    return stream.str();
+}
+
 // Return a string representation of a 1D map
 string Util::map_to_string(map<string, string> data, string key_delim, string element_delim){
     string output = "{";
     map<string, string>::iterator it = data.begin();
-    while(it != data.end()){
+    while (it != data.end()) {
         string key = it->first;
         string value = it->second;
 
+        output += "\"" + key + "\"" + key_delim + value;
+
+        /*
         // if the value is a letter, enclose it in quotes
         if(value.size() > 0 and isalpha(value[0])) {
             output += "\"" + key + "\"" + key_delim + "\"" + value + "\"";
@@ -141,6 +170,7 @@ string Util::map_to_string(map<string, string> data, string key_delim, string el
         else {
             output += "\"" + key + "\"" + key_delim + value;
         }
+        */
 
         output += element_delim;
         it++;
@@ -167,6 +197,18 @@ map<string, string> Util::string_to_map(string data, string key_delim, string el
     }
 
     return output;
+}
+
+vector<string> Util::split(const string &s, const string &delim){
+    vector<string> result;
+    int start = 0;
+    int end = 0;
+    while(end!=string::npos){
+        end = s.find(delim, start);
+        result.push_back(s.substr(start, end-start));
+        start = end + delim.length();
+    }
+    return result;
 }
 
 void Util::enqueue(Flag *flag, Log log, LogPriority logPriority) {

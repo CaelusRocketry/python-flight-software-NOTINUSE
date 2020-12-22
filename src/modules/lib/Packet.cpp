@@ -1,6 +1,9 @@
 #include <map>
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/lib/Packet.hpp>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 void Packet::add(Log log){
     logs.push_back(log);
@@ -26,26 +29,27 @@ string Packet::toString(){
     return Util::map_to_string(my_data, ":", ",");
 }
 
-Packet Packet::fromString(string inputString){
+Packet Packet::fromString(string inputString) {
+    json j = json::parse(inputString);
+
+    long timestamp = j.at("timestamp").get<long>();
+    int level_int = j.at("level").get<int>();
+    LogPriority level = static_cast<LogPriority>(level_int);
+
+    Packet packet = Packet(level, timestamp);
+    std::vector<json> logs = j.at("logs");
+    for (json log : logs) {
+        string header, message;
+        long timestamp;
+        log.at("header").get_to(header);
+        log.at("message").get_to(message);
+        log.at("timestamp").get_to(timestamp);
+        packet.add(Log(header, message, timestamp));
+    }
+
     // Create Packet object from input string
     // example inputString:
     // {"logs": ["{\"header\": \"heartbeat\", \"message\": \"AT\", \"timestamp\": 1608410538.3439176}"], "timestamp": 1608410538.3439176, "level": 4}
-
-//    auto logs = Util::parse_json_list({"logs"}, inputString);
-    log("here11");
-    log("here22");
-    long timestamp = stol(Util::parse_json_value({"timestamp"}, inputString));
-    log("here33");
-    int level_int = stoi(Util::parse_json_value({"level"}, inputString));
-    log("here44");
-    auto logs = Util::parse_json_list({"logs"}, inputString);
-    LogPriority level = static_cast<LogPriority>(level_int);
-    Packet packet = Packet(level, timestamp);
-
-    // Add all the Logs to the Packet
-    for(string log_str : logs) {
-        packet.add(Log::fromString(log_str));
-    }
 
     return packet;
 }
