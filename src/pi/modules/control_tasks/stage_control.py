@@ -72,7 +72,7 @@ class StageControl:
 
 
     def progress(self):
-        if self.status != 100 or self.registry.get(("general", "hard_abort"))[1]:
+        if self.status != 100 or self.registry.get(("general", "soft_abort"))[1]:
             log = Log(header="response", message={"header": "Stage progression failed", "description": "Stage progression failed, rocket not yet ready", "Stage": self.curr_stage, "Status": self.status})
             enqueue(self.flag, log, LogPriority.CRIT)
             return

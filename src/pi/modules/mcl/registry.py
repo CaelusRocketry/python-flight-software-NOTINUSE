@@ -29,7 +29,6 @@ class Registry:
 				"status": None
 			},
 			"general": {
-				"hard_abort": False,
 				"soft_abort": False,
 				"stage": None,
 				"stage_status": 0,
@@ -54,7 +53,6 @@ class Registry:
 				"resetting": bool
 			},
 			"general": {
-				"hard_abort": bool,
 				"soft_abort": bool,
 				"stage": Stage,
 				"stage_status": float,
@@ -77,7 +75,6 @@ class Registry:
 				"resetting": None
 			},
 			"general": {
-				"hard_abort": None,
 				"soft_abort": None,
 				"stage": None,
 				"stage_status": None,

@@ -55,11 +55,8 @@ class ValveControl():
 
 
     def check_abort(self):
-        if self.registry.get(("general", "hard_abort"))[1] or self.registry.get(("general", "soft_abort"))[1]:
+        if self.registry.get(("general", "soft_abort"))[1]:
             self.abort()
-        elif not self.registry.get(("general", "soft_abort"))[1]:
-            self.undo_abort()
-
 
     def execute(self):
         self.check_abort()

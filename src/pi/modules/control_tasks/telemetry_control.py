@@ -13,7 +13,6 @@ class TelemetryControl():
         self.flag = flag
         self.funcs = {
             "heartbeat": self.heartbeat,
-            "hard_abort": self.hard_abort,
             "soft_abort": self.soft_abort,
             "solenoid_actuate": self.solenoid_actuate,
             "sensor_request": self.sensor_request,
@@ -23,7 +22,6 @@ class TelemetryControl():
         }
         self.arguments = {
             "heartbeat": (),
-            "hard_abort": (),
             "soft_abort": (),
             "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", ValvePriority)),
             "sensor_request": (("sensor_type", SensorType), ("sensor_location", SensorLocation)),
@@ -94,13 +92,6 @@ class TelemetryControl():
 
     def heartbeat(self):
         enqueue(self.flag, Log(header="heartbeat", message={"response": "OK"}), LogPriority.INFO)
-
-
-    def hard_abort(self):
-        self.registry.put(("general", "hard_abort"), True)
-        log = Log(header="response", message={"header": "Hard abort", "Status": "Success", "Description": "Rocket is undergoing hard abort"})
-        enqueue(self.flag, log, LogPriority.CRIT)
-        enqueue(self.flag, Log(header="mode", message={"mode": "Hard abort"}), LogPriority.CRIT)
 
 
     def soft_abort(self):
