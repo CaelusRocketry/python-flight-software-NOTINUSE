@@ -112,7 +112,6 @@ class StageControl:
             #     self.flag.put(("solenoid", "actuation_priority", ValveLocation.PRESSURIZATION), ValvePriority.PI_PRIORITY)
             mpv_actuation = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, ValveLocation.MAIN_PROPELLANT_VALVE))[1]
             if curr - self.start_time > AUTOSEQUENCE_DELAY and mpv_actuation != ActuationType.OPEN_VENT:
-                print("Actuating MPV")
                 # Actuate valve
                 self.flag.put(("solenoid", "actuation_type", ValveLocation.MAIN_PROPELLANT_VALVE), ActuationType.OPEN_VENT)
                 self.flag.put(("solenoid", "actuation_priority", ValveLocation.MAIN_PROPELLANT_VALVE), ValvePriority.PI_PRIORITY)

@@ -71,8 +71,9 @@ class SensorControl():
         #         enqueue(self.flag, log, LogPriority.CRIT)
         #         enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)
         
+        # executes soft abort
         if len(crits) > 0 and not soft:
-                # hard abort if sensor status is critical and send info to GS
+                # soft abort if sensor status is critical and send info to GS
                 self.registry.put(("general", "soft_abort"), True)
                 log = Log(header="response", message={"header": "Soft abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
                 enqueue(self.flag, log, LogPriority.CRIT)

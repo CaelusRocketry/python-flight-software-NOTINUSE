@@ -230,8 +230,7 @@ class Arduino(Driver):
     def __init__(self, name: "str", config: dict):
         super().__init__(name)
         self.name = name
-        print("MY NAME IS")
-        print(self.name)
+        print("MY NAME IS", self.name)
         self.config = config
         self.address = self.config["address"]
         self.reset()
