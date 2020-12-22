@@ -34,7 +34,6 @@ Registry::Registry() {
     add<bool>("telemetry.resetting", false);
 
     // General fields
-    add<bool>("general.hard_abort", false);
     add<bool>("general.soft_abort", false);
     add<Stage>("general.stage", Stage::WAITING);
     add<double>("general.stage_status", 0.0);

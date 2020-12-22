@@ -21,7 +21,6 @@ TelemetryControl::TelemetryControl(Registry *registry, Flag *flag) {
 // Store list of all commands that GS can send as functions, add the function pointers to the map and call when necessary
 void TelemetryControl::makeFunctions() {
     this->functions.emplace("heartbeat", &TelemetryControl::heartbeat);
-    this->functions.emplace("hard_abort", &TelemetryControl::hard_abort);
     this->functions.emplace("soft_abort", &TelemetryControl::soft_abort);
     this->functions.emplace("solenoid_actuate", &TelemetryControl::solenoid_actuate);
     this->functions.emplace("sensor_request", &TelemetryControl::sensor_request);
@@ -89,11 +88,7 @@ void TelemetryControl::ingest(Log log) {
 void TelemetryControl::heartbeat(vector<string> args) {
     Util::enqueue(this->flag, Log("heartbeat", "{\"header\": \"heartbeat\", \"response\": \"OK\"}"), LogPriority::INFO);
 }
-void TelemetryControl::hard_abort(vector<string> args) {
-    this->registry->put("general.hard_abort", true);
-    Util::enqueue(this->flag, Log("response", "{\"header\": \"Hard abort\", \"Status\": \"Success\", \"Description\": \"Rocket is undergoing hard abort\"}"), LogPriority::CRIT);
-    Util::enqueue(this->flag, Log("mode", "{\"header\": \"Hard abort\", \"mode\": \"Hard abort\"}"), LogPriority::CRIT);
-}
+
 void TelemetryControl::soft_abort(vector<string> args) {
     this->registry->put("general.soft_abort", true);
     Util::enqueue(this->flag, Log("response", "{\"header\": \"Soft abort\", \"Status\": \"Success\", \"Description\": \"Rocket is undergoing soft abort\"}"), LogPriority::CRIT);
