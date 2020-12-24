@@ -80,9 +80,10 @@ void ValveControl::undo_abort() {
 }
 
 void ValveControl::check_abort() {
-    if(registry->get<bool>("general.hard_abort") || registry->get<bool>("general.soft_abort")) {
+    if(registry->get<bool>("general.soft_abort")) {
         abort();
-    } else if(!registry->get<bool>("general.soft_abort")) {
-        undo_abort();
     }
+    //  else if(!registry->get<bool>("general.soft_abort")) {
+    //     undo_abort();
+    // }
 }
