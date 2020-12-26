@@ -91,7 +91,8 @@ class TelemetryControl():
 
 
     def heartbeat(self):
-        enqueue(self.flag, Log(header="heartbeat", message={"response": "OK"}), LogPriority.INFO)
+        enqueue(self.flag, Log(header="heartbeat", message={"response": "OK", "mode": "Soft abort" if self.registry.get(("general", "soft_abort"))[1] else "Normal"}), LogPriority.INFO)
+        print("mode", self.registry.get(("general", "soft_abort"))[1])
 
 
     def soft_abort(self):
