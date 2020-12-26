@@ -20,7 +20,6 @@ private:
     unordered_map<string, functionType> functions;
     const unordered_map<string, vector<string>> arguments {
             {"heartbeat", {}},
-            {"hard_abort", {}},
             {"soft_abort", {}},
             {"solenoid_actuate", {"valve_location", "actuation_type", "priority"}},
             {"sensor_request", {"sensor_type", "sensor_location"}},
@@ -31,7 +30,6 @@ private:
 
     void ingest(Log log);
     void heartbeat(vector<string> args);
-    void hard_abort(vector<string> args);
     void soft_abort(vector<string> args);
     void solenoid_actuate(vector<string> args);
     void sensor_request(vector<string> args);

@@ -70,27 +70,20 @@ void SensorControl::boundary_check() {
         }
     }
 
-    bool hard = registry->get<bool>("general.hard_abort");
     bool soft = registry->get<bool>("general.soft_abort");
 
-    if(!hard) {
-        if(crits.empty()) {
-           if(soft) { //undo soft abort
-               registry->put("general.soft_abort", false);
-               Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Sensors have returned to normal\"}"), LogPriority::CRIT);
-           }
-        }
-        else if(!soft){ //one or more of the sensors are critical, soft abort if we haven't already done so
-            registry->put("general.soft_abort", true);
-            string message = "Soft aborting because the following sensors have reached critical levels- ";
 
-            for(string &x : crits) {
-                message += x + ", ";
-            }
-            message = message.substr(0, message.length() - 2);
-            Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"" + message + "\"}"), LogPriority::CRIT);
+    if(!soft and crits.empty()){ //one or more of the sensors are critical, soft abort
+        registry->put("general.soft_abort", true);
+        string message = "Soft aborting because the following sensors have reached critical levels- ";
+
+        for(string &x : crits) {
+            message += x + ", ";
         }
+        message = message.substr(0, message.length() - 2);
+        Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"" + message + "\"}"), LogPriority::CRIT);
     }
+    
 }
 
 unordered_map<string, Kalman> SensorControl::init_kalman() {
