@@ -27,7 +27,7 @@ struct ConfigValveInfo {
 
 class Config {
 public:
-    struct telemetry {
+    struct {
         string GS_IP;
         int GS_PORT;
 
@@ -35,35 +35,35 @@ public:
         int SOCKETIO_PORT;
 
         double DELAY;
-    };
+    } telemetry;
 
-    struct sensors {
+    struct {
         map<string, map<string, ConfigSensorInfo>> list;
         string address;
         int baud;
         double send_interval;
-    };
+    } sensors;
 
-    struct valves {
+    struct {
         map<string, map<string, ConfigValveInfo>> list;
         string address;
         int baud;
         double send_interval;
-    };
+    } valves;
 
-    struct stages {
+    struct {
         vector<string> list;
         double request_interval;
         double send_interval;
-    };
+    } stages;
 
-    struct timer {
+    struct {
         double delay;
-    };
+    } timer;
 
-    struct pressure_control {
+    struct {
         vector<string> active_stages;
-    };
+    } pressure_control;
 
     string arduino_type;
 };
