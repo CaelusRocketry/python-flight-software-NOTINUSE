@@ -38,7 +38,7 @@ set (SOURCE_FILES
         include/flight/modules/control_tasks/PressureControl.hpp
         src/modules/control_tasks/PressureControl.cpp
         include/nlohmann/json.hpp
-        )
+        include/flight/modules/mcl/Config.hpp)
 
 
 set(CMAKE_CXX_STANDARD 11) # misc stuff
