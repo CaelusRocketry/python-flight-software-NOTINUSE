@@ -9,17 +9,24 @@
 #include <flight/modules/lib/Enums.hpp>
 
 class ValveTask : public Task {
-private:
-    Arduino* valve;
-    vector<tuple<string, string>> valve_list;
-public:
-    ValveTask(Registry* r, Flag* f)
-            : Task(r, f) {}
-    void initialize();
-    void read();
-    void actuate();
-    void actuate_solenoids();
+    private:
+        Arduino* arduino;
+        vector<pair<string, string>> valve_list;
+        string name;
+    public:
+        ValveTask() {
+            name = "Valve Arduino";
+        }
+
+        void begin();
+        void send_valve_info();
+        void get_float();
+        void get_command();
+        void initialize();
+        void read();
+        void actuate();
+        void actuate_solenoids();
 };
 
 
-#endif //FLIGHT_VALVETASK_HPP
+#endif // FLIGHT_VALVETASK_HPP

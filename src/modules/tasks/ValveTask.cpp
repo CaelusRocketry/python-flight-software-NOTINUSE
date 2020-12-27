@@ -1,59 +1,89 @@
-#include <bitset>
-#include <assert.h>
 #include <Logger/logger_util.h>
 #include <flight/modules/tasks/ValveTask.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <flight/modules/mcl/Config.hpp>
+
+char SEND_DATA_CMD = 127;
+char ACTUATE_CMD = 126;
+
+pair<string, string> pin_to_valve[14];
 
 void ValveTask::initialize(){
     log("Valve task started");
-    valve_list.push_back(make_tuple("solenoid", "main_propellant_valve"));
-    valve_list.push_back(make_tuple("solenoid", "pressure_relief"));
-    valve_list.push_back(make_tuple("solenoid", "propellant_vent"));
+    for (const auto& valve_type : global_config.valves.list) {
+        string type = valve_type.first;
+        auto valve_locations = valve_type.second;
+        for (const auto& valve_location : valve_locations) {
+            string location = valve_location.first;
+            ConfigValveInfo valve_info = valve_location.second;
+            int pin = valve_info.pin;
 
-    valve = new Arduino("PseudoValve");
+            pin_to_valve[pin].first = type;
+            pin_to_valve[pin].second = location;
+
+            valve_list.push_back(make_pair(type, location));
+        }
+    }
+    arduino = new Arduino("PseudoValve");
+}
+
+void ValveTask::begin() {
+    this->send_valve_info();
+}
+
+void ValveTask::send_valve_info() {
+    char *buf = new char[1 + NUM_VALVES * 3];
+
+    buf[0] = NUM_VALVES;
+    for (int i = 0; i < NUM_VALVES; i++) {
+        auto valve_ = valve_list[i];
+
+        string type = valve_.first;
+        string location = valve_.second;
+
+        // Send pin<int>, is valve special<bool>, and the natural state of the valve<SolenoidState; represented as a string>.
+        ConfigValveInfo valve = global_config.valves.list[type][location];
+
+        buf[i * 3 + 0] = valve.pin;
+        buf[i * 3 + 1] = valve.special;
+        buf[i * 3 + 2] = valve.natural_state == "OPEN" ? 1 : 0;
+    }
+
+    arduino->write(buf);
+
+    // TODO add confirmation check here
 }
 
 /*
  * Reads all actuation states from valve and updates registry
  *
- * Reads data from valve as char*, converts to a 32-bit int (each data point is stored as 2 bits
- * inside this larger int), converts each data to an ActuationType and updates the registry from there.
- *
+ * Reads data from valve as char*, converts each data to an ActuationType and updates the registry from there.
  */
-
 void ValveTask::read(){
-    log("here valve read");
-    char* data = valve->read();
+    arduino->write(new char[1] {SEND_DATA_CMD});
+    char* data = arduino->read();
 
-    uint32_t int_data;
-    memcpy(&int_data, data, sizeof(int));
-    constexpr int num_bits = NUM_VALVES * 2 + 1;
-    string str_data = bitset<num_bits>(int_data).to_string();
-    vector<ActuationType> actuations;
-    for(int i = 0; i < NUM_VALVES; i++){
-        string sub = str_data.substr(num_bits - (i+1)*2 - 1, num_bits - i*2 - 1);
-        int actuation_int = stoi(sub);
-        actuations.push_back(static_cast<ActuationType>(actuation_int));
-    }
+    for (int i = 0; i < NUM_VALVES; i++){
+        char solenoid_data[3];
+        memcpy(solenoid_data, data, 3 * sizeof(char));
 
-    for(int i = 0; i < NUM_VALVES; i++){
-        auto path = valve_list[i];
-        string type = get<0>(path);
-        string loc = get<1>(path);
-        registry->put<ActuationType>("valve_actuation_type." + type + "." + loc, actuations[i]);
-        if(actuations[i] == ActuationType::NONE || actuations[i] == ActuationType::CLOSE_VENT) {
-            registry->put<SolenoidState>("valve." + type + "." + loc, SolenoidState::CLOSED);
-        }
-        else{
-            registry->put<SolenoidState>("valve." + type + "." + loc, SolenoidState::OPEN);
-        }
+        int pin = solenoid_data[0];
+        SolenoidState state = static_cast<SolenoidState>(solenoid_data[1]);
+        ActuationType actuation_type = static_cast<ActuationType>(solenoid_data[0]);
+
+        string valve_type = pin_to_valve[pin].first;
+        string valve_location = pin_to_valve[pin].second;
+
+        /* Update the registry */
+        global_registry.valves[valve_type][valve_location].state = state;
+        global_registry.valves[valve_type][valve_location].actuation_type = actuation_type;
     }
 }
 
 
 void ValveTask::actuate(){
     log("Actuating valves");
-    this->actuate_solenoids();
+    actuate_solenoids();
 }
 
 /*
@@ -65,35 +95,48 @@ void ValveTask::actuate(){
  */
 
 void ValveTask::actuate_solenoids() {
-    auto locations = Util::parse_json_list({"valves", "list", "solenoid"});
-    for(int loc_idx = 0; loc_idx < locations.size(); loc_idx++) {
-        auto loc = locations[loc_idx];
-        auto actuation_type = this->flag->get<ActuationType>("valve_actuation_type.solenoid." + loc);
-        auto actuation_priority = this->flag->get<ValvePriority>("valve_actuation_priority.solenoid." + loc);
+    for (auto valve_ : valve_list) {
+        string valve_type = valve_.first;
+        string valve_location = valve_.second;
 
-        if(actuation_priority != ValvePriority::NONE) {
-            auto current_priority = this->registry->get<ValvePriority>("valve_actuation_priority.solenoid." + loc);
-            char ret[2];
-            ret[0] = loc_idx;
+        if (valve_type != "solenoid") {
+            continue;
+        }
 
-            if(int(actuation_priority) >= int(current_priority)) {
-                if(actuation_type == ActuationType::NONE) {
-                    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Allowing other valves to actuate\"}"), LogPriority::INFO);
-                    ret[1] = int(ActuationType::NONE);
-                    this->registry->put("valve_actuation_type.solenoid." + loc, actuation_type);
-                    this->registry->put("valve_actuation_priority.solenoid." + loc, ValvePriority::NONE);
-                }
-                else {
-                    ret[1] = int(actuation_type);
-                    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Actuating solenoid." + loc + "...\"}"), LogPriority::INFO);
-                    this->registry->put("valve_actuation_type.solenoid." + loc, actuation_type);
-                    this->registry->put("valve_actuation_priority.solenoid." + loc, actuation_priority);
-                }
+        int pin = global_config.valves.list[valve_type][valve_location].pin;
+        FlagValveInfo target_valve_info = global_flag.valves[valve_type][valve_location];
+        RegistryValveInfo current_valve_info = global_registry.valves[valve_type][valve_location];
 
-                this->valve->write(ret);
-                this->registry->put("valve_actuation_type.solenoid." + loc, ActuationType::NONE);
-                this->registry->put("valve_actuation_priority.solenoid." + loc, ValvePriority::NONE);
-            }
+        if (
+            target_valve_info.actuation_priority != ValvePriority::NONE &&
+            target_valve_info.actuation_priority >= current_valve_info.actuation_priority
+        ) {
+            /* Update the registry */
+            global_registry.valves[valve_type][valve_location].actuation_type = target_valve_info.actuation_type;
+            global_registry.valves[valve_type][valve_location].actuation_priority = target_valve_info.actuation_priority;
+
+            /* Send command to actuate */
+            char command[3];
+            command[0] = ACTUATE_CMD;
+            command[1] = pin;
+            command[2] = static_cast<char>(target_valve_info.actuation_type);
+
+            arduino -> write(command);
+
+            /* Reset the flags */
+            global_flag.valves[valve_type][valve_location].actuation_type = ActuationType::NONE;
+            global_flag.valves[valve_type][valve_location].actuation_priority = ValvePriority::NONE;
+
+            stringstream log_string;
+            log_string << "{\"header\": \"info\", \"Description\": \"Set actuation at ";
+            log_string << valve_type << "." << valve_location;
+            log_string << " to " << static_cast<int>(target_valve_info.actuation_type);
+            log_string << "\"}";
+
+            /* Write the logs */
+            Util::enqueue(global_flag, Log("response", log_string.str()), LogPriority::INFO);
+        } else {
+            Util::enqueue(global_flag, Log("response", "{\"header\": \"info\", \"Description\": \"Allowing other valves to actuate\"}"), LogPriority::INFO);
         }
     }
 }
