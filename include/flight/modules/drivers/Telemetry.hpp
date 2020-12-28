@@ -3,7 +3,7 @@
 
 #include <string>
 #include <queue>
-#include <stdio.h>
+#include <cstdio>
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <unistd.h>
@@ -16,13 +16,8 @@ using boost::asio::ip::tcp;
 
 class Telemetry {
 private:
-    string IP;
-    int PORT;
-    long int DELAY_LISTEN;
-    long int DELAY_SEND;
     bool connection;
     queue<string> ingest_queue;
-    queue<string> send_queue;
 
     // lockable object used to specify when things need exclusive access.
     mutex mtx;
@@ -35,9 +30,9 @@ private:
 public:
     Telemetry();
     queue<string> read(int num_messages);
-    bool write(Packet packet);
+    bool write(const Packet& packet);
     void recv_loop();
-    bool status();
+    bool getStatus() const;
     void reset();
     bool connect();
     void end();

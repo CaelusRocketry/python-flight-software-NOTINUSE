@@ -3,15 +3,19 @@
 #include <Logger/logger_util.h>
 #include <flight/modules/drivers/PseudoValve.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <flight/modules/mcl/Config.hpp>
 
 // Extends PseudoArduino
 PseudoValve::PseudoValve(){
-    // List of all solenoids
-    solenoid_locs = Util::parse_json_list({"valves", "list", "solenoid"});
+    /* Pair<Location, Config> */
+    for (auto pair : global_config.valves.list["solenoid"]) {
+        solenoid_locs.push_back(pair.first);
+    }
+
     num_solenoids = solenoid_locs.size();
 
     // Initialize valve states to be closed and actuations to be none
-    for(auto valve : solenoid_locs){
+    for (auto valve : solenoid_locs){
         valve_states[make_tuple("solenoid", valve)] = "closed";
         valve_actuations[make_tuple("solenoid", valve)] = "none";
     }
@@ -20,7 +24,6 @@ PseudoValve::PseudoValve(){
 /*
  * Convert human-readable actuation data to unreadable bytes data to simulate what we'd get from an Arduino
  */
-
 char* PseudoValve::read(){
     uint32_t data = 0;
     static char bytes[4];

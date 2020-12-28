@@ -14,6 +14,7 @@ TelemetryControl::TelemetryControl() {
 
 // Store list of all commands that GS can send as functions, add the function pointers to the map and call when necessary
 void TelemetryControl::makeFunctions() {
+    log("Telemetry: Making Functions");
     this->functions.emplace("heartbeat", &TelemetryControl::heartbeat);
     this->functions.emplace("soft_abort", &TelemetryControl::soft_abort);
     this->functions.emplace("solenoid_actuate", &TelemetryControl::solenoid_actuate);
@@ -24,9 +25,12 @@ void TelemetryControl::makeFunctions() {
 }
 
 void TelemetryControl::begin() {
+    log("Telemetry control: Beginning");
+    telemetry.connect();
     makeFunctions();
 }
 void TelemetryControl::execute() {
+    log("Telemetry control: Executing");
     if (!global_registry.telemetry.status) {
         global_flag.telemetry.reset = true;
     } else {
@@ -130,7 +134,7 @@ void TelemetryControl::sensor_request(vector<string> args) {
     auto now = std::chrono::system_clock::now().time_since_epoch().count();
     global_flag.log_critical("response", "{\"header\": \"sensor_data_request\", \"Status\": \"Success\", \"Sensor type\": \"" +
         sensor_type + "\", \"Sensor location\": \"" + sensor_loc + ", \"Measured value\": \"" + to_string(value) +
-        ", \"Normalized value\": \"" + to_string(kalman_value) + ", \"Sensor status\": \"" + sensor_status_str +
+        ", \"Normalized value\": \"" + to_string(kalman_value) + ", \"Sensor getStatus\": \"" + sensor_status_str +
         ", \"Last updated\": \"" + to_string(now) + "}");
 }
 void TelemetryControl::valve_request(vector<string> args) {

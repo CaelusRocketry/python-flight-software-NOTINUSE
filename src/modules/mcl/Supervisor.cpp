@@ -7,16 +7,10 @@
 #include <flight/modules/tasks/ValveTask.hpp>
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/mcl/Config.hpp>
-#include <flight/modules/mcl/Registry.hpp>
 
 using json = nlohmann::json;
 
 //TODO: wrap everything in a try catch to make sure that execution doesn't stop if/when an error gets thrown?
-
-Supervisor::Supervisor() {
-    log("Supervisor: Parsing config");
-    parse_config();
-}
 
 Supervisor::~Supervisor() {
     delete control_task;
@@ -33,12 +27,15 @@ void Supervisor::initialize() {
     global_config = Config(j);
     global_registry.initialize();
 
-    log("Initializing tasks");
+    log("Supervisor: Parsing config");
+    parse_config();
+
+    log("Tasks: Initializing");
     for (Task* task : tasks){
         task->initialize();
     }
 
-    log("Initializing control tasks");
+    log("Control tasks: Initializing");
     control_task->begin();
 }
 
@@ -51,6 +48,7 @@ void Supervisor::read() {
 
 void Supervisor::control() {
     log("Controlling...");
+
     control_task->control();
 }
 
@@ -81,6 +79,7 @@ void Supervisor::parse_config() {
     set<string> control_tasks;
     for (const string& control_task : global_config.task_config.control_tasks) {
         control_tasks.insert(control_task);
+        log("Control task: " + control_task + ": enabled");
     }
 
     control_task = new ControlTask(control_tasks);

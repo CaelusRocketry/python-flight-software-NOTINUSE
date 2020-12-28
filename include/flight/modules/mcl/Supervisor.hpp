@@ -17,7 +17,7 @@ class Supervisor {
         void parse_config();
 
     public:
-        Supervisor();
+        Supervisor() = default;
         ~Supervisor();
         void initialize();
         void read();

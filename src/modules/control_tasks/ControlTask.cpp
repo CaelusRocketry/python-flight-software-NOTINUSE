@@ -11,25 +11,25 @@
 
 
 ControlTask::ControlTask(set<string> config) {
-    log("Control Task started");
+    log("Control task: Adding controls");
 
-    if(config.count("sensor")) {
+    if (config.count("sensor")) {
         controls.push_back(unique_ptr<Control>(new SensorControl()));
     }
 
-    if(config.count("telemetry")) {
+    if (config.count("telemetry")) {
         controls.push_back(unique_ptr<Control>(new TelemetryControl()));
     }
 
-    if(config.count("valve")) {
+    if (config.count("valve")) {
         controls.push_back(unique_ptr<Control>(new ValveControl()));
     }
 
-    if(config.count("stage")) {
+    if (config.count("stage")) {
         controls.push_back(unique_ptr<Control>(new StageControl()));
     }
 
-    if(config.count("pressure")) {
+    if (config.count("pressure")) {
         controls.push_back(unique_ptr<Control>(new PressureControl()));
     }
 
@@ -37,13 +37,17 @@ ControlTask::ControlTask(set<string> config) {
 }
 
 void ControlTask::begin() {
-    for(auto &control : this->controls) {
+    log("Control task: Beginning");
+
+    for (auto &control : this->controls) {
         control.get()->begin();
     }
 }
 
 void ControlTask::control() {
-    for(auto &control : this->controls) {
+    log("Control task: Controlling");
+
+    for (auto &control : this->controls) {
         control.get()->execute();
     }
 }

@@ -56,7 +56,7 @@ public:
         string SOCKETIO_HOST;
         int SOCKETIO_PORT;
 
-        double DELAY;
+        int DELAY;
     } telemetry;
 
     struct {

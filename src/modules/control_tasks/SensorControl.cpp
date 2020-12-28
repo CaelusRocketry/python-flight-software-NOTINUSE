@@ -10,7 +10,7 @@
 
 SensorControl::SensorControl() {
     this->last_send_time = 0;
-    Util::enqueue(global_flag, Log("response", "{\"header\": \"info\", \"Description\": \"Sensor Control started\"}"), LogPriority::INFO);
+    global_flag.log_info("response", "{\"header\": \"info\", \"Description\": \"Sensor Control started\"}");
 }
 
 void SensorControl::begin() {
@@ -67,7 +67,7 @@ void SensorControl::boundary_check() {
         }
         message = message.substr(0, message.length() - 2);
 
-        global_flag.enqueue(Log("response", "{\"header\": \"info\", \"Description\": \"" + message + "\"}"), LogPriority::CRIT);
+        global_flag.log_critical("response", "{\"header\": \"info\", \"Description\": \"" + message + "\"}");
     }
 }
 
@@ -103,10 +103,10 @@ void SensorControl::send_sensor_data() {
             // "type.location": {
             message << '\"' << type << '.' << location << "\": {";
 
-            // "measured": #, "kalman": #, "status": #
+            // "measured": #, "kalman": #, "getStatus": #
             message << "\"measured\": " << sensor.measured_value;
             message << ", \"kalman\": " << sensor.normalized_value;
-            message << ", \"status\": " << int(sensor.status);
+            message << ", \"getStatus\": " << int(sensor.status);
 
             // },
             message << "},";
@@ -117,6 +117,6 @@ void SensorControl::send_sensor_data() {
     string message_string = message.str();
     message_string[message_string.length() - 1] = '}';
 
-    global_flag.enqueue(Log("sensor_data", message_string), LogPriority::INFO);
+    global_flag.log_info("sensor_data", message_string);
 }
 

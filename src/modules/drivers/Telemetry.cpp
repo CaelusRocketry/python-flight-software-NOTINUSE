@@ -1,20 +1,17 @@
 #include <chrono>
 #include <Logger/logger_util.h>
 #include <flight/modules/drivers/Telemetry.hpp>
-#include <flight/modules/lib/Util.hpp>
+#include <flight/modules/mcl/Config.hpp>
 #include <flight/modules/lib/Errors.hpp>
 
-Telemetry::Telemetry(){
-    IP = Util::parse_json_value({"telemetry", "GS_IP"});
-    PORT = stoi(Util::parse_json_value({"telemetry", "GS_PORT"}));
-    DELAY_LISTEN = stoi(Util::parse_json_value({"telemetry", "DELAY_LISTEN"}));
-    DELAY_SEND = stoi(Util::parse_json_value({"telemetry", "DELAY_SEND"}));
+using boost::asio::ip::address;
 
+Telemetry::Telemetry() {
     // Initialize variables
     connection = false;
 }
 
-queue<string> Telemetry::read(int num_messages){
+queue<string> Telemetry::read(int num_messages) {
     mtx.lock(); // prevents anything else from a different thread from accessing the ingest_queue until we're done
     if(num_messages > ingest_queue.size() || num_messages == -1){
         num_messages = ingest_queue.size();
@@ -31,45 +28,44 @@ queue<string> Telemetry::read(int num_messages){
 }
 
 // This sends the packet to the GUI!
-bool Telemetry::write(Packet packet){
+bool Telemetry::write(const Packet& packet) {
     string msg = packet.toString();
     log("Sending: " + msg);
     boost::system::error_code error;
     boost::asio::write(socket, boost::asio::buffer(msg), boost::asio::transfer_all(), error);
 
-    if(error) {
+    if (error) {
         throw boost::system::system_error(error);
     }
 
-    this_thread::sleep_for(chrono::milliseconds(DELAY_SEND));
+    this_thread::sleep_for(chrono::milliseconds(global_config.telemetry.DELAY));
     return true;
 }
 
 // This gets called in the main thread
-void Telemetry::recv_loop(){
-    while(connection){
-        if(TERMINATE_FLAG){
-            break;
-        }
+void Telemetry::recv_loop() {
+    while (connection && !TERMINATE_FLAG) {
         try {
             // Read in data from socket
             boost::array<char, 1024> buf;
             boost::system::error_code error;
-            size_t len = socket.read_some(boost::asio::buffer(buf), error);
+            socket.read_some(boost::asio::buffer(buf), error);
 
             if (error == boost::asio::error::eof) {
                 end();
                 break; // Connection closed cleanly by peer.
-            }
-            else if (error)
+            } else if (error) {
                 throw boost::system::system_error(error); // Some other error.
+            }
 
             string msg(buf.data());
+
             mtx.lock();
             ingest_queue.push(msg);
             mtx.unlock();
+
             log("Received: " + msg);
-            this_thread::sleep_for(chrono::seconds(DELAY_LISTEN));
+            this_thread::sleep_for(chrono::seconds(global_config.telemetry.DELAY));
         }
         catch (std::exception& e){
             log(e.what());
@@ -79,28 +75,31 @@ void Telemetry::recv_loop(){
     }
 }
 
-bool Telemetry::status(){
+bool Telemetry::getStatus() const {
     return connection;
 }
 
-void Telemetry::reset(){
+void Telemetry::reset() {
     end();
     if(!connect()){
         end();
     }
 }
 
-bool Telemetry::connect(){
+bool Telemetry::connect() {
     try {
+        log("Telemetry: Connecting");
         socket.open(boost::asio::ip::tcp::v4());
 
-        boost::asio::ip::address ip_address = boost::asio::ip::address::from_string(IP);
-        boost::asio::ip::tcp::endpoint ep(ip_address, PORT);
+        address ip_address = address::from_string(global_config.telemetry.GS_IP);
+        boost::asio::ip::tcp::endpoint ep(ip_address, global_config.telemetry.GS_PORT);
 
+        log("Telemetry: Binding Socket");
         socket.bind(ep);
+
+        log("Telemetry: Connecting Socket");
         socket.connect(ep);
-    }
-    catch(std::exception& e) {
+    } catch(std::exception& e) {
         log(e.what());
         throw SOCKET_CONNECTION_ERROR();
     }
@@ -114,7 +113,7 @@ bool Telemetry::connect(){
     return true;
 }
 
-void Telemetry::end(){
+void Telemetry::end() {
     TERMINATE_FLAG = true;
     socket.close();
     connection = false;

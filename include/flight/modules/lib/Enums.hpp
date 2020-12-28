@@ -8,7 +8,7 @@ using namespace std;
 #ifndef FLIGHT_ENUMS_HPP
 #define FLIGHT_ENUMS_HPP
 
-// Level Enum indicates the priority or status of the Packet
+// Level Enum indicates the priority or getStatus of the Packet
 enum class LogPriority {
     INFO = 4,
     DEBUG = 3,

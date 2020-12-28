@@ -9,6 +9,7 @@
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Flag.hpp>
 #include <flight/modules/lib/Log.hpp>
+#include <flight/modules/drivers/Telemetry.hpp>
 
 class TelemetryControl : public Control {
 
@@ -26,6 +27,8 @@ private:
         {"test", {"response"}}
     };
 
+    Telemetry telemetry;
+
     void ingest(Log log);
     void heartbeat(vector<string> args);
     void soft_abort(vector<string> args);
@@ -38,7 +41,7 @@ private:
 
 public:
     TelemetryControl();
-    void begin();
-    void execute();
+    void begin() override;
+    void execute() override;
 };
 #endif //FLIGHT_TELEMETRYCONTROL_HPP
