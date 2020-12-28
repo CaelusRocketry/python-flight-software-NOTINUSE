@@ -17,8 +17,26 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 500],
-            "warn": [-500, 700]
+            "waiting": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "pressurization": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "autosequence": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "postburn": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            }
           },
           "pin": 14
         },
@@ -29,8 +47,26 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 500],
-            "warn": [-500, 700]
+            "waiting": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "pressurization": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "autosequence": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "postburn": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            }
           },
           "pin": 15
         },
@@ -41,8 +77,26 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 500],
-            "warn": [-500, 700]
+            "waiting": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "pressurization": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "autosequence": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "postburn": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            }
           },
           "pin": 16
         },
@@ -53,8 +107,26 @@
             "kalman_value": 1000
           },
           "boundaries": {
-            "safe": [0, 500],
-            "warn": [-500, 700]
+            "waiting": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "pressurization": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "autosequence": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            },
+            "postburn": {
+              "safe": [100, 150],
+              "warn": [90, 165],
+              "critical": [80, 180]
+            }
           },
           "pin": 17
         }

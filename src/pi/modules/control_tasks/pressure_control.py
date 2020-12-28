@@ -37,7 +37,7 @@ class PressureControl():
         #TODO: make sure that pressure relief is the right valve
         #print("PRESSURE CONTROL")
         for sensor_loc, pressure_relief_valve in self.matchups:
-            if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["safe"][1]:
+            if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["waiting"]["safe"][1]:
                 # print("PRESSURE TOO HIGH")
                 if self.registry.get(("valve", "solenoid", pressure_relief_valve))[1] == SolenoidState.CLOSED:
                     # print("OPENING PRESSURE RELIEF")

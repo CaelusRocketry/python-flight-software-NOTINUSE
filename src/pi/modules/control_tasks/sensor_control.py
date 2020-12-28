@@ -26,7 +26,7 @@ class SensorControl():
             self.kalman_args[sensor_type] = {}
             for sensor_loc in sensor_config[sensor_type]:
                 self.sensors[sensor_type].append(sensor_loc)
-                self.boundaries[sensor_type][sensor_loc] = sensor_config[sensor_type][sensor_loc]["boundaries"]
+                self.boundaries[sensor_type][sensor_loc] = sensor_config[sensor_type][sensor_loc]["boundaries"]["waiting"]
                 self.kalman_args[sensor_type][sensor_loc] =  sensor_config[sensor_type][sensor_loc]["kalman_args"]
         self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
