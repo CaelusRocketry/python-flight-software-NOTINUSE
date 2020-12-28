@@ -98,11 +98,10 @@ bool Telemetry::connect() {
         address ip_address = address::from_string(global_config.telemetry.GS_IP);
         boost::asio::ip::tcp::endpoint ep(ip_address, global_config.telemetry.GS_PORT);
 
-        log("Telemetry: Binding Socket");
-        socket.bind(ep);
-
         log("Telemetry: Connecting Socket");
         socket.connect(ep);
+
+        log("Telemetry: Connected!");
     } catch(std::exception& e) {
         log(e.what());
         throw SOCKET_CONNECTION_ERROR();
