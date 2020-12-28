@@ -94,5 +94,9 @@
   "pressure_control": {
     "active_stages": ["pressurization", "autosequence", "postburn"]
   },
-  "arduino_type": "real"
+  "arduino_type": "real",
+  "task_config": {
+    "tasks": ["sensor", "telemetry", "valve"],
+    "control_tasks": ["sensor", "telemetry", "valve", "stage", "pressure"]
+  }
 }
