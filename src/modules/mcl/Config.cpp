@@ -100,6 +100,10 @@ Config::Config(json& json) {
 
     /* Read arduino type */
     arduino_type = json["arduino_type"];
+
+    /* Read task config */
+    json.at("task_config").at("tasks").get_to(task_config.tasks);
+    json.at("task_config").at("control_tasks").get_to(task_config.control_tasks);
 }
 
 // Define the value declared with extern in the header file

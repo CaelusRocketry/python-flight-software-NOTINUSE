@@ -12,10 +12,9 @@ using namespace std;
 
 class Supervisor {
     private:
-        Registry *registry;
-        Flag *flag;
         vector<Task*> tasks;
-        ControlTask *controlTask;
+        ControlTask *control_task;
+        void parse_config();
 
     public:
         Supervisor();
@@ -25,7 +24,6 @@ class Supervisor {
         void control();
         void actuate();
         void run();
-        set<string> parse_config();
 };
 
 #endif //FLIGHT_SUPERVISOR_HPP

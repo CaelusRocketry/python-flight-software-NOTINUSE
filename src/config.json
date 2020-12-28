@@ -1,100 +1,102 @@
 {
   "telemetry": {
-    "GS_IP": "127.0.0.1",
+    "GS_IP": "192.168.1.6",
     "GS_PORT": 5005,
     "DELAY": 0.1,
-    "DELAY_LISTEN": 50,
-    "DELAY_SEND": 50
+    "SOCKETIO_HOST": "192.168.1.6",
+    "SOCKETIO_PORT": 5000
   },
   "sensors": {
     "list": {
-      "thermocouple": [],
-      "pressure": ["PT-1", "PT-2", "PT-3", "PT-4"],
-      "load": []
-    },
-    "address": 8,
-    "send_interval": 0.5
-  },
-  "kalman_args": {
-    "thermocouple": {},
-    "pressure": {
-      "PT-1": {
-        "process_variance": 0.01,
-        "measurement_variance": 0.02,
-        "kalman_value": 1000
-      },
-      "PT-2": {
-        "process_variance": 0.01,
-        "measurement_variance": 0.02,
-        "kalman_value": 1000
-      },
-      "PT-3": {
-        "process_variance": 0.01,
-        "measurement_variance": 0.02,
-        "kalman_value": 1000
-      },
-      "PT-4": {
-        "process_variance": 0.01,
-        "measurement_variance": 0.02,
-        "kalman_value": 1000
+      "thermocouple": {},
+      "pressure": {
+        "PT-1": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 500],
+            "warn": [-500, 700]
+          },
+          "pin": 14
+        },
+        "PT-2": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 500],
+            "warn": [-500, 700]
+          },
+          "pin": 15
+        },
+        "PT-3": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 500],
+            "warn": [-500, 700]
+          },
+          "pin": 16
+        },
+        "PT-4": {
+          "kalman_args": {
+            "process_variance": 0.01,
+            "measurement_variance": 0.02,
+            "kalman_value": 1000
+          },
+          "boundaries": {
+            "safe": [0, 500],
+            "warn": [-500, 700]
+          },
+          "pin": 17
+        }
       }
     },
-    "load": {}
+    "address": "/dev/ttyACM0",
+    "baud": 115200,
+    "send_interval": 0.5
   },
   "valves": {
     "list": {
-      "solenoid": [
-        "pressure_relief",
-        "propellant_vent",
-        "main_propellant_valve"
-      ]
+      "solenoid": {
+        "pressure_relief": {
+          "pin": 4,
+          "natural": "OPEN",
+          "special": false
+        },
+        "main_propellant_valve": {
+          "pin": 5,
+          "natural": "CLOSED",
+          "special": true
+        }
+      }
     },
-    "address": 4,
+    "address": "/dev/ttyACM1",
+    "baud": 115200,
     "send_interval": 0.5
-  },
-  "boundaries": {
-    "thermocouple": {
-      "chamber": {
-        "safe": [200, 250],
-        "warn": [100, 500]
-      },
-      "tank": {
-        "safe": [200, 250],
-        "warn": [100, 500]
-      }
-    },
-    "pressure": {
-      "PT-1": {
-        "safe": [100, 150],
-        "warn": [50, 200]
-      },
-      "PT-2": {
-        "safe": [100, 150],
-        "warn": [50, 200]
-      },
-      "PT-3": {
-        "safe": [100, 150],
-        "warn": [50, 200]
-      },
-      "PT-4": {
-        "safe": [100, 150],
-        "warn": [50, 200]
-      }
-    },
-    "load": {
-      "tank": {
-        "safe": [100, 250],
-        "warn": [50, 300]
-      }
-    }
-  },
-  "task_config": {
-    "tasks": ["sensor", "telemetry", "valve"],
-    "control_tasks": ["sensor", "telemetry", "valve", "stage", "pressure"]
   },
   "stages": {
     "list": ["waiting", "pressurization", "autosequence", "postburn"],
     "request_interval": 10,
     "send_interval": 2
+  },
+  "timer": {
+    "delay": 0.001
+  },
+  "pressure_control": {
+    "active_stages": ["pressurization", "autosequence", "postburn"]
+  },
+  "arduino_type": "real",
+  "task_config": {
+    "tasks": ["sensor", "telemetry", "valve"],
+    "control_tasks": ["sensor", "telemetry", "valve", "stage", "pressure"]
   }
 }

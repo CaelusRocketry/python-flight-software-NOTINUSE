@@ -12,22 +12,15 @@ using json = nlohmann::json;
 
 //TODO: wrap everything in a try catch to make sure that execution doesn't stop if/when an error gets thrown?
 
-Supervisor::Supervisor(){
-    log("Creating registry and flag");
-    registry = new Registry();
-    flag = new Flag();
-
-    log("Creating tasks");
-    log("Creating control tasks");
-    controlTask = new ControlTask(parse_config());
+Supervisor::Supervisor() {
+    log("Supervisor: Parsing config");
+    parse_config();
 }
 
 Supervisor::~Supervisor() {
-    delete registry;
-    delete flag;
-    delete controlTask;
+    delete control_task;
 
-    for(auto task : tasks) {
+    for (auto task : tasks) {
         delete task;
     }
 }
@@ -39,29 +32,29 @@ void Supervisor::initialize() {
     global_config = Config(j);
 
     log("Initializing tasks");
-    for(Task* task : tasks){
+    for (Task* task : tasks){
         task->initialize();
     }
 
     log("Initializing control tasks");
-    controlTask->begin();
+    control_task->begin();
 }
 
-void Supervisor::read(){
+void Supervisor::read() {
     log("Reading...");
-    for(Task* task : tasks){
+    for (Task* task : tasks){
         task->read();
     }
 }
 
-void Supervisor::control(){
+void Supervisor::control() {
     log("Controlling...");
-    controlTask->control();
+    control_task->control();
 }
 
-void Supervisor::actuate(){
+void Supervisor::actuate() {
     log("Actuating...");
-    for(Task* task : tasks){
+    for (Task* task : tasks){
         task->actuate();
     }
 }
@@ -75,23 +68,18 @@ void Supervisor::run() {
     }
 }
 
-set<string> Supervisor::parse_config() {
+void Supervisor::parse_config() {
     // parse_json_list automatically parses config.json
-    auto task_config = Util::parse_json_list({"task_config", "tasks"});
-    auto control_task_config = Util::parse_json_list({"task_config", "control_tasks"});
-
-    // unordered dict essentially
-    set<string> control_tasks;
-
-    for (const string& task : task_config) {
+    for (const string& task : global_config.task_config.tasks) {
         if (task == "sensor") tasks.push_back(new SensorTask());
         if (task == "telemetry") tasks.push_back(new TelemetryTask());
         if (task == "valve") tasks.push_back(new ValveTask());
     }
 
-    for (const string& control_task : control_task_config) {
+    set<string> control_tasks;
+    for (const string& control_task : global_config.task_config.control_tasks) {
         control_tasks.insert(control_task);
     }
 
-    return control_tasks;
+    control_task = new ControlTask(control_tasks);
 }

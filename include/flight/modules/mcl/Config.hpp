@@ -87,6 +87,10 @@ public:
         vector<string> active_stages;
     } pressure_control;
 
+    struct {
+        vector<string> tasks, control_tasks;
+    } task_config;
+
     string arduino_type;
 };
 
