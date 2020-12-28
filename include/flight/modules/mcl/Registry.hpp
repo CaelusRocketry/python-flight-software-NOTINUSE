@@ -31,6 +31,12 @@ class Registry {
 public:
     Registry();
 
+    /**
+     * Load sensor data from global_config
+     * Do not call if global_config has not been created yet
+     */
+    void initialize();
+
     struct {
         bool hard_abort = false;
         bool soft_abort = false;

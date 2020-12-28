@@ -4,9 +4,12 @@
 
 // Adds all registry fields from config and general default fields
 
-Registry::Registry() {
-    log("Registry created");
+Registry::Registry() {}
 
+void Registry::initialize() {
+    log("Registry: Initializing");
+
+    log("Registry: Reading Sensors List");
     // Sensor fields
     for (const auto& type_ : global_config.sensors.list) {
         string type = type_.first;
@@ -20,6 +23,7 @@ Registry::Registry() {
         }
     }
 
+    log("Registry: Reading Valves List");
     // Valve fields
     for (const auto& type_ : global_config.valves.list) { // [solenoid]
         string type = type_.first;
@@ -33,11 +37,13 @@ Registry::Registry() {
         }
     }
 
+    log("Registry: Setting default values for telemetry and general fields");
     // Telemetry fields
     telemetry.status = false;
     telemetry.resetting = false;
 
     // General fields
+    general.hard_abort = false;
     general.soft_abort = false;
     general.stage = Stage::WAITING;
     general.stage_status = 0.0;

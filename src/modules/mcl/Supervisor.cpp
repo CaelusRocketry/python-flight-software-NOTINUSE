@@ -7,6 +7,7 @@
 #include <flight/modules/tasks/ValveTask.hpp>
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/mcl/Config.hpp>
+#include <flight/modules/mcl/Registry.hpp>
 
 using json = nlohmann::json;
 
@@ -27,9 +28,10 @@ Supervisor::~Supervisor() {
 
 void Supervisor::initialize() {
     /* Load config */
-    ifstream config_file("../../config.json");
+    ifstream config_file("../config.json");
     json j = json::parse(config_file);
     global_config = Config(j);
+    global_registry.initialize();
 
     log("Initializing tasks");
     for (Task* task : tasks){
