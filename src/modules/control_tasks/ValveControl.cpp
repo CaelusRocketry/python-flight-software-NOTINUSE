@@ -7,6 +7,7 @@
 #include <flight/modules/mcl/Config.hpp>
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Flag.hpp>
+#include <Logger/logger_util.h>
 #include <chrono>
 #include <string>
 
@@ -16,6 +17,7 @@ ValveControl::ValveControl() {
 }
 
 void ValveControl::begin() {
+    log("Valve Control: Beginning");
     global_flag.log_info("response",R"({"header": "info", "Description": "Valve Control started"})");
 }
 

@@ -2,9 +2,9 @@
 // Created by adiv413 on 4/24/2020.
 //
 
+#include <Logger/logger_util.h>
 #include <flight/modules/control_tasks/SensorControl.hpp>
 #include <flight/modules/lib/Enums.hpp>
-#include <flight/modules/lib/Util.hpp>
 #include <flight/modules/mcl/Config.hpp>
 #include <chrono>
 
@@ -17,6 +17,8 @@ SensorControl::SensorControl() {
 }
 
 void SensorControl::begin() {
+    log("Sensor control: Beginning");
+
     // Initialize the Kalman filters
 
     /* Pair of <string, <string, SensorInfo>> */

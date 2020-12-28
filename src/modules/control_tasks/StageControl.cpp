@@ -1,6 +1,7 @@
 #include <flight/modules/control_tasks/StageControl.hpp>
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/lib/Enums.hpp>
+#include <Logger/logger_util.h>
 #include <chrono>
 
 StageControl::StageControl() {
@@ -16,6 +17,8 @@ StageControl::StageControl() {
 
 
 void StageControl::begin() {
+    log("Stage control: Beginning");
+
     global_registry.general.stage = stage_names.at(stage_index);
     global_registry.general.stage_status = 0.0;
 }

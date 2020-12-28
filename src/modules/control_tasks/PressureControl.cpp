@@ -2,9 +2,12 @@
 // Created by adiv413 on 6/25/2020.
 //
 
+#include <Logger/logger_util.h>
 #include <flight/modules/control_tasks/PressureControl.hpp>
 
 void PressureControl::begin() {
+    log("Pressure control: Beginning");
+
     global_flag.log_info("response", {
         {"header", "info"},
         {"Description", "Pressure Control started"}

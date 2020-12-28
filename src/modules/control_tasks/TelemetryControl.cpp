@@ -4,6 +4,7 @@
 
 #include <flight/modules/control_tasks/TelemetryControl.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <Logger/logger_util.h>
 #include <queue>
 
 using nlohmann::json;
@@ -15,6 +16,12 @@ TelemetryControl::TelemetryControl() {
         {"header", "info"},
         {"Description", "Telemetry Control started"}
     });
+}
+
+void TelemetryControl::begin() {
+    log("Telemetry control: Beginning");
+    telemetry.connect();
+    make_functions();
 }
 
 // Store list of all commands that GS can send as functions, add the function pointers to the map and call when necessary
@@ -29,11 +36,6 @@ void TelemetryControl::make_functions() {
     this->functions.emplace("test", &TelemetryControl::test);
 }
 
-void TelemetryControl::begin() {
-    log("Telemetry control: Beginning");
-    telemetry.connect();
-    make_functions();
-}
 void TelemetryControl::execute() {
     log("Telemetry control: Executing");
     if (!global_registry.telemetry.status) {
