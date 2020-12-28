@@ -13,12 +13,12 @@ class ValveTask : public Task {
         Arduino* arduino;
         vector<pair<string, string>> valve_list;
         string name;
+        pair<string, string> pin_to_valve[14];
     public:
         ValveTask(): name("Valve Arduino") {}
 
         void begin();
         void send_valve_info();
-        void get_float();
         void get_command();
         void initialize();
         void read();

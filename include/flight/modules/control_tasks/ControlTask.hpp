@@ -21,7 +21,7 @@ private:
     vector<unique_ptr<Control>> controls;
 
 public:
-    ControlTask(set<string> config);
+    ControlTask(const set<string>& config);
     void begin();
     void control();
 };

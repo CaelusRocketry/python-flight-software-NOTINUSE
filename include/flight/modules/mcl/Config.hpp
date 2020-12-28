@@ -80,7 +80,7 @@ public:
     } stages;
 
     struct {
-        double delay;
+        double delay = 1;
     } timer;
 
     struct {

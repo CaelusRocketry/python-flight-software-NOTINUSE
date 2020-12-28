@@ -9,7 +9,7 @@ void TelemetryTask::initialize() {
 
 void TelemetryTask::read() {
     log("Reading telemetry");
-    bool status = this->telemetry.getStatus();
+    bool status = this->telemetry.get_status();
     global_registry.telemetry.status = status;
 
     if (status) {

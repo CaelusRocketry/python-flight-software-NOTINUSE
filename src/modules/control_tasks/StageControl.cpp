@@ -3,11 +3,15 @@
 #include <chrono>
 
 StageControl::StageControl() {
-    this->request_interval = stod(Util::parse_json_value({"stages", "request_interval"}));
+    this->request_interval = global_config.stages.request_interval;
     this->start_time = chrono::system_clock::now().time_since_epoch().count();
-    this->send_interval = stod(Util::parse_json_value({"stages", "send_interval"}));
+    this->send_interval = global_config.stages.send_interval;
     this->stage_index = 0;
-    global_flag.enqueue(Log("response", "{\"header\": \"info\", \"Description\": \"Stage Control started\"}"), LogPriority::INFO);
+
+    global_flag.log_info("response", {
+        {"header", "info"},
+        {"Description", "Stage Control started"}
+    });
 }
 
 
@@ -17,21 +21,21 @@ void StageControl::begin() {
 }
 
 void StageControl::execute() {
-    double status = calculateStatus();
+    double status = calculate_status();
     global_registry.general.stage_status = status;
-    bool progress = global_flag.general.progress;
-    if (progress) {
+    bool &progress_flag = global_flag.general.progress;
+    if (progress_flag) {
         this->progress();
-        global_flag.general.progress = false;
+        progress_flag = false;
     } else if (status >= 100) {
-        sendProgressionRequest();
+        send_progression_request();
     }
 
-    stageValveControl();
-    sendData();
+    stage_valve_control();
+    send_data();
 }
 
-double StageControl::calculateStatus() const {
+double StageControl::calculate_status() const {
     Stage current_stage = global_registry.general.stage;
 
     if (current_stage == Stage::WAITING) {
@@ -56,32 +60,47 @@ double StageControl::calculateStatus() const {
     throw INVALID_STAGE();
 }
 
-void StageControl::sendProgressionRequest() {
-    global_flag.enqueue(Log("response", "{\"header\": \"stage_progression_request\", \"Description\": \"Request to progress to the next stage\"}"), LogPriority::CRIT);
+void StageControl::send_progression_request() {
+    global_flag.log_critical("response", {
+        {"header", "stage_progression_request"},
+        {"Description", "Request to progress to the next stage"}
+    });
 }
 
-void StageControl::sendData() {
+void StageControl::send_data() {
     if (this->send_time == 0 || chrono::system_clock::now().time_since_epoch().count() > (this->send_time + this->send_interval)) {
-        global_flag.enqueue(Log("response", "{\"header\": \"stage_data\", \"Stage\": " + stage_strings.at(stage_index) + ", \"Status\": \"" + to_string(calculateStatus()) + "\"}"), LogPriority::INFO);
+        global_flag.log_info("response", {
+            {"header", "stage_data"},
+            {"Stage", stage_strings.at(stage_index)},
+            {"Status", to_string(calculate_status())}
+        });
     }
 }
 
 void StageControl::progress() {
-    double status = calculateStatus();
+    double status = calculate_status();
     if (status != 100.0) {
-        global_flag.enqueue(Log("response", "{\"header\": \"stage_progress\", \"Status\": \"Failure\", \"Description\": \"Stage progression failed, the rocket's not ready yet\"}"), LogPriority::CRIT);
+        global_flag.log_critical("response", {
+            {"header", "stage_progress"},
+            {"Status", "Failure"},
+            {"Description", "Stage progression failed, the rocket's not ready yet"}
+        });
     } else {
         stage_index++;
         global_registry.general.stage = stage_names[stage_index];
         send_time = 0;
         request_time = 0;
-        global_registry.general.stage_status = calculateStatus();
+        global_registry.general.stage_status = calculate_status();
         start_time = chrono::system_clock::now().time_since_epoch().count();
-        global_flag.enqueue(Log("response", "{\"header\": \"stage_progress\", \"Status\": \"Success\", \"Description\": \"Stage progression successful\"}"), LogPriority::CRIT);
+        global_flag.log_critical("response", {
+            {"header", "stage_progress"},
+            {"Status", "Success"},
+            {"Description", "Stage progression successful"}
+        });
     }
 }
 
-void StageControl::stageValveControl() {
+void StageControl::stage_valve_control() {
     //TODO: make this actuate valves based on the current stage
 //    if(stage_index == int(Stage::WAITING)) {
 //

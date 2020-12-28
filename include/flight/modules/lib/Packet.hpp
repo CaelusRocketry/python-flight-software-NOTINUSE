@@ -13,6 +13,11 @@
 
 using namespace std;
 
+class Packet;
+
+void to_json(json& j, const Packet& packet);
+void from_json(const json& j, Packet& packet);
+
 // Packet class groups together logs of similar priority
 class Packet {
 private:
@@ -26,9 +31,10 @@ public:
           timestamp(timestamp){}
 
     void add(const Log& log);
-    string toString() const;
-    static Packet fromString(string inputString);
     vector<Log> getLogs();
+
+    friend void to_json(json& j, const Packet& packet);
+    friend void from_json(const json& j, Packet& packet);
 
     struct compareTo {
         bool operator()(const Packet& lhs, const Packet& rhs) {
@@ -39,7 +45,6 @@ public:
             }
         }
     };
-
 };
 
 #endif //FLIGHT_PACKET_HPP

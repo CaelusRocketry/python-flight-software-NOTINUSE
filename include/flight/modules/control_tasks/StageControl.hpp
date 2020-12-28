@@ -1,8 +1,6 @@
 #ifndef FLIGHT_STAGECONTROL_HPP
 #define FLIGHT_STAGECONTROL_HPP
 
-#include <flight/modules/mcl/Registry.hpp>
-#include <flight/modules/mcl/Flag.hpp>
 #include <flight/modules/control_tasks/Control.hpp>
 #include <flight/modules/lib/Enums.hpp>
 #include <flight/modules/lib/Util.hpp>
@@ -11,12 +9,8 @@
 
 class StageControl : public Control {
 private:
-    Registry *registry;
-    Flag *flag;
-    double request_time;
     double send_time;
     double start_time;
-    double request_interval;
     double send_interval;
     int stage_index;
 
@@ -32,16 +26,16 @@ private:
     const double AUTOSEQUENCE_DELAY = 5.0;
     const double POSTBURN_DELAY = 10.0;
 
-    double calculateStatus() const;
-    void sendProgressionRequest();
-    void sendData();
+    double calculate_status() const;
+    void send_progression_request();
+    void send_data();
     void progress();
-    void stageValveControl();
+    void stage_valve_control();
 
 public:
     StageControl();
-    void begin();
-    void execute();
+    void begin() override;
+    void execute() override;
 };
 
 #endif //FLIGHT_STAGECONTROL_HPP

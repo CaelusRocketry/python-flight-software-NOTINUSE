@@ -10,11 +10,28 @@
 
 SensorControl::SensorControl() {
     this->last_send_time = 0;
-    global_flag.log_info("response", "{\"header\": \"info\", \"Description\": \"Sensor Control started\"}");
+    global_flag.log_info("response", {
+        {"header", "info"},
+        {"Description", "Sensor control started"}
+    });
 }
 
 void SensorControl::begin() {
-    init_kalman();
+    // Initialize the Kalman filters
+
+    /* Pair of <string, <string, SensorInfo>> */
+    for (const auto& type_ : global_config.sensors.list) {
+        /* Pair of <string, SensorInfo> */
+        for (const auto& location_ : type_.second) {
+            ConfigSensorInfo sensor = location_.second;
+            auto kalman = sensor.kalman_args;
+            kalman_filters.at(type_.first).emplace(location_.first, Kalman(
+                kalman.process_variance,
+                kalman.measurement_variance,
+                kalman.kalman_value
+            ));
+        }
+    }
 }
 
 void SensorControl::execute() {
@@ -67,56 +84,31 @@ void SensorControl::boundary_check() {
         }
         message = message.substr(0, message.length() - 2);
 
-        global_flag.log_critical("response", "{\"header\": \"info\", \"Description\": \"" + message + "\"}");
-    }
-}
-
-void SensorControl::init_kalman() {
-    /* Pair of <string, <string, SensorInfo>> */
-    for (const auto& type_ : global_config.sensors.list) {
-        /* Pair of <string, SensorInfo> */
-        for (const auto& location_ : type_.second) {
-            ConfigSensorInfo sensor = location_.second;
-            auto kalman = sensor.kalman_args;
-            kalman_filters.at(type_.first).emplace(location_.first, Kalman(
-                kalman.process_variance,
-                kalman.measurement_variance,
-                kalman.kalman_value
-            ));
-        }
+        global_flag.log_critical("response", {
+            {"header", "info"},
+            {"Description", message}
+        });
     }
 }
 
 void SensorControl::send_sensor_data() {
-    stringstream message;
+    json sensor_data_json = json::object();
 
-    // {
-    message << "{";
-
-    for (const auto& type_ : global_config.sensors.list) {
-        string type = type_.first;
-        auto locations = type_.second;
-        for (const auto &location_ : locations) {
-            string location = location_.first;
+    for (const auto& type_pair : global_config.sensors.list) {
+        string type = type_pair.first;
+        for (const auto &location_pair : type_pair.second) {
+            string location = location_pair.first;
             RegistrySensorInfo sensor = global_registry.sensors[type][location];
 
             // "type.location": {
-            message << '\"' << type << '.' << location << "\": {";
-
-            // "measured": #, "kalman": #, "getStatus": #
-            message << "\"measured\": " << sensor.measured_value;
-            message << ", \"kalman\": " << sensor.normalized_value;
-            message << ", \"getStatus\": " << int(sensor.status);
-
-            // },
-            message << "},";
+            sensor_data_json[type + "." + location] = json{
+                {"measured", sensor.measured_value},
+                {"kalman", sensor.normalized_value},
+                {"get_status", int(sensor.status)}
+            };
         }
     }
 
-    // replace last comma with '}'
-    string message_string = message.str();
-    message_string[message_string.length() - 1] = '}';
-
-    global_flag.log_info("sensor_data", message_string);
+    global_flag.log_info("sensor_data", sensor_data_json);
 }
 

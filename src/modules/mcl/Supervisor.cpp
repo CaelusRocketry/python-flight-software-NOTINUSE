@@ -79,7 +79,7 @@ void Supervisor::parse_config() {
     set<string> control_tasks;
     for (const string& control_task : global_config.task_config.control_tasks) {
         control_tasks.insert(control_task);
-        log("Control task: " + control_task + ": enabled");
+        log("Control task [" + control_task + "]: Enabled");
     }
 
     control_task = new ControlTask(control_tasks);

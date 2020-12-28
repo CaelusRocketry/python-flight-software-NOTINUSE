@@ -4,21 +4,19 @@
 #include <flight/modules/drivers/PseudoValve.hpp>
 
 void Arduino::reset(){
-    if(name == "PseudoSensor"){
+    if (name == "PseudoSensor"){
         arduino = new PseudoSensor();
-    }
-    else if(name == "PseudoValve"){
+    } else if(name == "PseudoValve") {
         arduino = new PseudoValve();
-    }
-    else{
+    } else {
         log("REEEE UNKNOWN ARDUINO TYPE");
     }
 }
 
-char* Arduino::read(){
+char* Arduino::read() {
     return arduino->read();
 }
 
-void Arduino::write(char* msg){
+void Arduino::write(char* msg) {
     arduino->write(msg);
 }

@@ -8,14 +8,13 @@ using namespace std;
 #ifndef FLIGHT_ENUMS_HPP
 #define FLIGHT_ENUMS_HPP
 
-// Level Enum indicates the priority or getStatus of the Packet
+// Level Enum indicates the priority or get_status of the Packet
 enum class LogPriority {
     INFO = 4,
     DEBUG = 3,
     WARN = 2,
     CRIT = 1
 };
-
 
 //map enums to strings: https://stackoverflow.com/a/24296298/11043216
 
@@ -38,8 +37,8 @@ enum class SolenoidState {
 };
 
 static unordered_map<SolenoidState, string> solenoid_state_map {
-        {SolenoidState::OPEN, "OPEN"},
-        {SolenoidState::CLOSED, "CLOSED"}
+    {SolenoidState::OPEN, "OPEN"},
+    {SolenoidState::CLOSED, "CLOSED"}
 };
 
 enum class SensorStatus {

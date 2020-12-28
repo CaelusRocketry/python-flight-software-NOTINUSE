@@ -32,7 +32,7 @@ public:
     queue<string> read(int num_messages);
     bool write(const Packet& packet);
     void recv_loop();
-    bool getStatus() const;
+    bool get_status() const;
     void reset();
     bool connect();
     void end();

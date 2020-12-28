@@ -3,13 +3,11 @@
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/mcl/Config.hpp>
 
-char SEND_DATA_CMD = 127;
-char ACTUATE_CMD = 126;
+const char SEND_DATA_CMD = 127;
+const char ACTUATE_CMD = 126;
 
-pair<string, string> pin_to_valve[14];
-
-void ValveTask::initialize(){
-    log("Valve task started");
+void ValveTask::initialize() {
+    log("Valve task: Starting");
     for (const auto& valve_type : global_config.valves.list) {
         string type = valve_type.first;
         auto valve_locations = valve_type.second;
@@ -127,16 +125,15 @@ void ValveTask::actuate_solenoids() {
             global_flag.valves[valve_type][valve_location].actuation_type = ActuationType::NONE;
             global_flag.valves[valve_type][valve_location].actuation_priority = ValvePriority::NONE;
 
-            stringstream log_string;
-            log_string << "{\"header\": \"info\", \"Description\": \"Set actuation at ";
-            log_string << valve_type << "." << valve_location;
-            log_string << " to " << static_cast<int>(target_valve_info.actuation_type);
-            log_string << "\"}";
-
-            /* Write the logs */
-            Util::enqueue(global_flag, Log("response", log_string.str()), LogPriority::INFO);
+            global_flag.log_info("response", {
+                {"header", "info"},
+                {"Description", "Set actuation at " + valve_type + "." + valve_location + " to " + actuation_type_inverse_map.at(target_valve_info.actuation_type)}
+            });
         } else {
-            Util::enqueue(global_flag, Log("response", "{\"header\": \"info\", \"Description\": \"Allowing other valves to actuate\"}"), LogPriority::INFO);
+            global_flag.log_info("response", {
+                {"header", "info"},
+                {"Description", "Allowing other valves to actuate"}
+            });
         }
     }
 }

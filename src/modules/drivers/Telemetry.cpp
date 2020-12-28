@@ -75,7 +75,7 @@ void Telemetry::recv_loop() {
     }
 }
 
-bool Telemetry::getStatus() const {
+bool Telemetry::get_status() const {
     return connection;
 }
 

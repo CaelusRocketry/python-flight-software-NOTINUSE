@@ -16,15 +16,13 @@ class SensorControl : public Control {
 private:
     double last_send_time;
     map<string, map<string, Kalman>> kalman_filters;
-    const vector<string> sensor_status_names = {"", "CRITICAL", "WARNING", "SAFE"};
 
     void boundary_check();
     void send_sensor_data();
-    void init_kalman();
 
 public:
     SensorControl();
-    void begin();
-    void execute();
+    void begin() override;
+    void execute() override;
 };
 #endif //FLIGHT_SENSORCONTROL_HPP

@@ -13,7 +13,7 @@
 
 class TelemetryControl : public Control {
 
-typedef void (TelemetryControl::*functionType)(vector<string>);
+typedef void (TelemetryControl::*functionType)(const vector<string>&);
 
 private:
     unordered_map<string, functionType> functions;
@@ -29,15 +29,15 @@ private:
 
     Telemetry telemetry;
 
-    void ingest(Log log);
-    void heartbeat(vector<string> args);
-    void soft_abort(vector<string> args);
-    void solenoid_actuate(vector<string> args);
-    void sensor_request(vector<string> args);
-    void valve_request(vector<string> args);
-    void progress(vector<string> args);
-    void test(vector<string> args);
-    void makeFunctions();
+    void ingest(const Log& log);
+    void heartbeat(const vector<string>& args);
+    void soft_abort(const vector<string>& args);
+    void solenoid_actuate(const vector<string>& args);
+    void sensor_request(const vector<string>& args);
+    void valve_request(const vector<string>& args);
+    void progress(const vector<string>& args);
+    void test(const vector<string>& args);
+    void make_functions();
 
 public:
     TelemetryControl();

@@ -29,29 +29,21 @@ void ValveControl::execute() {
 }
 
 void ValveControl::send_valve_data() {
-    stringstream message;
-    message << "{";
+    json valve_data_json = json::object();
 
-    for (const auto& valve_type_ : global_registry.valves) {
-        for (const auto& valve_location_ : valve_type_.second) {
-            string location = valve_location_.first;
-            RegistryValveInfo valve_info = valve_location_.second;
-            auto state = valve_info.state;
-            auto actuation_type = valve_info.actuation_type;
-            message << '\"' << valve_type_.first << "." << valve_location_.first << "\": {";
-            message << R"("state": ")" << solenoid_state_names.at(int(state)) << "\", ";
-            message << R"("actuation_type": ")" << actuation_type_names.at(int(actuation_type));
-            message << "\"}";
-            message << ", ";
+    for (const auto& type_pair : global_registry.valves) {
+        string type = type_pair.first;
+        for (const auto& location_pair : type_pair.second) {
+            string location = location_pair.first;
+            RegistryValveInfo valve_info = location_pair.second;
+            valve_data_json[type_pair.first + "." + location_pair.first] = json{
+                {"state", solenoid_state_names.at(int(valve_info.state))},
+                {"actuation_type", actuation_type_names.at(int(valve_info.actuation_type))}
+            };
         }
     }
 
-    string message_str = message.str();
-    message_str[message_str.length() - 2] = '}';
-    message_str.erase(message_str.length() - 1);
-
-    Util::enqueue(global_flag, Log("valve_data", message.str()), LogPriority::INFO);
-
+    global_flag.log_info("valve_data", valve_data_json);
     last_send_time = chrono::system_clock::now().time_since_epoch().count();
 }
 

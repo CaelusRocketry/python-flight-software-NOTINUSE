@@ -9,8 +9,7 @@
 #include <flight/modules/control_tasks/ValveControl.hpp>
 #include <flight/modules/control_tasks/PressureControl.hpp>
 
-
-ControlTask::ControlTask(set<string> config) {
+ControlTask::ControlTask(const set<string>& config) {
     log("Control task: Adding controls");
 
     if (config.count("sensor")) {
@@ -33,14 +32,17 @@ ControlTask::ControlTask(set<string> config) {
         controls.push_back(unique_ptr<Control>(new PressureControl()));
     }
 
-    global_flag.log_info("response", "{\"header\": \"info\", \"Description\": \"Control Tasks started\"}");
+    global_flag.log_info("response", {
+        {"header", "info"},
+        {"Description", "Control Tasks started"}
+    });
 }
 
 void ControlTask::begin() {
     log("Control task: Beginning");
 
     for (auto &control : this->controls) {
-        control.get()->begin();
+        control->begin();
     }
 }
 
@@ -48,6 +50,6 @@ void ControlTask::control() {
     log("Control task: Controlling");
 
     for (auto &control : this->controls) {
-        control.get()->execute();
+        control->execute();
     }
 }
