@@ -61,7 +61,6 @@ class SensorControl():
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.CRITICAL)
                     crits.append([sensor_type, sensor_location])
 
-        hard = self.registry.get(("general", "hard_abort"))[1]
         soft = self.registry.get(("general", "soft_abort"))[1]
         # if not hard:
         #     if len(crits) == 0 and soft:
@@ -72,13 +71,13 @@ class SensorControl():
         #         enqueue(self.flag, log, LogPriority.CRIT)
         #         enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)
         
-        if len(crits) > 0 and not hard:
-                # hard abort if sensor status is critical and send info to GS
-                self.registry.put(("general", "hard_abort"), True)
-                log = Log(header="response", message={"header": "Hard abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
+        # executes soft abort
+        if len(crits) > 0 and not soft:
+                # soft abort if sensor status is critical and send info to GS
+                self.registry.put(("general", "soft_abort"), True)
+                log = Log(header="response", message={"header": "Soft abort", "Description": sensor_type + " in " + sensor_location + " reached critical levels"})
                 enqueue(self.flag, log, LogPriority.CRIT)
-                enqueue(self.flag, Log(header="mode", message={"mode": "hard abort"}), LogPriority.CRIT)
-
+                enqueue(self.flag, Log(header="mode", message={"mode": "soft abort"}), LogPriority.CRIT)
 
     def send_sensor_data(self):
         message = {}

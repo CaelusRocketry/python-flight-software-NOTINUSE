@@ -72,7 +72,7 @@ class StageControl:
 
 
     def progress(self):
-        if self.status != 100 or self.registry.get(("general", "hard_abort"))[1]:
+        if self.status != 100 or self.registry.get(("general", "soft_abort"))[1]:
             log = Log(header="response", message={"header": "Stage progression failed", "description": "Stage progression failed, rocket not yet ready", "Stage": self.curr_stage, "Status": self.status})
             enqueue(self.flag, log, LogPriority.CRIT)
             return
@@ -112,7 +112,6 @@ class StageControl:
             #     self.flag.put(("solenoid", "actuation_priority", ValveLocation.PRESSURIZATION), ValvePriority.PI_PRIORITY)
             mpv_actuation = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, ValveLocation.MAIN_PROPELLANT_VALVE))[1]
             if curr - self.start_time > AUTOSEQUENCE_DELAY and mpv_actuation != ActuationType.OPEN_VENT:
-                print("Actuating MPV")
                 # Actuate valve
                 self.flag.put(("solenoid", "actuation_type", ValveLocation.MAIN_PROPELLANT_VALVE), ActuationType.OPEN_VENT)
                 self.flag.put(("solenoid", "actuation_priority", ValveLocation.MAIN_PROPELLANT_VALVE), ValvePriority.PI_PRIORITY)
