@@ -17,7 +17,6 @@ class PressureControl():
         self.valves = config["valves"]["list"]["solenoid"]
         self.sensors = config["sensors"]["list"]["pressure"]
         self.matchups = [(SensorLocation.PT2, ValveLocation.PRESSURE_RELIEF)]
-
         # raise error if needed valves aren't registered
         for sensor_loc, pressure_relief_valve in self.matchups:
             if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[0] == Error.KEY_ERROR:
@@ -37,14 +36,15 @@ class PressureControl():
         #TODO: make sure that pressure relief is the right valve
         #print("PRESSURE CONTROL")
         for sensor_loc, pressure_relief_valve in self.matchups:
-            if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"]["waiting"]["safe"][1]:
+            #replace waiting with stage
+            if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"][self.registry.get(("general", "stage"))[1]]["safe"][1]:
                 # print("PRESSURE TOO HIGH")
                 if self.registry.get(("valve", "solenoid", pressure_relief_valve))[1] == SolenoidState.CLOSED:
                     # print("OPENING PRESSURE RELIEF")
                     self.flag.put(("solenoid", "actuation_type", pressure_relief_valve), ActuationType.OPEN_VENT)
                     self.flag.put(("solenoid", "actuation_priority", pressure_relief_valve), ValvePriority.PI_PRIORITY)
 
-            # elif self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] < self.sensors[sensor_loc]["boundaries"]["safe"][0]:
+            # elif self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] < self.sensors[sensor_loc]["boundaries"]["waiting"]["safe"][0]:
             #     print("PRESSURE TOO LOW")
             #     if self.registry.get(("valve", "solenoid", pressurization_valve))[1] == SolenoidState.CLOSED:
             #         print("OPENING PRESSURIZATION")

@@ -48,9 +48,9 @@
           },
           "boundaries": {
             "waiting": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [500, 600],
+              "warn": [450, 660],
+              "critical": [400, 720]
             },
             "pressurization": {
               "safe": [100, 150],
@@ -78,9 +78,9 @@
           },
           "boundaries": {
             "waiting": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [100, 200],
+              "warn": [90, 220],
+              "critical": [80, 240]
             },
             "pressurization": {
               "safe": [100, 150],
@@ -108,14 +108,14 @@
           },
           "boundaries": {
             "waiting": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [100, 200],
+              "warn": [90, 220],
+              "critical": [80, 240]
             },
             "pressurization": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [100, 200],
+              "warn": [90, 220],
+              "critical": [80, 240]
             },
             "autosequence": {
               "safe": [100, 150],

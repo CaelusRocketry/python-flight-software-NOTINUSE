@@ -16,7 +16,6 @@ class SensorControl():
     def begin(self, config: dict):
         self.config = config
         sensor_config = config["sensors"]["list"]
-
         self.sensors = {}
         self.boundaries = {}
         self.kalman_args = {}
@@ -26,7 +25,7 @@ class SensorControl():
             self.kalman_args[sensor_type] = {}
             for sensor_loc in sensor_config[sensor_type]:
                 self.sensors[sensor_type].append(sensor_loc)
-                self.boundaries[sensor_type][sensor_loc] = sensor_config[sensor_type][sensor_loc]["boundaries"]["waiting"]
+                self.boundaries[sensor_type][sensor_loc] = sensor_config[sensor_type][sensor_loc]["boundaries"]
                 self.kalman_args[sensor_type][sensor_loc] =  sensor_config[sensor_type][sensor_loc]["kalman_args"]
         self.send_interval = self.config["sensors"]["send_interval"]
         self.last_send_time = None
@@ -51,7 +50,7 @@ class SensorControl():
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor_measured", sensor_type, sensor_location))
                 kalman_val = self.kalman_filters[sensor_type][sensor_location].update_kalman(val)
-                boundaries = self.boundaries[sensor_type][sensor_location]
+                boundaries = self.boundaries[sensor_type][sensor_location][self.registry.get(("general", "stage"))[1]]
                 self.registry.put(("sensor_normalized", sensor_type, sensor_location), kalman_val)
                 if boundaries["safe"][0] <= kalman_val <= boundaries["safe"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.SAFE)
