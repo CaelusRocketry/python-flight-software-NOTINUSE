@@ -13,10 +13,10 @@ Kalman::Kalman(double process_variance, double measurement_variance, double kalm
     this->K = 1.0;
 }
 
-double Kalman::update_kalman(double sensor_value) {
+double Kalman::update_kalman(double sensor_value_) {
     this->P += this->process_variance;
     this->K = this->P / (this->P + this->measurement_variance);
-    this->kalman_value = this->K * sensor_value + (1 - this->K) * this->kalman_value;
+    this->kalman_value = this->K * sensor_value_ + (1 - this->K) * this->kalman_value;
     this->P *= (1 - this->K);
 
     return this->kalman_value;
