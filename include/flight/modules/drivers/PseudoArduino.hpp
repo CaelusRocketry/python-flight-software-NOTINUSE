@@ -6,12 +6,10 @@ using namespace std;
 // Parent class for PseudoSensor/PseudoValve
 
 class PseudoArduino {
-private:
-public:
-//    virtual PseudoArduino() {};
-    PseudoArduino() = default;
-    virtual char* read() = 0;
-    virtual void write(char* msg) = 0;
+    public:
+        PseudoArduino() = default;
+        virtual unsigned char* read() = 0;
+        virtual void write(unsigned char* msg) = 0;
 };
 
 

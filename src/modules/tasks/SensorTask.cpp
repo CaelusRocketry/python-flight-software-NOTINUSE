@@ -2,7 +2,7 @@
 #include <flight/modules/tasks/SensorTask.hpp>
 #include <flight/modules/mcl/Config.hpp>
 
-void SensorTask::initialize(){
+void SensorTask::initialize() {
     // Generates the sensor list
     /* Pair of <string, <string, sensorinfo>> */
     for (const auto& type_ : global_config.sensors.list) {
@@ -13,20 +13,19 @@ void SensorTask::initialize(){
     }
 
     sensor = new Arduino("PseudoSensor");
-    log("Sensor task started");
+    log("Sensor: Initialized");
 }
 
 void SensorTask::read() {
-    log("here sensor read");
-    char *data = sensor->read(); // data returned as an array of chars
+    log("Sensor: Reading");
+    unsigned char *data = sensor->read(); // data returned as an array of chars
 
     // Convert char array to double array
-    union Conversion {
+    union {
         double values[NUM_SENSORS];
-        char bytes[NUM_SENSORS * sizeof(double)];
-    };
+        unsigned char bytes[NUM_SENSORS * sizeof(double)];
+    } conv;
 
-    Conversion conv;
     for (int i = 0; i < NUM_SENSORS * sizeof(double); i++) {
         conv.bytes[i] = data[i];
     }

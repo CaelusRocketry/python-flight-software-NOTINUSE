@@ -27,7 +27,9 @@ void SensorControl::begin() {
         for (const auto& location_ : type_.second) {
             ConfigSensorInfo sensor = location_.second;
             auto kalman = sensor.kalman_args;
-            kalman_filters.at(type_.first).emplace(location_.first, Kalman(
+            // Use brackets for the first because we want to create a new map
+            // We use emplace for the second because Kalman has no default constructor
+            kalman_filters[type_.first].emplace(location_.first, Kalman(
                 kalman.process_variance,
                 kalman.measurement_variance,
                 kalman.kalman_value
@@ -56,13 +58,13 @@ void SensorControl::boundary_check() {
 
     for (const auto& type_ : global_config.sensors.list) {
         string type = type_.first;
-        auto locations = type_.second;
-        for (const auto& location_ : locations) {
+        for (const auto& location_ : type_.second) {
             string location = location_.first;
             ConfigSensorInfo conf = location_.second;
 
             RegistrySensorInfo &sensor_registry = global_registry.sensors[type][location];
             double value = sensor_registry.measured_value;
+            // We use .at() here because Kalman has no default constructor
             double kalman_value = kalman_filters.at(type).at(location).update_kalman(value);
             sensor_registry.normalized_value = kalman_value; // reference
 
@@ -72,7 +74,7 @@ void SensorControl::boundary_check() {
                 sensor_registry.status = SensorStatus::WARNING;
             } else {
                 sensor_registry.status = SensorStatus::CRITICAL;
-                critical_sensors.push_back(make_pair(type, location));
+                critical_sensors.push_back({type, location});
             }
         }
     }

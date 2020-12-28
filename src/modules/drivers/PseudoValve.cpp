@@ -3,6 +3,7 @@
 #include <Logger/logger_util.h>
 #include <flight/modules/drivers/PseudoValve.hpp>
 #include <flight/modules/mcl/Config.hpp>
+#include <flight/modules/mcl/Registry.hpp>
 
 // Extends PseudoArduino
 PseudoValve::PseudoValve(){
@@ -23,21 +24,25 @@ PseudoValve::PseudoValve(){
 /*
  * Convert human-readable actuation data to unreadable bytes data to simulate what we'd get from an Arduino
  */
-char* PseudoValve::read(){
-    uint32_t data = 0;
-    static char bytes[4];
-    for(int i = 0u; i < num_solenoids; i++){
-        string actuation = valve_actuations[{"solenoid", solenoid_locs[i]}];
-        unsigned int state = actuation_dict.at(actuation);
-        data = data | (state << (i * 2u + 1u));
+unsigned char* PseudoValve::read() {
+    unsigned char *data = new unsigned char[num_solenoids * 3];
+
+    // pin, state, actuation_type
+    for (int i = 0; i < solenoid_locs.size(); i++) {
+        unsigned char solenoid_data[3];
+        RegistryValveInfo solenoid = global_registry.valves["solenoid"][solenoid_locs[i]];
+        int pin = global_config.valves.list["solenoid"][solenoid_locs[i]].pin;
+
+        solenoid_data[0] = pin;
+        solenoid_data[1] = (unsigned char) solenoid.state;
+        solenoid_data[2] = (unsigned char) solenoid.actuation_type;
+
+        data[i * 3 + 0] = solenoid_data[0];
+        data[i * 3 + 1] = solenoid_data[1];
+        data[i * 3 + 2] = solenoid_data[2];
     }
 
-    // Store actuation data in a byte-encoded format to simulate actual Arduino
-    for (int i = 0u; i < 4; i++) {
-        bytes[3 - i] = (data >> (i * 8u));
-    }
-
-    return bytes;
+    return data;
 }
 
 // Timer in milliseconds
@@ -54,7 +59,7 @@ void PseudoValve::actuate(const pair<string, string>& valve, const string& state
     }
 }
 
-void PseudoValve::write(char* msg){
+void PseudoValve::write(unsigned char* msg) {
     auto loc_idx = msg[0];
     auto actuation_idx = msg[1];
     pair<string, string> valve {"solenoid", solenoid_locs[loc_idx]};

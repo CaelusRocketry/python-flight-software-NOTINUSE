@@ -29,26 +29,25 @@ void PseudoSensor::set_sensor_values() {
  * Convert double sensor values to char* and return
  */
 
-char* PseudoSensor::read() {
+unsigned char* PseudoSensor::read() {
     set_sensor_values();
-    union Conversion {
+    union {
         double values[NUM_SENSORS];
         char bytes[NUM_SENSORS * sizeof(double)];
-    };
-    Conversion conv;
-    static char bytes[NUM_SENSORS * 4];
+    } conv;
+    static unsigned char bytes[NUM_SENSORS * 4];
     for (int i = 0; i < NUM_SENSORS; i++) {
         auto tup = sensor_list[i];
         double val = sensor_values[tup];
         conv.values[i] = val;
     }
-    static char ret[NUM_SENSORS * sizeof(double)];
+    static unsigned char ret[NUM_SENSORS * sizeof(double)];
     for (int i = 0; i < NUM_SENSORS * sizeof(double); i++) {
         ret[i] = conv.bytes[i];
     }
     return ret;
 }
 
-void PseudoSensor::write(char* msg){
+void PseudoSensor::write(unsigned char* msg){
     // Sensor has nothing to write
 }

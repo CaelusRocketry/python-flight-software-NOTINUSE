@@ -17,8 +17,8 @@ private:
 
 public:
     PseudoSensor();
-    char* read() override;
-    void write(char* msg) override;
+    unsigned char* read() override;
+    void write(unsigned char* msg) override;
 };
 
 #endif //FLIGHT_PSEUDOSENSOR_HPP

@@ -13,10 +13,10 @@ void Arduino::reset(){
     }
 }
 
-char* Arduino::read() {
+unsigned char* Arduino::read() {
     return arduino->read();
 }
 
-void Arduino::write(char* msg) {
+void Arduino::write(unsigned char* msg) {
     arduino->write(msg);
 }

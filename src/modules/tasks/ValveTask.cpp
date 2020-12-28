@@ -3,8 +3,8 @@
 #include <flight/modules/lib/Util.hpp>
 #include <flight/modules/mcl/Config.hpp>
 
-const char SEND_DATA_CMD = 127;
-const char ACTUATE_CMD = 126;
+const unsigned char SEND_DATA_CMD = 255;
+const unsigned char ACTUATE_CMD = 254;
 
 void ValveTask::initialize() {
     log("Valve task: Starting");
@@ -30,7 +30,7 @@ void ValveTask::begin() {
 }
 
 void ValveTask::send_valve_info() {
-    char *buf = new char[1 + NUM_VALVES * 3];
+    unsigned char *buf = new unsigned char[1 + NUM_VALVES * 3];
 
     buf[0] = NUM_VALVES;
     for (int i = 0; i < NUM_VALVES; i++) {
@@ -58,16 +58,20 @@ void ValveTask::send_valve_info() {
  * Reads data from valve as char*, converts each data to an ActuationType and updates the registry from there.
  */
 void ValveTask::read(){
-    arduino->write(new char[1] {SEND_DATA_CMD});
-    char* data = arduino->read();
+    log("Valve: Reading");
+
+//    arduino->write(new unsigned char[1] {SEND_DATA_CMD});
+    unsigned char* data = arduino->read();
 
     for (int i = 0; i < NUM_VALVES; i++){
-        char solenoid_data[3];
-        memcpy(solenoid_data, data, 3 * sizeof(char));
+        unsigned char solenoid_data[3];
+        solenoid_data[0] = data[i * 3];
+        solenoid_data[1] = data[i * 3 + 1];
+        solenoid_data[2] = data[i * 3 + 2];
 
         int pin = solenoid_data[0];
         auto state = static_cast<SolenoidState>(solenoid_data[1]);
-        auto actuation_type = static_cast<ActuationType>(solenoid_data[0]);
+        auto actuation_type = static_cast<ActuationType>(solenoid_data[2]);
 
         string valve_type = pin_to_valve[pin].first;
         string valve_location = pin_to_valve[pin].second;
@@ -114,7 +118,7 @@ void ValveTask::actuate_solenoids() {
             global_registry.valves[valve_type][valve_location].actuation_priority = target_valve_info.actuation_priority;
 
             /* Send command to actuate */
-            char command[3];
+            unsigned char command[3];
             command[0] = ACTUATE_CMD;
             command[1] = pin;
             command[2] = static_cast<char>(target_valve_info.actuation_type);

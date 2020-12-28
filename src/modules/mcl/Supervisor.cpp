@@ -40,20 +40,20 @@ void Supervisor::initialize() {
 }
 
 void Supervisor::read() {
-    log("Reading...");
+    log("Supervisor: Reading");
     for (Task* task : tasks){
         task->read();
     }
 }
 
 void Supervisor::control() {
-    log("Controlling...");
+    log("Supervisor: Controlling");
 
     control_task->control();
 }
 
 void Supervisor::actuate() {
-    log("Actuating...");
+    log("Supervisor: Actuating");
     for (Task* task : tasks){
         task->actuate();
     }

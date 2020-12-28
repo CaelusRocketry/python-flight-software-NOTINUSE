@@ -8,37 +8,37 @@ void TelemetryTask::initialize() {
 }
 
 void TelemetryTask::read() {
-    log("Reading telemetry");
+    log("Telemetry: Reading");
     bool status = this->telemetry.get_status();
     global_registry.telemetry.status = status;
 
     if (status) {
-        log("Status was true");
-
         queue<string> packets = this->telemetry.read(-1);
-        log("Read packet queue");
 
-        //for packet in packets read from telemetry, push packet to ingest queue
-        for(string &packet_string_group = packets.front(); !packets.empty(); packets.pop()) {
-            log("Packet: " + packet_string_group);
+        log("Telemetry: Read packets");
+
+        // For packet in packets read from telemetry, push packet to ingest queue
+        for (const string &packet_string_group = packets.front(); !packets.empty(); packets.pop()) {
+            log("Telemetry: Read packet group: " + packet_string_group);
             // This line is broken because of Packet.cpp
 
             // strip of the "END"s off each packet_string_group string
             vector<string> split_packets = Util::split(packet_string_group, "END");
             for (auto packet_string : split_packets) {
-                log("Packet to be decoded: " + packet_string);
+                log("Telemetry: Processing packet: " + packet_string);
                 json packet_json = json::parse(packet_string);
                 Packet packet;
                 from_json(packet_json, packet);
                 global_registry.telemetry.ingest_queue.push(packet);
             }
         }
+
+        log("Telemetry: Finished reading packets");
     }
-    log("here gets here");
 }
 
-void TelemetryTask::actuate(){
-    log("Actuating telemetry");
+void TelemetryTask::actuate() {
+    log("Telemetry: Actuating");
     if (global_flag.telemetry.reset) {
         this->telemetry.reset();
     } else {

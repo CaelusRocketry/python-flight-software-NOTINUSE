@@ -16,8 +16,8 @@ public:
     }
 
     void reset();
-    char* read();
-    void write(char* msg);
+    unsigned char* read();
+    void write(unsigned char* msg);
 };
 
 #endif //FLIGHT_ARDUINO_HPP

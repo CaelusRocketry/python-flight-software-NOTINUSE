@@ -13,16 +13,17 @@ Telemetry::Telemetry() {
 
 queue<string> Telemetry::read(int num_messages) {
     mtx.lock(); // prevents anything else from a different thread from accessing the ingest_queue until we're done
-    if(num_messages > ingest_queue.size() || num_messages == -1){
+    if (num_messages > ingest_queue.size() || num_messages == -1){
         num_messages = ingest_queue.size();
     }
 
     // type of list where elements are exclusively inserted from one side and removed from the other.
     queue<string> q;
-    for(int i = 0; i < num_messages; i++){
+    for (int i = 0; i < num_messages; i++){
         q.push(ingest_queue.front());
         ingest_queue.pop();
     }
+
     mtx.unlock();
     return q;
 }
