@@ -29,7 +29,6 @@ private:
             {2, "open_vent"},
             {3, "pulse"}
     };
-
     void actuate(tuple<string, string> valve, string state1, double timer, string state2);
 
 public:

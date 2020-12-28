@@ -9,7 +9,7 @@ class PseudoArduino {
 private:
 public:
 //    virtual PseudoArduino() {};
-    PseudoArduino() {};
+    PseudoArduino() = default;
     virtual char* read() = 0;
     virtual void write(char* msg) = 0;
 };

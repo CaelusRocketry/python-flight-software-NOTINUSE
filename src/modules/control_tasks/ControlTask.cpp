@@ -10,37 +10,40 @@
 #include <flight/modules/control_tasks/PressureControl.hpp>
 
 
-ControlTask::ControlTask(Registry *registry, Flag *flag, unordered_map<string, bool> config) {
+ControlTask::ControlTask(set<string> config) {
     log("Control Task started");
-    this->registry = registry;
-    this->flag = flag;
 
-    if(config["sensor"]) {
-        controls.push_back(unique_ptr<Control>(new SensorControl(registry, flag)));
+    if(config.count("sensor")) {
+        controls.push_back(unique_ptr<Control>(new SensorControl()));
     }
-    if(config["telemetry"]) {
-        controls.push_back(unique_ptr<Control>(new TelemetryControl(registry, flag)));
+
+    if(config.count("telemetry")) {
+        controls.push_back(unique_ptr<Control>(new TelemetryControl()));
     }
-    if(config["valve"]) {
-        controls.push_back(unique_ptr<Control>(new ValveControl(registry, flag)));
+
+    if(config.count("valve")) {
+        controls.push_back(unique_ptr<Control>(new ValveControl()));
     }
-    if(config["stage"]) {
-        controls.push_back(unique_ptr<Control>(new StageControl(registry, flag)));
+
+    if(config.count("stage")) {
+        controls.push_back(unique_ptr<Control>(new StageControl()));
     }
-    if(config["pressure"]) {
-        controls.push_back(unique_ptr<Control>(new PressureControl(registry, flag)));
+
+    if(config.count("pressure")) {
+        controls.push_back(unique_ptr<Control>(new PressureControl()));
     }
-    Util::enqueue(this->flag, Log("response", "{\"header\": \"info\", \"Description\": \"Control Tasks started\"}"), LogPriority::INFO);
+
+    global_flag.log_info("response", "{\"header\": \"info\", \"Description\": \"Control Tasks started\"}");
 }
 
 void ControlTask::begin() {
-    for(auto &ctrl : this->controls) {
-        ctrl.get()->begin();
+    for(auto &control : this->controls) {
+        control.get()->begin();
     }
 }
 
 void ControlTask::control() {
-    for(auto &ctrl : this->controls) {
-        ctrl.get()->execute();
+    for(auto &control : this->controls) {
+        control.get()->execute();
     }
 }

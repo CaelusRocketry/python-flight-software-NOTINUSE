@@ -16,7 +16,6 @@ using boost::asio::ip::tcp;
 
 class Telemetry {
 private:
-
     string IP;
     int PORT;
     long int DELAY_LISTEN;

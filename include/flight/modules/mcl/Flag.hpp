@@ -2,66 +2,51 @@
 #define FLIGHT_FLAG_HPP
 
 #include <iostream>
-#include <assert.h>
 #include <string>
-#include <unordered_map>
-#include <flight/modules/mcl/Field.hpp>
-#include <flight/modules/mcl/FieldBase.hpp>
-#include <Logger/logger_util.h>
-#include <flight/modules/lib/Errors.hpp>
+#include <map>
+#include <vector>
+#include <queue>
+
+#include <flight/modules/lib/Packet.hpp>
+#include <flight/modules/lib/Enums.hpp>
 
 using namespace std;
 
-class Flag {
-private:
-    unordered_map<string, FieldBase *> fields;
-
-    template <typename T>
-    Field<T>* cast(FieldBase* base){
-        Field<T>* field = dynamic_cast<Field<T>*>(base);
-        if(field){
-            return field;
-        }
-        log("Dynamic casting failed");
-        return nullptr;
-    }
-public:
-    Flag();
-
-    template <typename T>
-    void add(string path, T value){
-        fields[path] = new Field<T>(path, value);
-    }
-
-    template <typename T>
-    void add(string path){
-        fields[path] = new Field<T>(path);
-    }
-
-    template <typename T>
-    T get(string path){
-        assert(fields.find(path) != fields.end());
-        //log("Field exists");
-        Field<T>* field = cast<T>(fields[path]);
-        if(field){
-            T val = field->getVal();
-            return val;
-        }
-        throw DYNAMIC_CAST_ERROR();
-    }
-
-
-    template <typename T>
-    bool put(string path, T value){
-        Field<T>* field = cast<T>(fields[path]);
-        if(field){
-            field->setVal(value);
-            return true;
-        }
-        assert(false);
-        return false;
-    }
+struct FlagValveInfo {
+    SolenoidState state = SolenoidState::CLOSED;
+    ActuationType actuation_type = ActuationType::NONE;
+    ValvePriority actuation_priority = ValvePriority::NONE;
 };
+
+class Flag {
+    public:
+        Flag() = default;
+        ~Flag() = default;
+
+        struct {
+            bool progress = false;
+        } general;
+
+        /* Telemetry Flags */
+        struct {
+            priority_queue<Packet, vector<Packet>, Packet::compareTo> enqueue;
+            priority_queue<Packet, vector<Packet>, Packet::compareTo> send_queue;
+
+            /* Whether to reset telemetry or not */
+            bool reset = false;
+        } telemetry;
+
+        /* Valve Flags */
+        map<string, map<string, FlagValveInfo>> valves;
+
+        void enqueue(const Log& log, LogPriority logPriority);
+        void log_info(const string& header, const string& message);
+        void log_debug(const string& header, const string& message);
+        void log_warning(const string& header, const string& message);
+        void log_critical(const string& header, const string& message);
+};
+
+extern Flag global_flag;
 
 #endif //FLIGHT_FLAG_HPP
 

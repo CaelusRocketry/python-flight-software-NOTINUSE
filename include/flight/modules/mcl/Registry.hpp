@@ -4,14 +4,57 @@
 #include <iostream>
 #include <assert.h>
 #include <string>
-#include <unordered_map>
+#include <map>
+#include <queue>
 #include <flight/modules/mcl/Field.hpp>
+#include <flight/modules/lib/Enums.hpp>
+#include <flight/modules/lib/Packet.hpp>
 #include <flight/modules/mcl/FieldBase.hpp>
 #include <Logger/logger_util.h>
 #include <flight/modules/lib/Errors.hpp>
 
 using namespace std;
 
+struct RegistryValveInfo {
+    SolenoidState state = SolenoidState::CLOSED;
+    ActuationType actuation_type = ActuationType::NONE;
+    ValvePriority actuation_priority = ValvePriority::NONE;
+};
+
+struct RegistrySensorInfo {
+    double measured_value;
+    double normalized_value;
+    SensorStatus status;
+};
+
+class Registry {
+public:
+    Registry();
+
+    struct {
+        bool hard_abort = false;
+        bool soft_abort = false;
+        Stage stage = Stage::WAITING;
+        double stage_status = 0;
+        int stage_progress = 0;
+        long mcl_start_time = 0;
+    } general;
+
+    struct {
+        int status = 0;
+        bool resetting = false;
+        priority_queue<Packet, vector<Packet>, Packet::compareTo> ingest_queue; /* what type is this */
+    } telemetry;
+
+    // valve type --> valve location --> valve info
+    map<string, map<string, RegistryValveInfo>> valves;
+
+    map<string, map<string, RegistrySensorInfo>> sensors;
+};
+
+extern Registry global_registry;
+
+/*
 class Registry {
 private:
     unordered_map<string, FieldBase *> fields;
@@ -65,6 +108,7 @@ public:
         return false;
     }
 };
+*/
 
 #endif //FLIGHT_REGISTRY_HPP
 

@@ -14,9 +14,7 @@ class ValveTask : public Task {
         vector<pair<string, string>> valve_list;
         string name;
     public:
-        ValveTask() {
-            name = "Valve Arduino";
-        }
+        ValveTask(): name("Valve Arduino") {}
 
         void begin();
         void send_valve_info();

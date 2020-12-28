@@ -9,15 +9,9 @@ using namespace std;
 // Parent class for all Tasks
 
 class Task {
-    protected:
-        Registry* registry;
-        Flag* flag;
-
     public:
         virtual ~Task() = default;
-        Task(Registry* r, Flag* f)
-        : registry(r),
-          flag(f) {}
+        Task() {}
         virtual void initialize() = 0;
         virtual void read() = 0;
         virtual void actuate() = 0;

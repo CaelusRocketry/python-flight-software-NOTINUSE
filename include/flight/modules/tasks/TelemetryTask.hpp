@@ -10,8 +10,7 @@ private:
     Telemetry telemetry;
 
 public:
-    TelemetryTask(Registry* r, Flag* f)
-    : Task(r, f) {}
+    TelemetryTask() {}
     void initialize();
     void read();
     void enqueue();

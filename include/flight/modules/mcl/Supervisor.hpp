@@ -1,12 +1,12 @@
+#ifndef FLIGHT_SUPERVISOR_HPP
+#define FLIGHT_SUPERVISOR_HPP
+
 #include <iostream>
 #include <vector>
 #include <flight/modules/tasks/Task.hpp>
 #include <flight/modules/control_tasks/ControlTask.hpp>
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Flag.hpp>
-
-#ifndef FLIGHT_SUPERVISOR_HPP
-#define FLIGHT_SUPERVISOR_HPP
 
 using namespace std;
 
@@ -25,7 +25,7 @@ class Supervisor {
         void control();
         void actuate();
         void run();
-        unordered_map<string, bool> parse_config();
+        set<string> parse_config();
 };
 
 #endif //FLIGHT_SUPERVISOR_HPP

@@ -1,3 +1,6 @@
+#ifndef FLIGHT_UTIL_HPP
+#define FLIGHT_UTIL_HPP
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -80,10 +83,12 @@ public:
      * Enqueues a packet in the Flag telemetry queue.
      */
 
-    static void enqueue(Flag *flag, Log log, LogPriority logPriority);
+    static void enqueue(Flag &flag, Log log, LogPriority logPriority);
 
     /*
      * Split a string by a delimiter
      */
     static vector<string> split(const string &s, const string &delim);
 };
+
+#endif // FLIGHT_UTIL_HPP

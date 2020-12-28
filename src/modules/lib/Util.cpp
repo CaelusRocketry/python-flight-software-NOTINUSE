@@ -203,7 +203,7 @@ vector<string> Util::split(const string &s, const string &delim){
     vector<string> result;
     int start = 0;
     int end = 0;
-    while(end!=string::npos){
+    while(end != string::npos){
         end = s.find(delim, start);
         result.push_back(s.substr(start, end-start));
         start = end + delim.length();
@@ -211,10 +211,8 @@ vector<string> Util::split(const string &s, const string &delim){
     return result;
 }
 
-void Util::enqueue(Flag *flag, Log log, LogPriority logPriority) {
-    Packet packet = Packet(logPriority);
+void Util::enqueue(Flag& flag, Log log, LogPriority logPriority) {
+    Packet packet(logPriority);
     packet.add(log);
-    auto queue = flag->get<priority_queue<Packet, vector<Packet>, Packet::compareTo>>("telemetry.enqueue");
-    queue.push(packet);
-    flag->put("telemetry.enqueue", queue);
+    flag.telemetry.enqueue.push(packet);
 }

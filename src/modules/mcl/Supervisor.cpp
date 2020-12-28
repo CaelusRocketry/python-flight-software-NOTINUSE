@@ -1,10 +1,14 @@
 #include <thread> // For time delay
+#include <set>
 #include <Logger/logger_util.h>
 #include <flight/modules/mcl/Supervisor.hpp>
 #include <flight/modules/tasks/SensorTask.hpp>
 #include <flight/modules/tasks/TelemetryTask.hpp>
 #include <flight/modules/tasks/ValveTask.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <flight/modules/mcl/Config.hpp>
+
+using json = nlohmann::json;
 
 //TODO: wrap everything in a try catch to make sure that execution doesn't stop if/when an error gets thrown?
 
@@ -14,10 +18,8 @@ Supervisor::Supervisor(){
     flag = new Flag();
 
     log("Creating tasks");
-    auto config = parse_config();
-
     log("Creating control tasks");
-    controlTask = new ControlTask(registry, flag, config);
+    controlTask = new ControlTask(parse_config());
 }
 
 Supervisor::~Supervisor() {
@@ -30,7 +32,12 @@ Supervisor::~Supervisor() {
     }
 }
 
-void Supervisor::initialize(){
+void Supervisor::initialize() {
+    /* Load config */
+    ifstream config_file("../../config.json");
+    json j = json::parse(config_file);
+    global_config = Config(j);
+
     log("Initializing tasks");
     for(Task* task : tasks){
         task->initialize();
@@ -59,8 +66,8 @@ void Supervisor::actuate(){
     }
 }
 
-void Supervisor::run(){
-    while(true){
+void Supervisor::run() {
+    while (true) {
         read();
         control();
         actuate();
@@ -68,28 +75,22 @@ void Supervisor::run(){
     }
 }
 
-unordered_map<string, bool> Supervisor::parse_config() {
+set<string> Supervisor::parse_config() {
     // parse_json_list automatically parses config.json
     auto task_config = Util::parse_json_list({"task_config", "tasks"});
     auto control_task_config = Util::parse_json_list({"task_config", "control_tasks"});
 
     // unordered dict essentially
-    unordered_map<string, bool> control_tasks;
+    set<string> control_tasks;
 
-    for(string task : task_config) {
-        if(task.compare("sensor") == 0) {
-            tasks.push_back(new SensorTask(registry, flag));
-        }
-        if(task.compare("telemetry") == 0) {
-            tasks.push_back(new TelemetryTask(registry, flag));
-        }
-        if(task.compare("valve") == 0) {
-            tasks.push_back(new ValveTask(registry, flag));
-        }
+    for (const string& task : task_config) {
+        if (task == "sensor") tasks.push_back(new SensorTask());
+        if (task == "telemetry") tasks.push_back(new TelemetryTask());
+        if (task == "valve") tasks.push_back(new ValveTask());
     }
 
-    for(string control_task : control_task_config) {
-        control_tasks[control_task] = true;
+    for (const string& control_task : control_task_config) {
+        control_tasks.insert(control_task);
     }
 
     return control_tasks;

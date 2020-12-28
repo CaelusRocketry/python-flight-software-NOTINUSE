@@ -68,8 +68,8 @@ void ValveTask::read(){
         memcpy(solenoid_data, data, 3 * sizeof(char));
 
         int pin = solenoid_data[0];
-        SolenoidState state = static_cast<SolenoidState>(solenoid_data[1]);
-        ActuationType actuation_type = static_cast<ActuationType>(solenoid_data[0]);
+        auto state = static_cast<SolenoidState>(solenoid_data[1]);
+        auto actuation_type = static_cast<ActuationType>(solenoid_data[0]);
 
         string valve_type = pin_to_valve[pin].first;
         string valve_location = pin_to_valve[pin].second;
@@ -95,7 +95,7 @@ void ValveTask::actuate(){
  */
 
 void ValveTask::actuate_solenoids() {
-    for (auto valve_ : valve_list) {
+    for (const auto& valve_ : valve_list) {
         string valve_type = valve_.first;
         string valve_location = valve_.second;
 

@@ -2,7 +2,11 @@
 // Created by adiv413 on 4/24/2020.
 //
 
+#ifndef FLIGHT_CONTROLTASK_HPP
+#define FLIGHT_CONTROLTASK_HPP
+
 #include <vector>
+#include <set>
 #include <flight/modules/control_tasks/Control.hpp>
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/mcl/Flag.hpp>
@@ -10,19 +14,14 @@
 
 using namespace std;
 
-#ifndef FLIGHT_CONTROLTASK_HPP
-#define FLIGHT_CONTROLTASK_HPP
-
 // Class which runs/manages all the ControlTasks
 
 class ControlTask {
 private:
     vector<unique_ptr<Control>> controls;
-    Registry *registry;
-    Flag *flag;
 
 public:
-    ControlTask(Registry *registry, Flag *flag, unordered_map<string, bool> config);
+    ControlTask(set<string> config);
     void begin();
     void control();
 };

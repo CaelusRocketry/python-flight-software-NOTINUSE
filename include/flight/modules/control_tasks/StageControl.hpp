@@ -6,6 +6,7 @@
 #include <flight/modules/control_tasks/Control.hpp>
 #include <flight/modules/lib/Enums.hpp>
 #include <flight/modules/lib/Util.hpp>
+#include <flight/modules/mcl/Config.hpp>
 #include <vector>
 
 class StageControl : public Control {
@@ -18,23 +19,27 @@ private:
     double request_interval;
     double send_interval;
     int stage_index;
-    vector<Stage> stage_names {Stage::WAITING,
-                               Stage::PRESSURIZATION,
-                              Stage::AUTOSEQUENCE,
-                              Stage::POSTBURN};
-    vector<string> stage_strings = Util::parse_json_list({"stages", "list"});
+
+    vector<Stage> stage_names {
+        Stage::WAITING,
+        Stage::PRESSURIZATION,
+        Stage::AUTOSEQUENCE,
+        Stage::POSTBURN
+    };
+
+    vector<string> stage_strings = global_config.stages.list;
 
     const double AUTOSEQUENCE_DELAY = 5.0;
     const double POSTBURN_DELAY = 10.0;
 
-    double calculateStatus();
+    double calculateStatus() const;
     void sendProgressionRequest();
     void sendData();
     void progress();
     void stageValveControl();
 
 public:
-    StageControl(Registry *registry, Flag *flag);
+    StageControl();
     void begin();
     void execute();
 };

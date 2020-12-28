@@ -2,10 +2,10 @@
 // Created by myfatemi04 on 12/27/2020.
 //
 
-#include <nlohmann/json.hpp>
-
 #ifndef FLIGHT_CONFIG_HPP
 #define FLIGHT_CONFIG_HPP
+
+#include <nlohmann/json.hpp>
 
 using nlohmann::json;
 using std::string;
@@ -16,14 +16,8 @@ struct ConfigBoundary {
     double lower, upper;
 };
 
-void to_json(json& j, const ConfigBoundary& boundary) {
-    j = json{{"lower", boundary.lower}, {"upper", boundary.upper}};
-}
-
-void from_json(const json& j, ConfigBoundary& boundary) {
-    j.at("lower").get_to(boundary.lower);
-    j.at("upper").get_to(boundary.upper);
-}
+void to_json(json& j, const ConfigBoundary& boundary);
+void from_json(const json& j, ConfigBoundary& boundary);
 
 struct ConfigSensorInfo {
     struct {
@@ -35,35 +29,8 @@ struct ConfigSensorInfo {
     int pin;
 };
 
-void to_json(json& j, const ConfigSensorInfo& sensor_info) {
-    json safe_boundaries, warn_boundaries;
-    to_json(safe_boundaries, sensor_info.boundaries.safe);
-    to_json(warn_boundaries, sensor_info.boundaries.warn);
-
-    j = json{
-        {"kalman_args", {
-            {"process_variance", sensor_info.kalman_args.process_variance},
-            {"measurement_variance", sensor_info.kalman_args.measurement_variance},
-            {"kalman_value", sensor_info.kalman_args.kalman_value}
-        }},
-        {"boundaries", {
-            {"safe", safe_boundaries},
-            {"warn", warn_boundaries}
-        }},
-        {"pin", sensor_info.pin},
-    };
-}
-
-void from_json(const json& j, ConfigSensorInfo& sensor_info) {
-    json kalman_args = j.at("kalman_args");
-    kalman_args.at("process_variance").get_to(sensor_info.kalman_args.process_variance);
-    kalman_args.at("measurement_variance").get_to(sensor_info.kalman_args.measurement_variance);
-    kalman_args.at("kalman_value").get_to(sensor_info.kalman_args.kalman_value);
-
-    j.at("boundaries").at("safe").get_to(sensor_info.boundaries.safe);
-    j.at("boundaries").at("warn").get_to(sensor_info.boundaries.warn);
-    j.at("pin").get_to(sensor_info.pin);
-}
+void to_json(json& j, const ConfigSensorInfo& sensor_info);
+void from_json(const json& j, ConfigSensorInfo& sensor_info);
 
 struct ConfigValveInfo {
     int pin;
@@ -71,19 +38,8 @@ struct ConfigValveInfo {
     bool special;
 };
 
-void to_json(json& j, const ConfigValveInfo& valve_info) {
-    j = json{
-        {"pin", valve_info.pin},
-        {"natural_state", valve_info.natural_state},
-        {"special", valve_info.special}
-    };
-}
-
-void from_json(const json& j, ConfigValveInfo& valve_info) {
-    j.at("pin").get_to(valve_info.pin);
-    j.at("natural_state").get_to(valve_info.natural_state);
-    j.at("special").get_to(valve_info.special);
-}
+void to_json(json& j, const ConfigValveInfo& valve_info);
+void from_json(const json& j, ConfigValveInfo& valve_info);
 
 class Config {
 public:
@@ -134,6 +90,6 @@ public:
     string arduino_type;
 };
 
-Config global_config;
+extern Config global_config;
 
 #endif //FLIGHT_CONFIG_HPP

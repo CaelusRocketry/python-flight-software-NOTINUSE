@@ -11,13 +11,13 @@ private:
     string name;
     PseudoArduino* arduino;
 public:
-    Arduino(string n)
-    :name(n) { reset(); }
+    explicit Arduino(const string& name) : name(name) {
+        reset();
+    }
 
     void reset();
     char* read();
     void write(char* msg);
-
 };
 
 #endif //FLIGHT_ARDUINO_HPP
