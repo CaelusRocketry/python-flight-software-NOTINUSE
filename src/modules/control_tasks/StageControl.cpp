@@ -1,9 +1,9 @@
 #include <flight/modules/control_tasks/StageControl.hpp>
+#include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/lib/Enums.hpp>
 #include <chrono>
 
 StageControl::StageControl() {
-    this->request_interval = global_config.stages.request_interval;
     this->start_time = chrono::system_clock::now().time_since_epoch().count();
     this->send_interval = global_config.stages.send_interval;
     this->stage_index = 0;
@@ -89,7 +89,6 @@ void StageControl::progress() {
         stage_index++;
         global_registry.general.stage = stage_names[stage_index];
         send_time = 0;
-        request_time = 0;
         global_registry.general.stage_status = calculate_status();
         start_time = chrono::system_clock::now().time_since_epoch().count();
         global_flag.log_critical("response", {

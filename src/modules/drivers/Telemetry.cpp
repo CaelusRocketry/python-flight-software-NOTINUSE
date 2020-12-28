@@ -29,10 +29,14 @@ queue<string> Telemetry::read(int num_messages) {
 
 // This sends the packet to the GUI!
 bool Telemetry::write(const Packet& packet) {
-    string msg = packet.toString();
-    log("Sending: " + msg);
+    // Convert to JSON and then to a string
+    json packet_json;
+    to_json(packet_json, packet);
+    string packet_string = packet_json.dump();
+
+    log("Telemetry: Sending packet: " + packet_string);
     boost::system::error_code error;
-    boost::asio::write(socket, boost::asio::buffer(msg), boost::asio::transfer_all(), error);
+    boost::asio::write(socket, boost::asio::buffer(packet_string), boost::asio::transfer_all(), error);
 
     if (error) {
         throw boost::system::system_error(error);

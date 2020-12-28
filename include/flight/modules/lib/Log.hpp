@@ -22,6 +22,8 @@ private:
     long timestamp;
 
 public:
+    Log() = default;
+
     Log(const string& header, const json& message, long timestamp = std::chrono::system_clock::now().time_since_epoch().count(), bool save = true)
         : header(header),
           message(message),

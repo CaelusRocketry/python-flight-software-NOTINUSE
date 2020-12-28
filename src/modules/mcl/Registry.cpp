@@ -1,6 +1,7 @@
 #include <flight/modules/mcl/Registry.hpp>
 #include <flight/modules/lib/Enums.hpp>
 #include <flight/modules/mcl/Config.hpp>
+#include <Logger/logger_util.h>
 
 void Registry::initialize() {
     log("Registry: Initializing");

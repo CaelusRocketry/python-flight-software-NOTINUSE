@@ -19,16 +19,18 @@ void TelemetryTask::read() {
         log("Read packet queue");
 
         //for packet in packets read from telemetry, push packet to ingest queue
-        for(string &packet_string = packets.front(); !packets.empty(); packets.pop()) {
-            log("Packet: " + packet_string);
+        for(string &packet_string_group = packets.front(); !packets.empty(); packets.pop()) {
+            log("Packet: " + packet_string_group);
             // This line is broken because of Packet.cpp
 
-
-            // strip of the "END"s off each packet_string string
-            vector<string> split_packets = Util::split(packet_string, "END");
-            for (auto packet : split_packets) {
-                log("Packet to be decoded: " + packet);
-                global_registry.telemetry.ingest_queue.push(Packet::fromString(packet));
+            // strip of the "END"s off each packet_string_group string
+            vector<string> split_packets = Util::split(packet_string_group, "END");
+            for (auto packet_string : split_packets) {
+                log("Packet to be decoded: " + packet_string);
+                json packet_json = json::parse(packet_string);
+                Packet packet;
+                from_json(packet_json, packet);
+                global_registry.telemetry.ingest_queue.push(packet);
             }
         }
     }

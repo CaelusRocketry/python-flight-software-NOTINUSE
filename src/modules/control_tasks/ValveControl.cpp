@@ -4,8 +4,9 @@
 
 #include <flight/modules/control_tasks/ValveControl.hpp>
 #include <flight/modules/lib/Enums.hpp>
-#include <flight/modules/lib/Util.hpp>
 #include <flight/modules/mcl/Config.hpp>
+#include <flight/modules/mcl/Registry.hpp>
+#include <flight/modules/mcl/Flag.hpp>
 #include <chrono>
 #include <string>
 
@@ -37,8 +38,8 @@ void ValveControl::send_valve_data() {
             string location = location_pair.first;
             RegistryValveInfo valve_info = location_pair.second;
             valve_data_json[type_pair.first + "." + location_pair.first] = json{
-                {"state", solenoid_state_names.at(int(valve_info.state))},
-                {"actuation_type", actuation_type_names.at(int(valve_info.actuation_type))}
+                {"state", solenoid_state_map.at(valve_info.state)},
+                {"actuation_type", actuation_type_inverse_map.at(valve_info.actuation_type)}
             };
         }
     }

@@ -26,6 +26,8 @@ private:
     LogPriority level;
 
 public:
+    Packet() = default;
+
     explicit Packet(LogPriority logPriority, long timestamp = std::chrono::system_clock::now().time_since_epoch().count())
         : level(logPriority),
           timestamp(timestamp){}

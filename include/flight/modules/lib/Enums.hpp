@@ -3,6 +3,8 @@
 //
 
 #include <unordered_map>
+#include <string>
+
 using namespace std;
 
 #ifndef FLIGHT_ENUMS_HPP
