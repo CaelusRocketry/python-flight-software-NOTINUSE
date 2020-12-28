@@ -18,7 +18,7 @@ void Log::save(string filename){
     file.close();
 }
 
-string Log::toString() {
+string Log::toString() const {
     json j;
     j["header"] = header;
     j["message"] = message;
