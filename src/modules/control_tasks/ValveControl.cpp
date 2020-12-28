@@ -39,7 +39,7 @@ void ValveControl::send_valve_data() {
         for (const auto& location_pair : type_pair.second) {
             string location = location_pair.first;
             RegistryValveInfo valve_info = location_pair.second;
-            valve_data_json[type_pair.first + "." + location_pair.first] = json{
+            valve_data_json[type + "." + location] = json{
                 {"state", solenoid_state_map.at(valve_info.state)},
                 {"actuation_type", actuation_type_inverse_map.at(valve_info.actuation_type)}
             };

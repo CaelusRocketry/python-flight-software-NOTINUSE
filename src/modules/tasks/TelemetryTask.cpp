@@ -15,8 +15,6 @@ void TelemetryTask::read() {
     if (status) {
         queue<string> packets = this->telemetry.read(-1);
 
-        log("Telemetry: Read packets");
-
         // For packet in packets read from telemetry, push packet to ingest queue
         for (const string &packet_string_group = packets.front(); !packets.empty(); packets.pop()) {
             log("Telemetry: Read packet group: " + packet_string_group);

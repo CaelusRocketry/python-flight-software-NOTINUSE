@@ -33,8 +33,9 @@ bool Telemetry::write(const Packet& packet) {
     // Convert to JSON and then to a string
     json packet_json;
     to_json(packet_json, packet);
-    string packet_string = packet_json.dump();
 
+    // Note: add "END" at the end of the packet, so packets are split correctly
+    string packet_string = packet_json.dump() + "END";
     log("Telemetry: Sending packet: " + packet_string);
     boost::system::error_code error;
     boost::asio::write(socket, boost::asio::buffer(packet_string), boost::asio::transfer_all(), error);
@@ -69,7 +70,7 @@ void Telemetry::recv_loop() {
             ingest_queue.push(msg);
             mtx.unlock();
 
-            log("Received: " + msg);
+            log("Telemetry: Received: " + msg);
             this_thread::sleep_for(chrono::seconds(global_config.telemetry.DELAY));
         }
         catch (std::exception& e){
