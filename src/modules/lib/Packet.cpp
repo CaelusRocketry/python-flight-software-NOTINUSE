@@ -1,21 +1,20 @@
 #include <map>
 #include <flight/modules/lib/Util.hpp>
-#include <flight/modules/lib/Packet.hpp>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-void Packet::add(Log log){
+void Packet::add(const Log& log) {
     logs.push_back(log);
 }
 
-string Packet::toString(){
+string Packet::toString() const {
     // Convert all of the Logs to strings
     map<string, string> my_data;
     string logs_str = "[";
 
-    for(size_t i = 0; i < logs.size(); i++){
-        logs_str += logs[i].toString();
+    for(const Log& log : logs){
+        logs_str += log.toString();
         logs_str += ",";
     }
 
@@ -33,23 +32,23 @@ Packet Packet::fromString(string inputString) {
     json j = json::parse(inputString);
 
     long timestamp = j.at("timestamp").get<long>();
-    int level_int = j.at("level").get<int>();
-    LogPriority level = static_cast<LogPriority>(level_int);
+    int level_int = j.at("log_priority").get<int>();
+    auto log_priority = static_cast<LogPriority>(level_int);
 
-    Packet packet = Packet(level, timestamp);
+    Packet packet = Packet(log_priority, timestamp);
     std::vector<json> logs = j.at("logs");
     for (json log : logs) {
         string header, message;
-        long timestamp;
+        long timestamp_;
         log.at("header").get_to(header);
         log.at("message").get_to(message);
-        log.at("timestamp").get_to(timestamp);
-        packet.add(Log(header, message, timestamp));
+        log.at("timestamp_").get_to(timestamp_);
+        packet.add(Log(header, message, timestamp_));
     }
 
     // Create Packet object from input string
     // example inputString:
-    // {"logs": ["{\"header\": \"heartbeat\", \"message\": \"AT\", \"timestamp\": 1608410538.3439176}"], "timestamp": 1608410538.3439176, "level": 4}
+    // {"logs": ["{\"header\": \"heartbeat\", \"message\": \"AT\", \"timestamp\": 1608410538.3439176}"], "timestamp": 1608410538.3439176, "log_priority": 4}
 
     return packet;
 }

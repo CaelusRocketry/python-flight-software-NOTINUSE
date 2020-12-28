@@ -21,22 +21,22 @@ private:
     LogPriority level;
 
 public:
-    Packet(LogPriority l, long t = std::chrono::system_clock::now().time_since_epoch().count())
-            : level(l),
-              timestamp(t){}
+    explicit Packet(LogPriority logPriority, long timestamp = std::chrono::system_clock::now().time_since_epoch().count())
+        : level(logPriority),
+          timestamp(timestamp){}
 
-    void add(Log log);
-    string toString();
+    void add(const Log& log);
+    string toString() const;
     static Packet fromString(string inputString);
     vector<Log> getLogs();
 
     struct compareTo {
-        bool operator()(Packet lhs, Packet rhs)
-        {
-            if(lhs.level != rhs.level) {
+        bool operator()(const Packet& lhs, const Packet& rhs) {
+            if (lhs.level != rhs.level) {
                 return lhs.level < rhs.level;
+            } else {
+                return lhs.timestamp < rhs.timestamp;
             }
-            return lhs.timestamp < rhs.timestamp;
         }
     };
 
