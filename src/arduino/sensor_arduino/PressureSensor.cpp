@@ -12,7 +12,7 @@ float map_value(float x, float in_min, float in_max, float out_min, float out_ma
 	float in_width = in_max - in_min;
 	float out_width = out_max - out_min;
 	float factor = out_width / in_width;
-	return (val - in_min) * factor + out_min;
+	return (x - in_min) * factor + out_min;
 }
 
 /**
@@ -30,7 +30,7 @@ void PressureSensor::updatePressure() {
 
 	// Maps a voltage value previously from 0-1024 to 0-5.
 	// Someone pls fill in what the 0.01 does here
-	float voltage = map_value(pwmVal, 0f, 1024f, 0f, 5f) + 0.0100;
+	float voltage = map_value(pwmVal, 0, 1024, 0, 5) + 0.0100;
 
 	// Maps a pressure value previously from MIN_VOLTAGE-MAX_VOLTAGE to MIN_PSI-MAX_PSI.
 	float psi = map_value(voltage, MIN_VOLTAGE, MAX_VOLTAGE, MIN_PSI, MAX_PSI);
