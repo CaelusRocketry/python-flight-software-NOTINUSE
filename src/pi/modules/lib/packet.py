@@ -38,8 +38,7 @@ class Log:
         return Log(self.header, self.message.copy(), self.timestamp, save=False)
 
     @staticmethod
-    def from_string(input_string):
-        input_dict = json.loads(input_string)
+    def from_string(input_dict):
         log = Log(header=input_dict['header'], message=input_dict['message'], timestamp=input_dict['timestamp'])
         log.__dict__ = input_dict
         return log
@@ -62,7 +61,9 @@ class Packet:
 
     def to_string(self):
         output_dict = self.__dict__.copy()
-        output_dict["logs"] = [log.copy().to_string()for log in output_dict["logs"]]
+        output_dict["logs"] = [log.copy().to_string() for log in output_dict["logs"]] #TODO: fix error: the ' shows up when doing to_string 
+        # because list of strings -> ['apple', 'banana'] instead of [apple, banana] which breaks stuff in gs
+        # supposed to be [{log1}, {log2}, etc]
         return json.dumps(output_dict)
 
 
