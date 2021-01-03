@@ -1,12 +1,70 @@
 {
   "ranges": {
-    "thermocouple": {
-      "chamber": [450, 500],
-      "tank": [200, 250]
+    "PseudoSensor": {
+      "waiting": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },
+      "pressurization": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },
+      "autoseq": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },  
+      "postburn": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      }
     },
-    "pressure": {
-      "PT-1": [100, 150],
-      "PT-2": [450, 600]
+    "PseudoSolenoid": {
+      "waiting": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },
+      "pressurization": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },
+      "autoseq": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },  
+      "postburn": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      }
+    },
+    "PseudoValve": {
+      "waiting": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },
+      "pressurization": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },
+      "autoseq": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      },  
+      "postburn": {
+        "safe": [100, 150],
+        "warn": [90, 165],
+        "critical": [80, 180]
+      }
     }
   }
 }
