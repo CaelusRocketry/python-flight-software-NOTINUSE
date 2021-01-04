@@ -37,14 +37,15 @@ class TelemetryTask(Task):
         self.registry.put(("telemetry", "ingest_queue"), ingest_queue)
         
 
-    def enqueue(self, log: Log, level: LogPriority):
+    def enqueue(self, log: Log, priority: LogPriority):
+        # TODO: This is implemented wrong. It should enqueue by finding packets that have similar priorities, not changing the priorities of current packets.
         _, send_queue = self.flag.get(("telemetry", "send_queue"))
         if send_queue:
             pack = send_queue[0]
-            pack.level = max(pack.level, level)
+            pack.priority = max(pack.priority, priority)
             pack.add(log)
         else:
-            pack = Packet(logs=[log], level=level)
+            pack = Packet(logs=[log], priority=priority)
             send_queue.append(pack)
             self.flag.put(("telemetry", "send_queue"), send_queue)
 
@@ -56,8 +57,8 @@ class TelemetryTask(Task):
             return
         
         _, enqueue_queue = self.flag.get(("telemetry", "enqueue"))
-        for log, level in enqueue_queue:
-            self.enqueue(log, level)
+        for log, priority in enqueue_queue:
+            self.enqueue(log, priority)
         self.flag.put(("telemetry", "enqueue"), [])
         
         _, send_queue = self.flag.get(("telemetry", "send_queue"))

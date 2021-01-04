@@ -4,7 +4,8 @@ from enum import IntEnum
 
 
 class LogPriority(IntEnum):
-    """ Level Enum indicates the priority or status of the Packet """
+    """ LogPriority Enum indicates the priority or status of the Packet """
+
     INFO = 4
     DEBUG = 3
     WARN = 2
@@ -14,45 +15,53 @@ class LogPriority(IntEnum):
 class Log:
     """ Log class stores messages to be sent to and from ground and flight station """
 
-    def __init__(self, header, message={},
-                 timestamp: float = None, save: bool = True):
+    def __init__(self, header, message={}, timestamp: float = time.time()):
         self.header = header
         self.message = message
-        if timestamp is None:
-            timestamp = time.time()
         self.timestamp = timestamp
-        if save:
-            self.save()
 
 
-    def save(self, filename = "black_box.txt"):
+    def save(self, filename="blackbox.txt"):
         f = open(filename, "a+")
         f.write(self.to_string() + "\n")
         f.close()
 
 
-    def to_string(self):
-        return json.dumps(self.__dict__)
+    def to_json(self):
+        return {
+            "header": self.header,
+            "message": self.message,
+            "timestamp": self.timestamp,
+        }
 
-    def copy(self):
-        return Log(self.header, self.message.copy(), self.timestamp, save=False)
+
+    def to_string(self):
+        return json.dumps(self.to_json())
+
 
     @staticmethod
-    def from_string(input_dict):
-        log = Log(header=input_dict['header'], message=input_dict['message'], timestamp=input_dict['timestamp'])
-        log.__dict__ = input_dict
+    def from_string(input_string):
+        input_dict = json.loads(input_string)
+        log = Log(
+            header=input_dict["header"],
+            message=input_dict["message"],
+            timestamp=input_dict["timestamp"],
+        )
         return log
 
 
 class Packet:
-    """ Packet class groups together logs of similar priority """
+    """ Packet class stores groups of messages, which are grouped by LogPriority. """
 
-    def __init__(self, logs: list = [], level: LogPriority = LogPriority.INFO, timestamp: float = None):
+    def __init__(
+        self,
+        logs: list = [],
+        priority: LogPriority = LogPriority.INFO,
+        timestamp: float = time.time(),
+    ):
         self.logs = logs
-        if timestamp is None:
-            timestamp = time.time()
         self.timestamp = timestamp
-        self.level = level
+        self.priority = priority
 
 
     def add(self, log: Log):
@@ -60,29 +69,36 @@ class Packet:
 
 
     def to_string(self):
-        output_dict = self.__dict__.copy()
-        output_dict["logs"] = [log.copy().to_string() for log in output_dict["logs"]] #TODO: fix error: the ' shows up when doing to_string 
-        # because list of strings -> ['apple', 'banana'] instead of [apple, banana] which breaks stuff in gs
-        # supposed to be [{log1}, {log2}, etc]
-        return json.dumps(output_dict)
+        return json.dumps(
+            {
+                "logs": [log.to_json() for log in self.logs],
+                "timestamp": self.timestamp,
+                "priority": self.priority
+            }
+        )
 
 
     @staticmethod
     def from_string(input_string):
         input_dict = json.loads(input_string)
-        input_dict["logs"] = [Log.from_string(log_str) for log_str in input_dict["logs"]]
-        packet = Packet()
-        packet.__dict__ = input_dict
-        return packet
-    
+
+        return Packet(
+            [
+                Log(log["header"], log["message"], log["timestamp"])
+                for log in input_dict["logs"]
+            ],
+            input_dict["priority"],
+            input_dict["timestamp"],
+        )
+
 
     def __lt__(self, other):
-        if self.level != other.level:
-           return self.level - other.level
+        if self.priority != other.priority:
+           return self.priority - other.priority
         return other.timestamp - self.timestamp
 
 
     def __cmp__(self, other):
-        if self.level != other.level:
-            return self.level - other.level
+        if self.priority != other.priority:
+            return self.priority - other.priority
         return other.timestamp - self.timestamp
