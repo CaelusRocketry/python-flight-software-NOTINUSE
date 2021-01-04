@@ -294,3 +294,4 @@ __pycache__/*
 
 # Locally created log files
 src/pi/black_box.txt
+src/pi/config.json
