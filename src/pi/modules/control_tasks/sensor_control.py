@@ -45,12 +45,13 @@ class SensorControl():
 
     # Test to make sure sensor values aren't outside the boundaries set in the config. If they are, update the registry with the appropriate SensorStatus.
     def boundary_check(self):
+        curr_stage = self.registry.get(("general", "stage"))[1]
         crits = []
         for sensor_type in self.sensors:
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor_measured", sensor_type, sensor_location))
                 kalman_val = self.kalman_filters[sensor_type][sensor_location].update_kalman(val)
-                boundaries = self.boundaries[sensor_type][sensor_location][self.registry.get(("general", "stage"))[1]]
+                boundaries = self.boundaries[sensor_type][sensor_location][curr_stage]
                 self.registry.put(("sensor_normalized", sensor_type, sensor_location), kalman_val)
                 if boundaries["safe"][0] <= kalman_val <= boundaries["safe"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.SAFE)
@@ -86,7 +87,7 @@ class SensorControl():
                 _, val, _ = self.registry.get(("sensor_measured", sensor_type, sensor_location))
                 _, kalman_val, _ = self.registry.get(("sensor_normalized", sensor_type, sensor_location))
                 _, status, _ = self.registry.get(("sensor_status", sensor_type, sensor_location))                
-                message[sensor_type][sensor_location] = {"value": (val, kalman_val), "status": status}
+                message[sensor_type][sensor_location] = {"measured": val, "kalman": kalman_val, "status": status}
         log = Log(header="sensor_data", message=message)
         enqueue(self.flag, log, LogPriority.INFO)
 
