@@ -17,17 +17,17 @@ class ValveTask(Task):
 
     def begin(self, config):
         #TODO: fix this, it's really hacky and just a temporary workaround (let's see how long it stays though)
-        if config["arduino_type"] == "pseudo":
-            from modules.drivers.pseudo_arduino import Arduino
-        else:
-            from modules.drivers.real_arduino import Arduino
-
         self.config = config["valves"]
         #TODO: Make sure that this is the same order that the arduino returns its data in
         self.valve_config = self.config["list"]
         self.solenoids = [loc for loc in self.valve_config[ValveType.SOLENOID]]
         self.num_solenoids = len(self.solenoids)
-        self.arduino = Arduino(self.name, self.config)
+        if config["arduino_type"] == "pseudo":
+            from modules.drivers.pseudo_arduino import Arduino
+            self.arduino = Arduino(self.name, self.config, self.registry)
+        else:
+            from modules.drivers.real_arduino import Arduino
+            self.arduino = Arduino(self.name, self.config)
         self.pins, self.inv_pins = {}, {}
         self.send_valve_info()
     

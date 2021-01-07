@@ -11,10 +11,10 @@ SPECIAL_VENT_TIMER = 4
 RELIEF_TIMER = 1
 
 class PseudoSensor():
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, registry: dict):
         print("CREATING PSEUDO SENSOR")
-        self.config = config
         self.has_written = False
+        self.registry = registry
         self.config = config
         self.sensor_config = config["list"]
         self.sensor_list = [(s_type, loc) for s_type in self.sensor_config for loc in self.sensor_config[s_type]]
@@ -25,12 +25,13 @@ class PseudoSensor():
 
 
     def set_sensor_values(self):
+        curr_stage = self.registry.get(("general", "stage"))[1]
         for sensor in self.ranges:
             for loc in self.ranges[sensor]:
-                range = self.ranges[sensor][loc]
+                current_range = self.ranges[sensor][loc][curr_stage]
                 # assert((sensor, loc) in self.sensors)
                 if (sensor, loc) in self.sensors:
-                    self.sensors[(sensor, loc)] = random.randint(range[0], range[1])
+                    self.sensors[(sensor, loc)] = random.randint(current_range[0], current_range[1])
 #        self.sensors = {i: self.sensors[i] + random.randint(-10, 10) for i in self.sensor_list}
 
 
@@ -83,7 +84,7 @@ class PseudoSensor():
 
 class PseudoSolenoid():
 
-    def __init__(self, pin, isSpecial, isNO):
+    def __init__(self, pin: int, isSpecial: bool, isNO: bool):
         self.pin = pin
         self.isSpecial = isSpecial
         self.isNO = isNO
@@ -156,8 +157,9 @@ class PseudoSolenoid():
 
 
 class PseudoValve():
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, registry: dict):
         print("CREATING PSEUDO VALVE")
+        self.registry = registry
         self.config = config
         self.valve_config = self.config["list"]
         self.solenoid_locs = [loc for loc in self.valve_config[ValveType.SOLENOID]]
@@ -227,10 +229,11 @@ class PseudoValve():
 
 class Arduino(Driver):
 
-    def __init__(self, name: "str", config: dict):
+    def __init__(self, name: "str", config: dict, registry: dict):
         super().__init__(name)
         self.name = name
         print("MY NAME IS", self.name)
+        self.registry = registry
         self.config = config
         self.address = self.config["address"]
         self.reset()
@@ -254,9 +257,9 @@ class Arduino(Driver):
     """
     def reset(self) -> bool:
         if self.name == "Sensor Arduino":
-            self.arduino = PseudoSensor(self.config)
+            self.arduino = PseudoSensor(self.config, self.registry)
         else:
-            self.arduino = PseudoValve(self.config)
+            self.arduino = PseudoValve(self.config, self.registry)
 
     """
     Read data from the Arduino and return it

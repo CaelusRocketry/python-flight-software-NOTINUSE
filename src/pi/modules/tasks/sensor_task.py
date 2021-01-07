@@ -16,16 +16,16 @@ class SensorTask(Task):
 
     def begin(self, config: dict):
         #TODO: fix this, it's really hacky and just a temporary workaround (let's see how long it stays though)
-        if config["arduino_type"] == "pseudo":
-            from modules.drivers.pseudo_arduino import Arduino
-        else:
-            from modules.drivers.real_arduino import Arduino
-
         self.config = config["sensors"]
         self.sensor_config = self.config["list"]
         self.sensor_list = [(s_type, loc) for s_type in self.sensor_config for loc in self.sensor_config[s_type]]
         self.num_sensors = len(self.sensor_list)
-        self.arduino = Arduino(self.name, self.config)
+        if config["arduino_type"] == "pseudo":
+            from modules.drivers.pseudo_arduino import Arduino
+            self.arduino = Arduino(self.name, self.config, self.registry)
+        else:
+            from modules.drivers.real_arduino import Arduino
+            self.arduino = Arduino(self.name, self.config)
         self.send_sensor_info()
 
 
