@@ -11,14 +11,14 @@ class LogPriority(IntEnum):
     WARN = 2
     CRIT = 1
 
-
 class Log:
     """ Log class stores messages to be sent to and from ground and flight station """
 
-    def __init__(self, header, message={}, timestamp: float = time.time()):
+    def __init__(self, header, message={}, timestamp: float = None):
         self.header = header
         self.message = message
-        self.timestamp = timestamp
+        self.timestamp = time.time() if timestamp is None else timestamp
+        print("TIMESTAMP", self.timestamp)
 
 
     def save(self, filename="blackbox.txt"):
@@ -57,10 +57,10 @@ class Packet:
         self,
         logs: list = [],
         priority: LogPriority = LogPriority.INFO,
-        timestamp: float = time.time(),
+        timestamp: float = None,
     ):
         self.logs = logs
-        self.timestamp = timestamp
+        self.timestamp = time.time() if timestamp is None else timestamp
         self.priority = priority
 
 
