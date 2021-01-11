@@ -2,6 +2,7 @@ import time
 import json
 from enum import IntEnum
 
+INITIAL_TIME = time.time()
 
 class LogPriority(IntEnum):
     """ LogPriority Enum indicates the priority or status of the Packet """
@@ -17,8 +18,7 @@ class Log:
     def __init__(self, header, message={}, timestamp: float = None):
         self.header = header
         self.message = message
-        self.timestamp = time.time() if timestamp is None else timestamp
-        print("TIMESTAMP", self.timestamp)
+        self.timestamp = time.time() - INITIAL_TIME if timestamp is None else timestamp
 
 
     def save(self, filename="blackbox.txt"):
@@ -60,7 +60,7 @@ class Packet:
         timestamp: float = None,
     ):
         self.logs = logs
-        self.timestamp = time.time() if timestamp is None else timestamp
+        self.timestamp = time.time() - INITIAL_TIME if timestamp is None else timestamp
         self.priority = priority
 
 
