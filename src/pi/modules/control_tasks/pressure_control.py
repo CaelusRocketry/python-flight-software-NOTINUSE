@@ -6,7 +6,7 @@ from modules.mcl.flag import Flag
 
 class PressureControl():
     def __init__(self, registry: Registry, flag: Flag):
-        print("Pressure Control")
+        print("pressure_control")
         self.registry = registry
         self.flag = flag
         
