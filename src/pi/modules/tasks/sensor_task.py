@@ -9,7 +9,7 @@ CONFIRMATION = 255
 
 class SensorTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
-        self.name = "Sensor Arduino"
+        self.name = "sensor_arduino"
         self.registry = registry
         self.flag = flag
 
