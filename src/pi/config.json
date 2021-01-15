@@ -10,7 +10,7 @@
     "list": {
       "thermocouple": {},
       "pressure": {
-        "PT-1": {
+        "PT-5": {
           "kalman_args": {
             "process_variance": 0.01,
             "measurement_variance": 0.02,
@@ -18,29 +18,29 @@
           },
           "boundaries": {
             "waiting": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [-20, 50],
+              "warn": [-30, 75],
+              "critical": [-50, 100]
             },
             "pressurization": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [693, 806],
+              "warn": [637, 862],
+              "critical": [0, 1000]
             },
             "autosequence": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [100, 500],
+              "warn": [50, 600],
+              "critical": [0, 800]
             },
             "postburn": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [0, 1000],
+              "warn": [0, 1001],
+              "critical": [0, 1002]
             }
           },
           "pin": 14
         },
-        "PT-2": {
+        "PT-P": {
           "kalman_args": {
             "process_variance": 0.01,
             "measurement_variance": 0.02,
@@ -48,29 +48,29 @@
           },
           "boundaries": {
             "waiting": {
-              "safe": [500, 600],
-              "warn": [450, 660],
-              "critical": [400, 720]
+              "safe": [693, 806],
+              "warn": [637, 862],
+              "critical": [0, 1000]
             },
             "pressurization": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [693, 806],
+              "warn": [637, 862],
+              "critical": [0, 1000]
             },
             "autosequence": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [100, 500],
+              "warn": [50, 600],
+              "critical": [0, 800]
             },
             "postburn": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [0, 1000],
+              "warn": [0, 1001],
+              "critical": [0, 1002]
             }
           },
           "pin": 15
         },
-        "PT-3": {
+        "PT-7": {
           "kalman_args": {
             "process_variance": 0.01,
             "measurement_variance": 0.02,
@@ -78,29 +78,29 @@
           },
           "boundaries": {
             "waiting": {
-              "safe": [100, 200],
-              "warn": [90, 220],
-              "critical": [80, 240]
+              "safe": [-20, 50],
+              "warn": [-30, 75],
+              "critical": [-50, 100]
             },
             "pressurization": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [693, 806],
+              "warn": [637, 862],
+              "critical": [0, 1000]
             },
             "autosequence": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [100, 500],
+              "warn": [50, 600],
+              "critical": [0, 800]
             },
             "postburn": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [0, 1000],
+              "warn": [0, 1001],
+              "critical": [0, 1002]
             }
           },
           "pin": 16
         },
-        "PT-4": {
+        "PT-8": {
           "kalman_args": {
             "process_variance": 0.01,
             "measurement_variance": 0.02,
@@ -108,24 +108,24 @@
           },
           "boundaries": {
             "waiting": {
-              "safe": [100, 200],
-              "warn": [90, 220],
-              "critical": [80, 240]
+              "safe": [-20, 50],
+              "warn": [-30, 75],
+              "critical": [-50, 100]
             },
             "pressurization": {
-              "safe": [100, 200],
-              "warn": [90, 220],
-              "critical": [80, 240]
+              "safe": [-20, 50],
+              "warn": [-30, 75],
+              "critical": [-50, 100]
             },
             "autosequence": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [100, 800],
+              "warn": [50, 900],
+              "critical": [0, 1000]
             },
             "postburn": {
-              "safe": [100, 150],
-              "warn": [90, 165],
-              "critical": [80, 180]
+              "safe": [0, 1000],
+              "warn": [0, 1001],
+              "critical": [0, 1002]
             }
           },
           "pin": 17

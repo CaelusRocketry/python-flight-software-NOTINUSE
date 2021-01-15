@@ -22,7 +22,7 @@ class Supervisor:
     # Convert the strings in config to their respective enums (for both sensors and valves)
     def parse_config(self):
         sensor_dict = {"thermocouple": SensorType.THERMOCOUPLE, "pressure": SensorType.PRESSURE, "load": SensorType.LOAD}
-        sensor_loc_dict = {"PT-1": SensorLocation.PT1, "PT-2": SensorLocation.PT2, "PT-3": SensorLocation.PT3, "PT-4": SensorLocation.PT4}
+        sensor_loc_dict = {"PT-5": SensorLocation.PT5, "PT-P": SensorLocation.PTP, "PT-7": SensorLocation.PT7, "PT-8": SensorLocation.PT8}
         valve_dict = {"solenoid": ValveType.SOLENOID, "ball": ValveType.BALL}
         valve_loc_dict = {"pressure_relief": ValveLocation.PRESSURE_RELIEF, "pressurization": ValveLocation.PRESSURIZATION, "main_propellant_valve": ValveLocation.MAIN_PROPELLANT_VALVE}
         sensor_config, valve_config = self.config["sensors"]["list"], self.config["valves"]["list"]

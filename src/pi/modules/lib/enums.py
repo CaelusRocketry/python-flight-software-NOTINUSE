@@ -12,7 +12,11 @@ class SensorLocation(str, Enum):
     PT2 = "PT-2"
     PT3 = "PT-3"
     PT4 = "PT-4"
-
+    PT5 = "PT-5"
+    PT6 = "PT-6"
+    PT7 = "PT-7"
+    PT8 = "PT-8"
+    PTP = "PT-P"
 
 class SolenoidState(IntEnum):
     OPEN = 1

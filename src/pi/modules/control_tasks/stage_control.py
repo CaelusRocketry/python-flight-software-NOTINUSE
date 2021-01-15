@@ -25,6 +25,7 @@ class StageControl:
         self.stages = [Stage(name) for name in self.stage_names]
         self.request_interval = config["stages"]["request_interval"]
         self.send_interval = config["stages"]["send_interval"]
+        self.sensors = config["sensors"]["list"]["pressure"]
         self.stage_idx = 0
         self.curr_stage = self.stages[0]
         self.registry.put(("general", "stage"), self.curr_stage)
@@ -39,8 +40,11 @@ class StageControl:
         elif self.curr_stage == Stage.PRESSURIZATION:
             # TODO: If status == 100.0, don't decrease it
             # Target pressure for PT2 is 490 psi
-            pressure = self.registry.get(("sensor_normalized", "pressure", SensorLocation.PT2))[1]
-            return min(100.0, pressure / 4.9)
+            if SensorLocation.PT2.value in self.sensors:
+                pressure = self.registry.get(("sensor_normalized", "pressure", SensorLocation.PT2))[1]
+                return min(100.0, pressure / 4.9)
+            else:
+                return 100.0
         elif self.curr_stage == Stage.AUTOSEQUENCE:
             # NOTE: Autosequence delay is currently set to 5s
             mpv_actuation = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, ValveLocation.MAIN_PROPELLANT_VALVE))[1]
@@ -50,10 +54,13 @@ class StageControl:
                 return min(((curr - self.start_time) / AUTOSEQUENCE_DELAY) * 100.0, 99.0)
         elif self.curr_stage == Stage.POSTBURN:
             # NOTE: Assuming that "depressurization" means 20psi
-            pressure = self.registry.get(("sensor_normalized", "pressure", SensorLocation.PT2))[1]
-            inv = (pressure - 20.0) / 5.0
-            progress = min(100.0, 100.0 - inv)
-            return max(0.0, progress) # makes sure that progress isnt negative
+            if SensorLocation.PT2.value in self.sensors:
+                pressure = self.registry.get(("sensor_normalized", "pressure", SensorLocation.PT2))[1]
+                inv = (pressure - 20.0) / 5.0
+                progress = min(100.0, 100.0 - inv)
+                return max(0.0, progress) # makes sure that progress isnt negative
+            else:
+                return 100.0
         raise Exception("Unknown stage: {}".format(str(self.curr_stage)))
 
 
