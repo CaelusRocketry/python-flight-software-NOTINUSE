@@ -11,7 +11,7 @@ from modules.control_tasks.pressure_control import PressureControl
 
 class ControlTask():
     def __init__(self, registry: Registry, flag: Flag, task_config: dict):
-        print("Config control task is active")
+        print("control_task")
         self.controls = []
         self.registry = registry
         self.flag = flag
