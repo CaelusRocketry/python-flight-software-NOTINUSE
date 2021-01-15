@@ -11,7 +11,7 @@ CONFIRMATION = 253
 
 class ValveTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
-        self.name = "Valve Arduino"
+        self.name = "valve_arduino"
         self.registry = registry
         self.flag = flag
 
