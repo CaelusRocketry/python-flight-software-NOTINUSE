@@ -8,7 +8,7 @@ from modules.lib.enums import SensorType, SensorLocation, SensorStatus
 
 class SensorControl():
     def __init__(self, registry: Registry, flag: Flag):
-        print("Sensor control")
+        print("sensor_control")
         self.registry = registry
         self.flag = flag
 
