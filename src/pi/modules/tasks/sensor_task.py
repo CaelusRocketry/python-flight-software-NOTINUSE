@@ -51,7 +51,7 @@ class SensorTask(Task):
         self.arduino.write(bytes(to_send))
         var = self.arduino.read(1) 
         print("HI", var)
-        assert(var == bytes([CONFIRMATION]))
+        # assert(var == bytes([CONFIRMATION]))
 
 
     def get_float(self, data):
