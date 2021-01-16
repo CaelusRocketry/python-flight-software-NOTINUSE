@@ -15,6 +15,7 @@ class TelemetryControl():
         self.funcs = {
             "heartbeat": self.heartbeat,
             "soft_abort": self.soft_abort,
+            "undo_soft_abort": self.undo_soft_abort,
             "solenoid_actuate": self.solenoid_actuate,
             "sensor_request": self.sensor_request,
             "valve_request": self.valve_request,
@@ -24,6 +25,7 @@ class TelemetryControl():
         self.arguments = {
             "heartbeat": (),
             "soft_abort": (),
+            "undo_soft_abort": (),
             "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", ValvePriority)),
             "sensor_request": (("sensor_type", SensorType), ("sensor_location", SensorLocation)),
             "valve_request": (("valve_type", ValveType), ("valve_location", ValveLocation)),
@@ -104,6 +106,13 @@ class TelemetryControl():
         log = Log(header="response", message={"header": "Soft abort", "Status": "Success", "Description": "Rocket is undergoing soft abort"})
         enqueue(self.flag, log, LogPriority.CRIT)
         enqueue(self.flag, Log(header="mode", message={"mode": "Soft abort"}), LogPriority.CRIT)
+
+
+    def undo_soft_abort(self):
+        self.registry.put(("general", "soft_abort"), False)
+        log = Log(header="response", message={"header": "Undo soft abort", "Status": "Success", "Description": "Rocket is no longer aborting, and is at the mercy of the pi"})
+        enqueue(self.flag, log, LogPriority.CRIT)
+        enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)
 
 
     def solenoid_actuate(self, valve_location: ValveLocation, actuation_type: ActuationType, priority: int) -> Error:
