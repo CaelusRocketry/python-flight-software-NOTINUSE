@@ -18,7 +18,7 @@ class PressureControl():
         self.sensors = config["sensors"]["list"]["pressure"]
         if SensorLocation.PT2.value in self.sensors:
             # if we're using pt-2 in this test
-            self.matchups = [(SensorLocation.PT2, ValveLocation.PRESSURE_RELIEF)]
+            self.matchups = [(SensorLocation.PT2, ValveLocation.PRESSURIZATION_VALVE)]
             # raise error if needed valves aren't registered
             for sensor_loc, pressure_relief_valve in self.matchups:
                 if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[0] == Error.KEY_ERROR:
@@ -39,6 +39,7 @@ class PressureControl():
         #print("PRESSURE CONTROL")
         if SensorLocation.PT2.value in self.sensors:
             # if we're using pt-2 in this test
+            # TODO: change all pressure relief valve variables into pressurization_valve
             for sensor_loc, pressure_relief_valve in self.matchups:
                 #replace waiting with stage
                 if self.registry.get(("sensor_normalized", "pressure", sensor_loc))[1] > self.sensors[sensor_loc]["boundaries"][self.registry.get(("general", "stage"))[1]]["safe"][1]:
