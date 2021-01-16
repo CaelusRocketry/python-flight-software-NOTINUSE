@@ -165,3 +165,25 @@ class TelemetryControl():
         print("\ntest recieved:", msg)
 
 
+
+"""
+    def undo_soft_abort(self):
+        # GO THROUGH EACH SENSOR AND CHECK STATUS
+        sensor_list = self.registry.values["sensor_status"]
+        critical_sensors = []
+        for s_type in sensor_list:
+            for s_loc in s_type:
+                if sensor_list[s_type][s_loc] == LogPriority.CRIT:
+                    critical_sensors.append([s_type, s_loc])
+        
+        # SEND FAILURE OR SUCCESS LOG DEPENDING ON CRITICAL VALUES FOUND/NOT FOUND
+        if len(critical_sensors) > 0:
+            log = Log(header="response", message={"header": "Soft abort cancellation", "Status": "Failure", "Description": "Soft abort cancellation unsuccessful - following sensors are still not safe: {}".format(critical_sensors)})
+            enqueue(self.flag, log, LogPriority.CRIT)
+        else:
+            self.registry.put(("general", "soft_abort"), None)
+            log = Log(header="response", message={"header": "Soft abort cancellation", "Status": "Success", "Description": "Soft abort successfully cancelled"})
+            enqueue(self.flag, log, LogPriority.CRIT)
+            enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)
+"""
+
