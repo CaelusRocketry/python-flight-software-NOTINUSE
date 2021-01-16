@@ -100,7 +100,7 @@ class StageControl:
     def stage_valve_control(self):
         curr = time.time()
         if self.curr_stage == Stage.WAITING:
-            for valve_loc in [ValveLocation.PRESSURE_RELIEF, ValveLocation.MAIN_PROPELLANT_VALVE]:
+            for valve_loc in [ValveLocation.PRESSURIZATION_VALVE, ValveLocation.MAIN_PROPELLANT_VALVE]:
                 actuation = self.registry.get(("valve_actuation", "actuation_type", ValveType.SOLENOID, valve_loc))[1]
                 if actuation != ActuationType.CLOSE_VENT:
                     # print("CLOSING VALVE WITH PI_PRIORITY BC IN WAITING STAGE")
@@ -128,8 +128,8 @@ class StageControl:
                 # Actuate valves
                 # self.flag.put(("solenoid", "actuation_type", ValveLocation.PRESSURIZATION), ActuationType.CLOSE_VENT)
                 # self.flag.put(("solenoid", "actuation_priority", ValveLocation.PRESSURIZATION), ValvePriority.PI_PRIORITY)
-                self.flag.put(("solenoid", "actuation_type", ValveLocation.PRESSURE_RELIEF), ActuationType.OPEN_VENT)
-                self.flag.put(("solenoid", "actuation_priority", ValveLocation.PRESSURE_RELIEF), ValvePriority.PI_PRIORITY)
+                self.flag.put(("solenoid", "actuation_type", ValveLocation.PRESSURIZATION_VALVE), ActuationType.OPEN_VENT)
+                self.flag.put(("solenoid", "actuation_priority", ValveLocation.PRESSURIZATION_VALVE), ValvePriority.PI_PRIORITY)
                 self.flag.put(("solenoid", "actuation_type", ValveLocation.MAIN_PROPELLANT_VALVE), ActuationType.OPEN_VENT)
                 self.flag.put(("solenoid", "actuation_priority", ValveLocation.MAIN_PROPELLANT_VALVE), ValvePriority.PI_PRIORITY)
                 self.actuated_postburn = True

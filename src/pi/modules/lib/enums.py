@@ -22,7 +22,6 @@ class SolenoidState(IntEnum):
     OPEN = 1
     CLOSED = 0
 
-
 class SensorStatus(IntEnum):
     SAFE = 3
     WARNING = 2
@@ -35,8 +34,9 @@ class ValveType(str, Enum):
 
 
 class ValveLocation(str, Enum):
-    PRESSURE_RELIEF = "pressure_relief"
-    PRESSURIZATION = "pressurization"
+    PRESSURIZATION_VALVE = "pressurization_valve"
+    VENT_VALVE = "vent_valve"
+    REMOTE_DRAIN_VALVE = "remote_drain_valve"
     MAIN_PROPELLANT_VALVE = "main_propellant_valve"
 
 

@@ -139,13 +139,23 @@
   "valves": {
     "list": {
       "solenoid": {
-        "pressure_relief": {
-          "pin": 4,
+        "pressurization_valve": {
+          "pin": 5,
+          "natural": "CLOSED",
+          "special": true
+        },
+        "vent_valve": {
+          "pin": 6,
           "natural": "OPEN",
           "special": false
         },
+        "remote_drain_valve": {
+          "pin": 7,
+          "natural": "OPEN",
+          "special": true
+        },
         "main_propellant_valve": {
-          "pin": 5,
+          "pin": 8,
           "natural": "CLOSED",
           "special": true
         }
