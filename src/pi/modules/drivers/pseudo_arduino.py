@@ -162,6 +162,7 @@ class PseudoValve():
         self.registry = registry
         self.config = config
         self.valve_config = self.config["list"]
+        print(self.valve_config)
         self.solenoid_locs = [loc for loc in self.valve_config[ValveType.SOLENOID]]
         self.num_solenoids = len(self.solenoid_locs)
         
@@ -256,7 +257,7 @@ class Arduino(Driver):
     Powercycle the arduino
     """
     def reset(self) -> bool:
-        if self.name == "Sensor Arduino":
+        if self.name == "sensor_arduino":
             self.arduino = PseudoSensor(self.config, self.registry)
         else:
             self.arduino = PseudoValve(self.config, self.registry)
