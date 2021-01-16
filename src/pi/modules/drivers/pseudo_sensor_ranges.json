@@ -5,25 +5,25 @@
       "PT-5": {
         "waiting": [0, 10],
         "pressurization": [690, 810],
-        "autoseq": [200, 400],
+        "autosequence": [200, 400],
         "postburn": [90, 150]
       },
       "PT-P": {
         "waiting": [690, 810],
         "pressurization": [690, 810],
-        "autoseq": [200, 400],
+        "autosequence": [200, 400],
         "postburn": [90, 150]
       },
       "PT-7": {
         "waiting": [0, 10],
         "pressurization": [690, 810],
-        "autoseq": [200, 400],
+        "autosequence": [200, 400],
         "postburn": [90, 150]
       },
       "PT-8": {
         "waiting": [0, 10],
         "pressurization": [0, 10],
-        "autoseq": [600, 800],
+        "autosequence": [600, 800],
         "postburn": [90, 150]
       }
     }

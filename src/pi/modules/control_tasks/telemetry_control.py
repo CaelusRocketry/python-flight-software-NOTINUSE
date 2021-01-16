@@ -15,6 +15,7 @@ class TelemetryControl():
         self.funcs = {
             "heartbeat": self.heartbeat,
             "soft_abort": self.soft_abort,
+            "undo_soft_abort": self.undo_soft_abort,
             "solenoid_actuate": self.solenoid_actuate,
             "sensor_request": self.sensor_request,
             "valve_request": self.valve_request,
@@ -24,6 +25,7 @@ class TelemetryControl():
         self.arguments = {
             "heartbeat": (),
             "soft_abort": (),
+            "undo_soft_abort": (),
             "solenoid_actuate": (("valve_location", ValveLocation), ("actuation_type", ActuationType), ("priority", ValvePriority)),
             "sensor_request": (("sensor_type", SensorType), ("sensor_location", SensorLocation)),
             "valve_request": (("valve_type", ValveType), ("valve_location", ValveLocation)),
@@ -106,6 +108,31 @@ class TelemetryControl():
         enqueue(self.flag, Log(header="mode", message={"mode": "Soft abort"}), LogPriority.CRIT)
 
 
+    """def undo_soft_abort(self):
+        self.registry.put(("general", "soft_abort"), False)
+        log = Log(header="response", message={"header": "Undo soft abort", "Status": "Success", "Description": "Rocket is no longer aborting, and is at the mercy of the pi"})
+        enqueue(self.flag, log, LogPriority.CRIT)
+        enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)"""
+
+    def undo_soft_abort(self):
+        # GO THROUGH EACH SENSOR AND CHECK STATUS
+        sensor_list = self.registry.values["sensor_status"]
+        critical_sensors = []
+        for s_type in sensor_list:
+            for s_loc in sensor_list[s_type]:
+                if sensor_list[s_type][s_loc] == LogPriority.CRIT:
+                    critical_sensors.append([s_type, s_loc])
+        
+        # SEND FAILURE OR SUCCESS LOG DEPENDING ON CRITICAL VALUES FOUND/NOT FOUND
+        if len(critical_sensors) > 0:
+            log = Log(header="response", message={"header": "Soft abort cancellation", "Status": "Failure", "Description": "Soft abort cancellation unsuccessful - following sensors are still not safe: {}".format(critical_sensors)})
+            enqueue(self.flag, log, LogPriority.CRIT)
+        else:
+            self.registry.put(("general", "soft_abort"), False)
+            log = Log(header="response", message={"header": "Soft abort cancellation", "Status": "Success", "Description": "Soft abort successfully cancelled"})
+            enqueue(self.flag, log, LogPriority.CRIT)
+            enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)
+
     def solenoid_actuate(self, valve_location: ValveLocation, actuation_type: ActuationType, priority: int) -> Error:
         err, current_priority, timestamp = self.registry.get(("valve_actuation", "actuation_priority", ValveType.SOLENOID, valve_location), allow_error=True)
         if err != Error.NONE:
@@ -164,4 +191,26 @@ class TelemetryControl():
     def test(self, msg: str):
         print("\ntest recieved:", msg)
 
+
+
+"""
+    def undo_soft_abort(self):
+        # GO THROUGH EACH SENSOR AND CHECK STATUS
+        sensor_list = self.registry.values["sensor_status"]
+        critical_sensors = []
+        for s_type in sensor_list:
+            for s_loc in s_type:
+                if sensor_list[s_type][s_loc] == LogPriority.CRIT:
+                    critical_sensors.append([s_type, s_loc])
+        
+        # SEND FAILURE OR SUCCESS LOG DEPENDING ON CRITICAL VALUES FOUND/NOT FOUND
+        if len(critical_sensors) > 0:
+            log = Log(header="response", message={"header": "Soft abort cancellation", "Status": "Failure", "Description": "Soft abort cancellation unsuccessful - following sensors are still not safe: {}".format(critical_sensors)})
+            enqueue(self.flag, log, LogPriority.CRIT)
+        else:
+            self.registry.put(("general", "soft_abort"), None)
+            log = Log(header="response", message={"header": "Soft abort cancellation", "Status": "Success", "Description": "Soft abort successfully cancelled"})
+            enqueue(self.flag, log, LogPriority.CRIT)
+            enqueue(self.flag, Log(header="mode", message={"mode": "Normal"}), LogPriority.CRIT)
+"""
 
