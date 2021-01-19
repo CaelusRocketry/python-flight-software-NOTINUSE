@@ -18,54 +18,110 @@ const int PRESSURE_TYPE = 1;
 const int ALL_SENSORS_REGISTERED_SIGNAL = 255;
 
 void SensorArduino::registerSensors() {
-    int num_sensors = recvSerialByte();
-    this->num_thermocouples = recvSerialByte();
-    this->num_pressures = recvSerialByte();
+    // int num_sensors = recvSerialByte();
+    // this->num_thermocouples = recvSerialByte();
+    // this->num_pressures = recvSerialByte();
 
-		// Initialize arrays
-    this->thermocouples = new Thermocouple[num_thermocouples];
-    this->pressure_sensors = new PressureSensor[num_pressures];
+	// 	// Initialize arrays
+    // this->thermocouples = new Thermocouple[num_thermocouples];
+    // this->pressure_sensors = new PressureSensor[num_pressures];
 
-		// Keep track of how many we have added so far, so we can
-		// insert the sensors in their correct places in the arrays
-		int thermocouple_len = 0;
+	// // Keep track of how many we have added so far, so we can
+	// // insert the sensors in their correct places in the arrays
+	// int thermocouple_len = 0;
+    // int pressure_len = 0;
+
+	// 	// Loop until we have read num_sensors
+    // for (int i = 0; i < num_sensors; i++) {
+	// 	int sensor_type = recvSerialByte();
+
+	// 	// Set the pinMode of this sensor's pin to INPUT
+	// 	// Then, instantiate the PressureSensor
+	// 	if (sensor_type == PRESSURE_TYPE) {
+	// 		int pin = recvSerialByte();
+
+	// 		pinMode(pin, INPUT);
+
+	// 		// Store the value in the pressure_sensors array
+	// 		this->pressure_sensors[pressure_len] = PressureSensor(pin);
+	// 		pressure_len++;
+	// 	}
+
+	// 	// Read the pins for this sensor from Serial
+	// 	// Then, instantiate the PressureSensor
+	// 	// note: should these become input pins?
+	// 	else if (sensor_type == THERMOCOUPLE_TYPE) {
+	// 		int pins[4];
+
+	// 		for(int i = 0; i < 4; i++) {
+	// 			pins[i] = recvSerialByte();
+	// 		}
+
+	// 		// Store the value in the thermocouples array
+	// 		this->thermocouples[thermocouple_len] = Thermocouple(pins);
+	// 		thermocouple_len++;
+	// 	}
+
+	// 	// Signal an error through LED pin 13
+	// 	else {
+	// 		error();
+	// 	}
+    // }
+
+
+
+	// temp fix: hardcode all values for the 1/23 nitrous cold flow test
+	// NOTE: 0 THERMOCOUPLES ARE CODED FOR ATM SO FIX THIS LATER IF THERMOS ARE USED IN THE TEST
+
+	int num_sensors = 4;
+    this->num_thermocouples = 0;
+    this->num_pressures = num_sensors;
+	int thermocouple_len = 0;
     int pressure_len = 0;
 
-		// Loop until we have read num_sensors
+	// Initialize arrays
+    // this->thermocouples = new Thermocouple[num_thermocouples];
+    this->pressure_sensors = new PressureSensor[num_pressures];
+
+	int sensor_types[] = {PRESSURE_TYPE, PRESSURE_TYPE, PRESSURE_TYPE, PRESSURE_TYPE};
+	int pressure_pins[] = {14, 15, 16, 17};
+	int thermocouple_pins[8];
+
+	// Loop until we have read num_sensors
     for (int i = 0; i < num_sensors; i++) {
-			int sensor_type = recvSerialByte();
+		int sensor_type = sensor_types[i];
 
-			// Set the pinMode of this sensor's pin to INPUT
-			// Then, instantiate the PressureSensor
-			if (sensor_type == PRESSURE_TYPE) {
-				int pin = recvSerialByte();
+		// Set the pinMode of this sensor's pin to INPUT
+		// Then, instantiate the PressureSensor
+		if (sensor_type == PRESSURE_TYPE) {
+			int pin = pressure_pins[i];
 
-				pinMode(pin, INPUT);
+			pinMode(pin, INPUT);
 
-				// Store the value in the pressure_sensors array
-				this->pressure_sensors[pressure_len] = PressureSensor(pin);
-				pressure_len++;
+			// Store the value in the pressure_sensors array
+			this->pressure_sensors[pressure_len] = PressureSensor(pin);
+			pressure_len++;
+		}
+
+		// Read the pins for this sensor from Serial
+		// Then, instantiate the PressureSensor
+		// note: should these become input pins?
+		else if (sensor_type == THERMOCOUPLE_TYPE) {
+			int pins[4];
+
+			for(int i = thermocouple_len * 4; i < (thermocouple_len + 1) * 4; i++) {
+				pins[i] = thermocouple_pins[i];
 			}
 
-			// Read the pins for this sensor from Serial
-			// Then, instantiate the PressureSensor
-			// note: should these become input pins?
-			else if (sensor_type == THERMOCOUPLE_TYPE) {
-				int pins[4];
+			// Store the value in the thermocouples array
+			this->thermocouples[thermocouple_len] = Thermocouple(pins);
+			thermocouple_len++;
+		}
 
-				for(int i = 0; i < 4; i++) {
-					pins[i] = recvSerialByte();
-				}
-
-				// Store the value in the thermocouples array
-				this->thermocouples[thermocouple_len] = Thermocouple(pins);
-				thermocouple_len++;
-			}
-
-			// Signal an error through LED pin 13
-			else {
-				error();
-			}
+		// Signal an error through LED pin 13
+		else {
+			error();
+		}
     }
 
     this->registered = true;

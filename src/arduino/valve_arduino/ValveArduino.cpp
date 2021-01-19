@@ -24,28 +24,48 @@ int ValveArduino::recvSerialByte() {
 // ex: 1, 2, 1, 1
 
 void ValveArduino::registerSolenoids() {
-    int solenoidCount = recvSerialByte();
-    numSolenoids = solenoidCount;
-//    this->solenoids = new Solenoid[solenoidCount];
-    solenoids = new Solenoid*[numSolenoids]; // (Solenoid**)calloc(this->numSolenoids, sizeof(Solenoid*));
-    for(int i = 0; i < solenoidCount; i++) {
-        int pin = recvSerialByte();
-        int special = recvSerialByte();
-        int natural = recvSerialByte();
-        bool isSpecial = true;
-        bool isNO = true;
-        if(special == 0){
-            isSpecial = false;
-        }
-        if(natural == 0){
-            isNO = false;
-        }
+//     int solenoidCount = recvSerialByte();
+//     numSolenoids = solenoidCount;
+// //    this->solenoids = new Solenoid[solenoidCount];
+//     solenoids = new Solenoid*[numSolenoids]; // (Solenoid**)calloc(this->numSolenoids, sizeof(Solenoid*));
+//     for(int i = 0; i < solenoidCount; i++) {
+//         int pin = recvSerialByte();
+//         int special = recvSerialByte();
+//         int natural = recvSerialByte();
+//         bool isSpecial = true;
+//         bool isNO = true;
+//         if(special == 0){
+//             isSpecial = false;
+//         }
+//         if(natural == 0){
+//             isNO = false;
+//         }
+//         solenoids[i] = new Solenoid(pin, isSpecial, isNO);
+//     }
+
+//     Serial.write(REGISTERED_CONFIRMATION);
+
+    // Serial.println("Registered");
+
+
+    // temp fix: hardcode all values for the 1/23 nitrous cold flow test
+
+    this->numSolenoids = 4;
+    solenoids = new Solenoid*[this->numSolenoids]; // (Solenoid**)calloc(this->numSolenoids, sizeof(Solenoid*));
+
+    int pins[] = {5, 6, 7, 8};
+    bool specialVals[] = {true, false, true, true};
+    bool naturallyOpenVals[] = {false, true, true, false};
+
+    for(int i = 0; i < this->numSolenoids; i++) {
+        int pin = pins[i];
+        bool isSpecial = specialVals[i];
+        bool isNO = naturallyOpenVals[i];
+        
         solenoids[i] = new Solenoid(pin, isSpecial, isNO);
     }
 
     Serial.write(REGISTERED_CONFIRMATION);
-
-    // Serial.println("Registered");
 }
 
 // Testing only method

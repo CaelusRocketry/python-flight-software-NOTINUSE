@@ -38,6 +38,6 @@ float Thermocouple::getTemp() {
 }
 
 // Visual error for testing
-void error() {
+void Thermocouple::error() {
 	digitalWrite(13, HIGH);
 }

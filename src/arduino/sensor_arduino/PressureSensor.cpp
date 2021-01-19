@@ -34,7 +34,7 @@ void PressureSensor::updatePressure() {
 
 	// Maps a pressure value previously from MIN_VOLTAGE-MAX_VOLTAGE to MIN_PSI-MAX_PSI.
 	float psi = map_value(voltage, MIN_VOLTAGE, MAX_VOLTAGE, MIN_PSI, MAX_PSI);
-	this -> pressure = psi - MIN_PSI;
+	this->pressure = psi - MIN_PSI;
 }
 
 /**
