@@ -163,6 +163,9 @@ void ValveArduino::launchBox() {
     // TODO: Change this to use SoftwareSerial
     if(launchSerial->available()) {
         int cmd = launchSerial->read();
+        Serial.print("Command: ");
+        Serial.print(cmd);
+        Serial.println("");
         if(!launchSerial->available()){
           delay(10);
         }
