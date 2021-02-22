@@ -19,7 +19,6 @@ class SensorControl():
         self.sensors = {}
         self.boundaries = {}
         self.kalman_args = {}
-        self.valve_state = [0,0,0,0]
         for sensor_type in sensor_config:
             self.sensors[sensor_type] = []
             self.boundaries[sensor_type] = {}
@@ -48,26 +47,27 @@ class SensorControl():
     def boundary_check(self):
         curr_stage = self.registry.get(("general", "stage"))[1]
         crits = []
-        valve_check =0
         for sensor_type in self.sensors:
             for sensor_location in self.sensors[sensor_type]:
                 _, val, _ = self.registry.get(("sensor_measured", sensor_type, sensor_location))
                 kalman_val = self.kalman_filters[sensor_type][sensor_location].update_kalman(val)
                 boundaries = self.boundaries[sensor_type][sensor_location][curr_stage]
                 self.registry.put(("sensor_normalized", sensor_type, sensor_location), kalman_val)
+                # Update sensor status
+                prev_status = self.registry.get(("sensor_status", sensor_type, sensor_location))[1]
                 if boundaries["safe"][0] <= kalman_val <= boundaries["safe"][1]:
-                    self.valve_state[valve_check] = 0
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.SAFE)
                 elif boundaries["warn"][0] <= kalman_val <= boundaries["warn"][1]:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.WARNING)
-                    if(self.valve_state[valve_check]==0):
-                        log = Log(header="response", message={"header": "Sensor boundary exceeded", "Status": "Warn", "Sensor type": sensor_type, "Sensor location": sensor_location})
-                        enqueue(self.flag, log, LogPriority.CRIT)
-                        self.valve_state[valve_check]=1
                 else:
                     self.registry.put(("sensor_status", sensor_type, sensor_location), SensorStatus.CRITICAL)
                     crits.append([sensor_type, sensor_location])
-                valve_check +=1
+
+                # Send message to GS if sensor status became warn or crit
+                curr_status = self.registry.get(("sensor_status", sensor_type, sensor_location))[1]
+                if prev_status != curr_status and curr_status in [SensorStatus.WARNING, SensorStatus.CRITICAL]:
+                    log = Log(header="response", message={"header": "Sensor boundary exceeded", "Status": "Warn" if curr_status == SensorStatus.WARNING else "Critical", "Sensor type": sensor_type, "Sensor location": sensor_location, "Sensor value": kalman_val})
+                    enqueue(self.flag, log, LogPriority.CRIT)
 
         soft = self.registry.get(("general", "soft_abort"))[1]
         # if not hard:

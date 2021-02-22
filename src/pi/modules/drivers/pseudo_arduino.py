@@ -9,22 +9,27 @@ from modules.lib.enums import ActuationType, ValveType, SolenoidState, SensorTyp
 PULSE_TIMER = 0.5
 SPECIAL_VENT_TIMER = 4
 RELIEF_TIMER = 1
+SENSOR_UPDATE_INTERVAL = 0.5 # How often the pseudo sensor values update
 
 class PseudoSensor():
     def __init__(self, config: dict, registry: dict):
         print("CREATING PSEUDO SENSOR")
+        self.last_update = time.time() - SENSOR_UPDATE_INTERVAL
         self.has_written = False
         self.registry = registry
         self.config = config
         self.sensor_config = config["list"]
         self.sensor_list = [(s_type, loc) for s_type in self.sensor_config for loc in self.sensor_config[s_type]]
         self.num_sensors = len(self.sensor_list)
-        self.sensors = {i: random.randint(100, 200) for i in self.sensor_list}
+        self.sensors = {i: 0 for i in self.sensor_list}
         self.read_queue = []
         self.ranges = json.load(open("modules/drivers/pseudo_sensor_ranges.json"))["ranges"]
 
 
     def set_sensor_values(self):
+        # Don't update if the interval hasn't passed yet
+        if time.time() - self.last_update < SENSOR_UPDATE_INTERVAL:
+            return
         curr_stage = self.registry.get(("general", "stage"))[1]
         for sensor in self.ranges:
             for loc in self.ranges[sensor]:
@@ -32,7 +37,7 @@ class PseudoSensor():
                 # assert((sensor, loc) in self.sensors)
                 if (sensor, loc) in self.sensors:
                     self.sensors[(sensor, loc)] = random.randint(current_range[0], current_range[1])
-#        self.sensors = {i: self.sensors[i] + random.randint(-10, 10) for i in self.sensor_list}
+        self.last_update = time.time()
 
 
     def register_sensors(self, msg):

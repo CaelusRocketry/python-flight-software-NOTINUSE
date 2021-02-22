@@ -3,7 +3,7 @@
     "thermocouple": {},
     "pressure": {
       "PT-5": {
-        "waiting": [0, 10],
+        "waiting": [0, 70],
         "pressurization": [690, 810],
         "autosequence": [200, 400],
         "postburn": [90, 150]
