@@ -24,6 +24,8 @@ class Log:
     def save(self, filename="blackbox.txt"):
         f = open(filename, "a+")
         f.write(self.to_string() + "\n")
+        print(self.to_string())
+        print() 
         f.close()
 
 

@@ -30,7 +30,7 @@ class Registry:
 			},
 			"general": {
 				"soft_abort": False,
-				"stage": None,
+				"stage": Stage.WAITING,
 				"stage_status": 0,
 				"mcl_start_time": None
 			}

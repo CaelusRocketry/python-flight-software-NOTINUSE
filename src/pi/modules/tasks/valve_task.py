@@ -4,10 +4,13 @@ from modules.mcl.flag import Flag
 from modules.lib.enums import ValveType, SolenoidState, ActuationType, ValvePriority
 import struct
 from enum import Enum, auto
+import time
 
 SEND_DATA_CMD = 255
 ACTUATE_CMD = 254
 CONFIRMATION = 253
+
+#f = open("black_box_coldflow.txt", "a+")
 
 class ValveTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
@@ -29,7 +32,8 @@ class ValveTask(Task):
             from modules.drivers.real_arduino import Arduino
             self.arduino = Arduino(self.name, self.config)
         self.pins, self.inv_pins = {}, {}
-        self.send_valve_info()
+        self.arduino.read(1)
+#        self.send_valve_info()
     
 
     def send_valve_info(self):
@@ -42,7 +46,7 @@ class ValveTask(Task):
                 to_send.append(1 if temp["natural"] == "OPEN" else 0)
                 self.pins[temp["pin"]] = (ValveType.SOLENOID, loc)
                 self.inv_pins[(ValveType.SOLENOID, loc)] = temp["pin"]
-        print("Sending valve info:", to_send)
+#        print("Sending valve info:", to_send)
         self.arduino.write(bytes(to_send))
         assert(self.arduino.read(1) == bytes([CONFIRMATION]))
 
@@ -62,6 +66,7 @@ class ValveTask(Task):
         # print("Reading valve data")
         self.arduino.write([SEND_DATA_CMD])
         byte_data = self.arduino.read(self.num_solenoids * 3)
+       #  print([int(i) for i in byte_data])
         for i in range(self.num_solenoids):
             solenoid_data = byte_data[i*3:(i + 1)*3]
 
@@ -71,12 +76,19 @@ class ValveTask(Task):
 
             
             pin = solenoid_data[0]
-            state = SolenoidState(solenoid_data[1])
-            actuation = ActuationType(solenoid_data[2])
-            valve_type, loc = self.pins[pin]
-            self.registry.put(("valve", valve_type, loc), state)
-            self.registry.put(("valve_actuation", "actuation_type", valve_type, loc), actuation)
-
+            state = solenoid_data[1]
+            actuation = solenoid_data[2]
+            valve_type = "solenoid"
+            loc = pin
+#            valve_type, loc = self.pins[pin]
+#            self.registry.put(("valve", valve_type, loc), state)
+#            self.registry.put(("valve_actuation", "actuation_type", valve_type, loc), actuation)
+          #  print("data")
+         #   print(str(valve_type) + str(loc) + str(pin) + str(state))
+            f = open("black_box_coldflow.txt", "a+")
+            f.write(str(time.time()) + " ")
+            f.write(str(valve_type) + " " +  str(pin) + " " + str(state) + "\n")
+            f.close()
 
     def actuate_solenoids(self):
         for loc in self.solenoids:
@@ -99,4 +111,5 @@ class ValveTask(Task):
 
 
     def actuate(self):
-        self.actuate_solenoids()
+        pass
+#        self.actuate_solenoids()

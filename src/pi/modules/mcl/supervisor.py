@@ -56,6 +56,10 @@ class Supervisor:
 
     def create_tasks(self):
         tasks = []
+        print("TASKS: ", self.task_config["tasks"])
+
+
+
         if "telemetry" in self.task_config["tasks"]:
             tasks.append(TelemetryTask(self.registry, self.flag))
         if "sensor" in self.task_config["tasks"]:

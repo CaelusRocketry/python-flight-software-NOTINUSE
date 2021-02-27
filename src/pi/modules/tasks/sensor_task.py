@@ -3,10 +3,11 @@ from modules.mcl.registry import Registry
 from modules.mcl.flag import Flag
 from modules.lib.enums import SensorType, SensorLocation
 import struct
+import time
 
 SEND_DATA_CMD = 255
 CONFIRMATION = 255
-
+#f = open("black_box_coldflow.txt", "w+")
 class SensorTask(Task):
     def __init__(self, registry: Registry, flag: Flag):
         self.name = "sensor_arduino"
@@ -27,7 +28,7 @@ class SensorTask(Task):
             from modules.drivers.real_arduino import Arduino
             self.arduino = Arduino(self.name, self.config)
         self.send_sensor_info()
-
+        print("sensor initialized!!!!!")
 
     def send_sensor_info(self):
         self.pins = {}
@@ -51,6 +52,7 @@ class SensorTask(Task):
         self.arduino.write(bytes(to_send))
         var = self.arduino.read(1) 
         print("HI", var)
+        print("sensor data is being sent")
         # assert(var == bytes([CONFIRMATION]))
 
 
@@ -64,10 +66,10 @@ class SensorTask(Task):
         self.arduino.write([SEND_DATA_CMD])
         data = self.arduino.read(self.num_sensors * 5)
         assert(len(data) == self.num_sensors * 5)
-
+ #       print("data")
         for i in range(self.num_sensors):
             temp = data[i*5: (i + 1)*5] # Isolate the block of data for that sensor
-            # print(temp)
+  #          print(temp)
             pin = temp[0]
             assert(pin in self.pins)
             sensor_type, sensor_location = self.pins[pin]
@@ -75,7 +77,12 @@ class SensorTask(Task):
             float_value = self.get_float(byte_value)
             assert(isinstance(float_value, float))
             self.registry.put(("sensor_measured", sensor_type, sensor_location), float_value)
-
+            print("ya i am reading data")
+            f = open("black_box_coldflow.txt", "a+")
+            print("data is being logged into the file")
+            f.write(str(time.time()) + " ")
+            f.write(str(sensor_type) + " " + str(sensor_location) + " " + str(float_value) + "\n")
+            f.close()
 
     def actuate(self):
         return
