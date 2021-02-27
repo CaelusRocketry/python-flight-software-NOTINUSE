@@ -51,8 +51,8 @@ class SensorTask(Task):
                 raise Exception("Unknown sensor type")
         self.arduino.write(bytes(to_send))
         var = self.arduino.read(1) 
-        print("HI", var)
-        print("sensor data is being sent")
+#        print("HI", var)
+ #       print("sensor data is being sent")
         # assert(var == bytes([CONFIRMATION]))
 
 
@@ -77,12 +77,14 @@ class SensorTask(Task):
             float_value = self.get_float(byte_value)
             assert(isinstance(float_value, float))
             self.registry.put(("sensor_measured", sensor_type, sensor_location), float_value)
-            print("ya i am reading data")
+  #          print("ya i am reading data")
             f = open("black_box_coldflow.txt", "a+")
-            print("data is being logged into the file")
+   #         print("data is being logged into the file")
             f.write(str(time.time()) + " ")
             f.write(str(sensor_type) + " " + str(sensor_location) + " " + str(float_value) + "\n")
+            print(str(sensor_location)+" "+ str(float_value), end=" ")
             f.close()
+        print()
 
     def actuate(self):
         return
