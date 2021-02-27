@@ -8,7 +8,6 @@ int SensorArduino::recvSerialByte(){
     while(!Serial.available()) {
 			// Wait for something to be available from the serial
 		}
-
     return Serial.read();
 }
 
@@ -69,6 +68,18 @@ void SensorArduino::registerSensors() {
     }
 
     this->registered = true;
+
+
+    for(int i = 0; i < this->num_pressures; i++) {
+      float sum = 0;
+      for(int n = 0; n < 1000; n++) {
+        this->pressure_sensors[i].updatePressure();
+        sum +=  this->pressure_sensors[i].getPressure();
+        delay(2);
+      }
+      this->pressure_sensors[i].min_psi = sum / 1000;
+    }
+    
 
     // Return signal saying that all the sensors were successfully registered
     Serial.write(ALL_SENSORS_REGISTERED_SIGNAL);

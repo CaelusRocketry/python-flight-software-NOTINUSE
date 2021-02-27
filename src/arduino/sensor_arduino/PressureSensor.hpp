@@ -21,7 +21,9 @@ class PressureSensor {
     private:
         uint8_t pin = 0;
         float pressure = 0;
+        
     public:
+        float min_psi = 15;
         /**
          * Default constructor. Sets the pin to 0.
          */
