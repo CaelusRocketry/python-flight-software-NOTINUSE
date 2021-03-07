@@ -57,6 +57,12 @@ class TelemetryControl():
             self.registry.put(("telemetry", "ingest_queue"), [])
 
 
+    def return_invalid_argument(self, arg_name, message_dict):
+        print("Invalid argument", arg_name)
+        log = Log(header="response", message=message_dict)
+        enqueue(self.flag, log, LogPriority.CRIT)        
+
+
     def ingest(self, log: Log):
         header = log.header
         if header in self.funcs:
@@ -67,24 +73,20 @@ class TelemetryControl():
             for arg_name, arg_type in self.arguments[header]:
                 # If you can't find the argument in the 'message' section, throw an exception.
                 if arg_name not in log.message:
-                    print("Invalid argument", arg_name)
-                    log = Log(header="response", message={"header": "Missing argument", "Argument": arg_name})
-                    enqueue(self.flag, log, LogPriority.CRIT)
+                    self.return_invalid_argument(arg_name, {"header": "Missing argument", "Argument": arg_name})
                     return Error.INVALID_ARGUMENT_ERROR
-                # If its an enum, then make it an enum
-                if issubclass(arg_type, enum.Enum):
-                    if log.message[arg_name] not in [x.value for x in arg_type]:
-                        print("Invalid argument", arg_name, arg_type)
-                        log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Received argument type": str(type(log.message[arg_name])), "Expected argument type (enum)": str(arg_type)})
-                        enqueue(self.flag, log, LogPriority.CRIT)
-                        return Error.INVALID_ARGUMENT_ERROR
-                # Otherwise, take the raw value
-                elif not isinstance(log.message[arg_name], arg_type):
-                    print("Invalid argument", arg_name, arg_type)
-                    log = Log(header="response", message={"header": "Invalid argument type", "Argument": arg_name, "Received argument type": str(type(log.message[arg_name])), "Expected argument type": str(arg_type)})
-                    enqueue(self.flag, log, LogPriority.CRIT)
+                val = log.message[arg_name]
+                # If its not a string, try converting it to whatever type it shld be
+                try:
+                    print("Running try loop")
+                    if issubclass(arg_type, enum.IntEnum):
+                        val = int(val)
+                    val = arg_type(val)
+                except Exception as e:
+                    print(str(e))
+                    self.return_invalid_argument(arg_name, {"header": "Invalid argument type", "Argument": arg_name, "Could not convert argument to:": str(arg_type), "Provided value": str(val)})
                     return Error.INVALID_ARGUMENT_ERROR
-                args.append(arg_type(log.message[arg_name]))
+                args.append(val)
             # Run the command w/ the given arguments
             print("Running command (via telemetry):", header, *args)
             func(*args)
